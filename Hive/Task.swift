@@ -1,0 +1,215 @@
+//
+//  Task.swift
+//  Hive
+//
+//  Created by Animesh. on 14/10/2015.
+//  Copyright © 2015 Animesh. All rights reserved.
+//
+
+import Foundation
+import CoreData
+
+class Task: NSManagedObject
+{
+    //
+    // MARK: - Properties
+    //
+    
+    static let entityName = "Task"
+    @NSManaged var assignedBy: NSNumber?
+    @NSManaged var assignedTo: NSNumber?
+    @NSManaged var completedOnDate: NSDate?
+    @NSManaged var dueDate: NSDate?
+    @NSManaged var forField: NSNumber?
+    @NSManaged var forOrganization: NSNumber?
+    @NSManaged var id: NSNumber?
+    @NSManaged var lastAction: String?
+    @NSManaged var name: String?
+    @NSManaged var payRate: NSNumber?
+    @NSManaged var state: String?
+    @NSManaged var taskDescription: String?
+    @NSManaged var type: String?
+    @NSManaged var version: String?
+    @NSManaged var createdOn: NSDate?
+    @NSManaged var updatedOn: NSDate?
+    @NSManaged var markedDeleted: NSNumber?
+    
+    //
+    // MARK: - Instance Methods
+    //
+    
+    func isTheSameAsTask(other: Task) -> Bool
+    {
+        return self.id == other.id
+    }
+    
+    private func save(newTask: Task) -> Bool
+    {
+        id                  = newTask.id
+        assignedBy          = newTask.assignedBy
+        assignedTo          = newTask.assignedTo
+        completedOnDate     = newTask.completedOnDate
+        dueDate             = newTask.dueDate
+        forField            = newTask.forField
+        forOrganization     = newTask.forOrganization
+        lastAction          = newTask.lastAction
+        name                = newTask.name
+        payRate             = newTask.payRate
+        state               = newTask.state
+        taskDescription     = newTask.taskDescription
+        type                = newTask.type
+        version             = newTask.version
+        createdOn           = newTask.createdOn
+        updatedOn           = newTask.updatedOn
+        markedDeleted       = newTask.markedDeleted
+        
+        return Data.shared.saveContext(message: "Task with name \(self.name) saved.")
+    }
+    
+    func updatedWithDetailsFromTask(other: Task) -> Bool
+    {
+        if self.isTheSameAsTask(other)
+        {
+            if self.updatedOn!.timeIntervalSinceDate(other.updatedOn!) < 0
+            {
+                return save(other)
+            }
+            else
+            {
+                // TODO: - Make a POST request to push self to server
+                return false
+            }
+        }
+        else
+        {
+            print("\nParameter task object is not the same as the stale task object.")
+            return false
+        }
+    }
+    
+    func moveToPersistentStore() -> Task?
+    {
+        if self.managedObjectContext == Data.shared.permanentContext
+        {
+            print("Task object is already stored in permanent context.")
+            return self
+        }
+        else
+        {
+            let persistentTask = NSEntityDescription.insertNewObjectForEntityForName(Task.entityName, inManagedObjectContext: Data.shared.permanentContext) as! Task
+            print("Moving task to persistent store...")
+            if persistentTask.save(self)
+            {
+                return persistentTask
+            }
+            return nil
+        }
+    }
+    
+    func remove()
+    {
+        Data.shared.permanentContext.deleteObject(self)
+        Data.shared.saveContext(message: "\nDeleting tasks with name \(self.name) and id \(self.id).")
+    }
+    
+    //
+    // MARK: - Class Methods
+    //
+    
+    class func temporary() -> Task
+    {
+        return NSEntityDescription.insertNewObjectForEntityForName(Task.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Task
+    }
+    
+    class func getTaskWithID(id: NSNumber) -> Task?
+    {
+        let request = NSFetchRequest(entityName: Task.entityName)
+        request.predicate = NSPredicate(format: "id == %@", id)
+        
+        do {
+            let result = try Data.shared.permanentContext.executeFetchRequest(request) as! [Task]
+            print("\nNumber of tasks with id \(id) = \(result.count)")
+            return result.first
+        }
+        catch
+        {
+            print("\nCouldn't find any tasks with ID = \(id).")
+            return nil
+        }
+    }
+    
+    class func getAll() -> [Task]?
+    {
+        let request = NSFetchRequest(entityName: Task.entityName)
+        do {
+            let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Task]
+            print("\nTotal number of tasks in main context = \(result?.count)")
+            return result
+        }
+        catch
+        {
+            print("Couldn't fetch any tasks.")
+            return nil
+        }
+    }
+    
+    class func getAllTypes() -> [String]
+    {
+        var allTypes = [String]()
+        allTypes.append(TaskType.Drilling.rawValue)
+        allTypes.append(TaskType.Tilling.rawValue)
+        allTypes.append(TaskType.Filling.rawValue)
+        allTypes.append(TaskType.Chilling.rawValue)
+        
+        return allTypes
+    }
+    
+    class func updateAllTasks(newTasks: [Task]) -> Int
+    {
+        var count = 0
+        
+        guard let tasks = Task.getAll() else
+        {
+            print("Local database has no tasks. Adding new tasks.")
+            for newTask in newTasks
+            {
+                newTask.moveToPersistentStore()
+            }
+            return newTasks.count
+        }
+        
+        for newTask in newTasks
+        {
+            for task in tasks
+            {
+                if task.updatedWithDetailsFromTask(newTask)
+                {
+                    count++
+                }
+            }
+        }
+        return count
+    }
+    
+    class func deleteAll()
+    {
+        guard let tasks = Task.getAll() else
+        {
+            print("Nothing to delete here in Tasks.")
+            return
+        }
+        
+        for task in tasks
+        {
+            task.remove()
+        }
+    }
+}
+
+enum TaskType: String
+{
+    case Drilling   = "Drilling"
+    case Tilling    = "Tilling"
+    case Filling    = "Filling"
+    case Chilling   = "Chilling"
+}
