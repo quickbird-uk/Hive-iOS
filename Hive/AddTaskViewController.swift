@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AddTaskViewController: UITableViewController, OptionsListDelegate
+class AddTaskViewController: UITableViewController, OptionsListDataSource
 {
     //
     // MARK: - Properties
@@ -41,12 +41,12 @@ class AddTaskViewController: UITableViewController, OptionsListDelegate
     @IBAction func add(sender: UIBarButtonItem)
     {
         let task                = Task.temporary()
-        task.name               = nameCell.textField.text
-        task.type               = typeCell.selection.text
+        task.name               = nameCell.userResponse
+        task.type               = typeCell.selectedOption
         task.forField           = 1
         task.assignedTo         = selectedContactID
         task.dueDate            = datePicker.date
-        task.taskDescription    = notesCell.textView.text
+        task.taskDescription    = notesCell.plainText
         task.assignedBy         = user!.id
         task.payRate            = 0
         
@@ -69,44 +69,44 @@ class AddTaskViewController: UITableViewController, OptionsListDelegate
     {
         self.dismissViewControllerAnimated(true, completion: nil)
     }
-    
-    //
-    // MARK: - Methods
-    //
-    
-    func showAlert(errorMessage: String)
-    {
-        let alert = UIAlertController(
-            title: "Oops! We couldn't add the task.",
-            message: errorMessage,
-            preferredStyle: .ActionSheet)
-        
-        let cancelAction = UIAlertAction(title: "Try Again", style: .Cancel, handler: nil)
-        alert.addAction(cancelAction)
-        
-        self.presentViewController(alert, animated: true, completion: nil)
-    }
-    
+	
+	//
+	// MARK: - Methods
+	// 
+	
+	func showAlert(errorMessage: String)
+	{
+		let alert = UIAlertController(
+			title: "Oops! We couldn't add the task.",
+			message: errorMessage,
+			preferredStyle: .ActionSheet)
+		
+		let cancelAction = UIAlertAction(title: "Try Again", style: .Cancel, handler: nil)
+		alert.addAction(cancelAction)
+		
+		self.presentViewController(alert, animated: true, completion: nil)
+	}
+	
     //
     // MARK: - Options List Delegate
     //
-    
+	
     func updateCell(atIndex index: NSIndexPath, withOption option: String, selectedIndex: Int)
     {
         switch index.row
         {
             // Type for task
             case 1:
-                typeCell.selection.text = option
+                typeCell.selectedOption = option
             
             // Field for task
             case 2:
-                fieldCell.selection.text = option
+                fieldCell.selectedOption = option
                 selectedFieldID = fields?[selectedIndex].id
             
             // Contact for task
             case 3:
-                assignToPersonCell.selection.text = option
+                assignToPersonCell.selectedOption = option
                 selectedContactID = contacts?[selectedIndex].id
             
             default:    break

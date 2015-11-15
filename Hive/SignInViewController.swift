@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SignInViewController: UITableViewController
+class SignInViewController: UITableViewController, UITextFieldDelegate
 {
     //
     // MARK: - Properties
@@ -16,7 +16,7 @@ class SignInViewController: UITableViewController
     
     var tempUser = User.temporary()
     var hidePasswordCell = true
-
+	
     //
     // MARK: - Outlets
     //
@@ -28,7 +28,25 @@ class SignInViewController: UITableViewController
     @IBOutlet weak var signInButtonCell: TableViewCellWithButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet var layoutView: UITableView!
-    
+	@IBOutlet weak var registerButtonCell: TableViewCellWithButton!
+	
+	//
+	// MARK: - Methods
+	//
+	
+	func showError(message: String)
+	{
+		let alert = UIAlertController(
+			title: "Oops!",
+			message: message,
+			preferredStyle: .ActionSheet)
+		
+		let cancelAction = UIAlertAction(title: "Try Again", style: .Cancel, handler: nil)
+		alert.addAction(cancelAction)
+		
+		self.presentViewController(alert, animated: true, completion: nil)
+	}
+
     //
     // MARK: - Actions
     //
@@ -38,10 +56,10 @@ class SignInViewController: UITableViewController
         hidePasswordCell = !hidePasswordCell
         
         if hidePasswordCell {
-            signInButtonCell.changeButtonTitleTo(newTitle: "Request SMS Code")
-        }
+			signInButtonCell.buttonTitle = "Request SMS Code"
+		}
         else {
-            signInButtonCell.changeButtonTitleTo(newTitle: "Sign In")
+			signInButtonCell.buttonTitle = "Sign In"
         }
         
         layoutView.reloadData()
@@ -49,15 +67,35 @@ class SignInViewController: UITableViewController
     
     @IBAction func login(sender: UIButton)
     {
+		if let phone = NSNumberFormatter().numberFromString(phoneCell.userResponse)
+		{
+			tempUser.phone = phone
+		}
+		else
+		{
+			showError("Please enter a phone number without spaces, international dial code (+44) or preceding 0.\nE.g. 7796604116")
+			return
+		}
+		
+		if lastNameCell.userResponse == ""
+		{
+			showError("Last name can't be blank.")
+			return
+		}
+		
+		if !hidePasswordCell && passwordCell.userResponse == ""
+		{
+			showError("Password can't be blank.")
+			return
+		}
+		
         activityIndicator.startAnimating()
-        signInButtonCell.button.hidden = true
-        let phone = NSNumberFormatter().numberFromString(phoneCell.textField.text!)!
-        tempUser.phone = phone
+        signInButtonCell.buttonHidden = true
         
     // Login with phone and password
         if hidePasswordCell == false
         {
-            tempUser.passcode = passwordCell.textField.text
+            tempUser.passcode = passwordCell.userResponse
             HiveService.shared.renewAccessToken(tempUser) {
                 (token, expiryDate, error) in
                 if error == nil
@@ -74,8 +112,8 @@ class SignInViewController: UITableViewController
                         {
                             user!.updatedWithDetailsFromUser(updatedUser!)
                             dispatch_async(dispatch_get_main_queue()) {
-                                self.signInButtonCell.changeButtonTitleTo(newTitle: "Let's start.")
-                                self.signInButtonCell.button.hidden = false
+								self.signInButtonCell.buttonTitle = "Let's start."
+								self.signInButtonCell.buttonHidden = false
                                 self.activityIndicator.stopAnimating()
                                 
                                 // Segue to verify phone number
@@ -95,7 +133,7 @@ class SignInViewController: UITableViewController
                     let defaultAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel) {
                         alert in
                         self.activityIndicator.stopAnimating()
-                        self.signInButtonCell.button.hidden = false
+                        self.signInButtonCell.buttonHidden = false
                     }
                     alertController.addAction(defaultAction)
                     
@@ -109,7 +147,7 @@ class SignInViewController: UITableViewController
     // Login with SMS code
         if hidePasswordCell
         {
-            tempUser.lastName = lastNameCell.getText()
+            tempUser.lastName = lastNameCell.userResponse
             HiveService.shared.requestSMSCode(tempUser) {
                 (smsSent, error) in
                 if smsSent == true
@@ -132,7 +170,7 @@ class SignInViewController: UITableViewController
                     
                     dispatch_async(dispatch_get_main_queue()) {
                         self.presentViewController(alertController, animated: true, completion: nil)
-                        self.signInButtonCell.button.hidden = false
+                        self.signInButtonCell.buttonHidden = false
                         self.activityIndicator.stopAnimating()
                     }
                 }
@@ -143,9 +181,9 @@ class SignInViewController: UITableViewController
     //
     // MARK: - Table View Delegate
     //
-    
-   override  func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath)
-    {
+	
+	override  func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath)
+	{
         if hidePasswordCell {
             self.passwordCell.alpha = 0.0
         }
@@ -155,31 +193,27 @@ class SignInViewController: UITableViewController
             }
         }
     }
-    
+	
+	//
+	// MARK: - View Controller Lifecycle
+	//
+	
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        
-    // Set text styles for navigation bar title
-        
-        let titleStyle = [
-            NSFontAttributeName: UIFont(name: "AvenirNext-Medium", size: 18.0)!
-        ]
-        UINavigationBar.appearance().titleTextAttributes = titleStyle
-        
-    // Set text style for navigation bar button
-        
-        let barButtonAttributes = [
-            NSFontAttributeName : UIFont(name: "Avenir Next", size: 17.0)!
-        ]
-        UIBarButtonItem.appearance().setTitleTextAttributes(barButtonAttributes, forState: UIControlState.Normal)
+		
+		UINavigationBar.appearance().titleTextAttributes = Design.shared.NavigationBarTitleStyle
+		UIBarButtonItem.appearance().setTitleTextAttributes(Design.shared.NavigationBarButtonStyle, forState: UIControlState.Normal)
+		
+		phoneCell.textFieldDelegate = self
+		lastNameCell.textFieldDelegate = self
+		passwordCell.textFieldDelegate = self
     }
-
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?)
-    {
-        // Dismiss keyboard when a tap is registered elsewhere in the view
-        self.view.endEditing(true)
-    }
+	
+	override func viewWillAppear(animated: Bool)
+	{
+		navigationItem.title = "Sign In"
+	}
     
     override func didReceiveMemoryWarning()
     {
@@ -187,12 +221,29 @@ class SignInViewController: UITableViewController
         // FIXME: - Handle memory warning
     }
 
+	//
+	// MARK: - Text Field Delegate
+	//
+	
+	func textFieldShouldReturn(textField: UITextField) -> Bool
+	{
+		textField.resignFirstResponder()
+		return true
+	}
+	
+	func textFieldDidBeginEditing(textField: UITextField)
+	{
+		textField.returnKeyType = UIReturnKeyType.Done
+	}
+	
     //
     // MARK: - Navigation
     //
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
     {
+		navigationItem.title = ""
+		
         if segue.identifier == "verifyPhone"
         {
             let destination = segue.destinationViewController as! VerifyPhoneViewController

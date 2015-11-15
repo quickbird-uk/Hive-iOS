@@ -28,9 +28,9 @@ class SyncViewController: UIViewController
                 if error == nil
                 {
         // Sync successful. Get back to presenting view controller
-                    sleep(2)
                     user.setSyncDate(NSDate())
                     self.activityIndicator.stopAnimating()
+					Data.shared.saveContext(message: "Exiting sync...")
                     self.dismissViewControllerAnimated(true, completion: nil)
                 }
             }

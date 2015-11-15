@@ -228,11 +228,12 @@ class HiveService
             {
                 var details: String?
                 if error!.rawValue != 103 {
-                    details = response?["error_description"].string
+                    details = response?["error_description"].stringValue
+					print("⋮")
+					print("⋮  ✗  Login/token renewal failed. \(error!.describe(details!))\n")
                 }
-                print("⋮")
-                print("⋮  ✗  Login/token renewal failed. \(error!.describe(details!))\n")
-                completion(token: nil, expiryDate: nil, error: error!.describe(details!))
+				
+                completion(token: nil, expiryDate: nil, error: error!.describe(details ?? "Something bad happened."))
             }
         }
     }
@@ -1387,7 +1388,7 @@ class HiveService
                 case .EmailAlreadyInUse:
                     return "An account with email " + details + " already exists."
                 case .IncorrectLoginDetails:
-                    return "Sorry, there is no account with these login credentials."
+                    return "Sorry, there is no account with these login credentials. Please check the details and try again."
                 case .WeakPassword:
                     return "Your password is not strong enough. Passwords need to have a minimum of 8 characters."
                 

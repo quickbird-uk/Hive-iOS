@@ -27,18 +27,41 @@ class VerifyPhoneViewController: UIViewController, UITextFieldDelegate
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var verifyButton: UIButton!
     @IBOutlet weak var titleLabel: UILabel!
-    
+	
+	//
+	// MARK: - Methods
+	//
+	
+	func showError(message: String)
+	{
+		let alert = UIAlertController(
+			title: "Oops!",
+			message: message,
+			preferredStyle: .ActionSheet)
+		
+		let cancelAction = UIAlertAction(title: "Try Again", style: .Cancel, handler: nil)
+		alert.addAction(cancelAction)
+		
+		self.presentViewController(alert, animated: true, completion: nil)
+	}
+	
+	
     //
     // MARK: - Actions
     //
     
     @IBAction func verify(sender: UIButton)
     {
-        self.view.endEditing(true)
+		self.view.endEditing(true)
+		guard let code = codeTextField.text else
+		{
+			showError("Code field can't be blank.")
+			return
+		}
+		
         verifyButton.hidden = true
-        activityIndicator.hidden = false
         activityIndicator.startAnimating()
-        user!.passcode = codeTextField.text
+        user!.passcode = code
     
     // Verify SMS code
         HiveService.shared.renewAccessToken(user!) {
@@ -61,13 +84,19 @@ class VerifyPhoneViewController: UIViewController, UITextFieldDelegate
                 }
                 Data.shared.saveContext(message: "User phone verified. Access token and expiry date updated.")
                 
-        // Segue to Sync
                 dispatch_async(dispatch_get_main_queue()) {
-                    
                     self.activityIndicator.stopAnimating()
-                    self.performSegueWithIdentifier("sync", sender: nil)
-                }
+					self.performSegueWithIdentifier("sync", sender: nil)
+				}
             }
+			else
+			{
+				dispatch_async(dispatch_get_main_queue()) {
+					self.activityIndicator.stopAnimating()
+					self.verifyButton.hidden = false
+					self.showError(error!)
+				}
+			}
         }
     }
     
@@ -82,7 +111,6 @@ class VerifyPhoneViewController: UIViewController, UITextFieldDelegate
             user = User.get()
         }
         print("Verify Phone view loaded.")
-        self.activityIndicator.hidden = true
         message.text = "We need to verify your phone number before you can proceed. Please enter the code sent to +44 \(user!.phone!)"
         
     // Send SMS code

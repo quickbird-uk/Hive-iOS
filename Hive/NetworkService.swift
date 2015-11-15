@@ -127,12 +127,12 @@ class NetworkService: NSOperation
         let dataTask = session.dataTaskWithRequest(self.httpRequest) {
             (body, header, error) in
             var response: NSHTTPURLResponse?
-            var requestBody: JSON?
+            var responseBody: JSON?
             
             if body != nil
             {
-                requestBody = JSON(data: body!)
-                print(requestBody)
+                responseBody = JSON(data: body!)
+                print(responseBody)
             }
             
             if header != nil
@@ -142,19 +142,19 @@ class NetworkService: NSOperation
             
             if response?.statusCode == 200
             {
-                completion(requestBody, nil)
+                completion(responseBody, nil)
             }
             else
             {
-                if let errorCode = requestBody?["error"].int
+                if let errorCode = responseBody?["error"].intValue
                 {
-                    completion(requestBody, HiveService.Errors(rawValue: errorCode))
+                    completion(responseBody, HiveService.Errors(rawValue: errorCode))
                 }
                 else
                 {
                     print("Unknown error.")
                     print("Header. \n \(response)")
-                    print("Body. \n \(requestBody)")
+                    print("Body. \n \(responseBody)")
                     print("Error. \n \(error)")
                     completion(nil, HiveService.Errors.UnhandledError)
                 }

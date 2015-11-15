@@ -120,8 +120,8 @@ class ContactsViewController: UIViewController, UITableViewDelegate, UITableView
     func configureCell(cell: CustomTableViewCell, indexPath: NSIndexPath)
     {
         let contact = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Contact
-        cell.title.text = contact.firstName
-        cell.subtitle.text = "\(contact.phone!)"
+        cell.title = "\(contact.firstName ?? "Darth") \(contact.lastName ?? "Vader")"
+        cell.subtitle = "\((contact.phone ?? "0123456789") ?? "1234567890")"
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int

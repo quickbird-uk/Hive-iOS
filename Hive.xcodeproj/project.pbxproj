@@ -46,10 +46,7 @@
 		22178A311BEA7C82002DAFA0 /* AddTaskViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22178A301BEA7C82002DAFA0 /* AddTaskViewController.swift */; };
 		222041ED1BD14862009E5DBF /* SyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222041EC1BD14862009E5DBF /* SyncViewController.swift */; };
 		222775E51BD8E051006CBC98 /* Organisation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222775E31BD8E051006CBC98 /* Organisation.swift */; };
-		2230BEF31BEA24AF0033BA26 /* TableViewCellWithButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2230BEF21BEA24AF0033BA26 /* TableViewCellWithButton.swift */; };
-		2230BEF51BEA24C40033BA26 /* TableViewCellWithSwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2230BEF41BEA24C40033BA26 /* TableViewCellWithSwitch.swift */; };
 		2230BEF71BEA25970033BA26 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2230BEF61BEA25970033BA26 /* SignInViewController.swift */; };
-		2231A4901BD1C2C9007D7DDE /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2231A48F1BD1C2C9007D7DDE /* CustomTableViewCell.swift */; };
 		2231A4921BD1C83B007D7DDE /* ContactsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2231A4911BD1C83B007D7DDE /* ContactsViewController.swift */; };
 		223BB27D1BC9E8580095DCB6 /* VerifyPhoneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223BB27C1BC9E8580095DCB6 /* VerifyPhoneViewController.swift */; };
 		223CF1951BD548FB003E232F /* AddContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223CF1941BD548FB003E232F /* AddContactViewController.swift */; };
@@ -67,12 +64,12 @@
 		226D319D1BC829F5002140E9 /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226D319C1BC829F5002140E9 /* SwiftyJSON.swift */; };
 		226D319F1BC82A8C002140E9 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226D319E1BC82A8C002140E9 /* Data.swift */; };
 		226F5C441BDE580C0090709B /* Operation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226F5C431BDE580C0090709B /* Operation.swift */; };
+		228343131BF84D0E00977D93 /* LegalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228343121BF84D0E00977D93 /* LegalViewController.swift */; };
+		228343171BF8586000977D93 /* TOS.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 228343161BF8586000977D93 /* TOS.rtf */; };
+		228343191BF8AB5800977D93 /* PrivacyPolicy.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 228343181BF8AB5800977D93 /* PrivacyPolicy.rtf */; };
 		22A811BF1BEC23FE00376FC6 /* TaskDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A811BE1BEC23FE00376FC6 /* TaskDetailsViewController.swift */; };
+		22D076F81BF7C384004F1562 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D076F71BF7C384004F1562 /* Utilities.swift */; };
 		22D3A44E1BE7F13D003BAB69 /* OptionsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D3A44D1BE7F13D003BAB69 /* OptionsListViewController.swift */; };
-		22D3A4501BE7F269003BAB69 /* TableViewCellWithTextfield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D3A44F1BE7F269003BAB69 /* TableViewCellWithTextfield.swift */; };
-		22D3A4521BE7F27D003BAB69 /* TableViewCellWithTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D3A4511BE7F27D003BAB69 /* TableViewCellWithTextView.swift */; };
-		22D3A4541BE7F28F003BAB69 /* TableViewCellWithDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D3A4531BE7F28F003BAB69 /* TableViewCellWithDatePicker.swift */; };
-		22D3A4561BE7F2AB003BAB69 /* TableViewCellWithSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D3A4551BE7F2AB003BAB69 /* TableViewCellWithSelection.swift */; };
 		22EB09101BCEE464007999C5 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EB09041BCEE464007999C5 /* User.swift */; };
 		22EB09121BCEE464007999C5 /* Field.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EB09061BCEE464007999C5 /* Field.swift */; };
 		22EB09141BCEE464007999C5 /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EB09081BCEE464007999C5 /* Contact.swift */; };
@@ -143,10 +140,7 @@
 		22178A301BEA7C82002DAFA0 /* AddTaskViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTaskViewController.swift; sourceTree = "<group>"; };
 		222041EC1BD14862009E5DBF /* SyncViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyncViewController.swift; sourceTree = "<group>"; };
 		222775E31BD8E051006CBC98 /* Organisation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Organisation.swift; sourceTree = "<group>"; };
-		2230BEF21BEA24AF0033BA26 /* TableViewCellWithButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewCellWithButton.swift; sourceTree = "<group>"; };
-		2230BEF41BEA24C40033BA26 /* TableViewCellWithSwitch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewCellWithSwitch.swift; sourceTree = "<group>"; };
 		2230BEF61BEA25970033BA26 /* SignInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
-		2231A48F1BD1C2C9007D7DDE /* CustomTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
 		2231A4911BD1C83B007D7DDE /* ContactsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsViewController.swift; sourceTree = "<group>"; };
 		223BB27C1BC9E8580095DCB6 /* VerifyPhoneViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerifyPhoneViewController.swift; sourceTree = "<group>"; };
 		223CF1941BD548FB003E232F /* AddContactViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddContactViewController.swift; sourceTree = "<group>"; };
@@ -170,12 +164,12 @@
 		226D319C1BC829F5002140E9 /* SwiftyJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
 		226D319E1BC82A8C002140E9 /* Data.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		226F5C431BDE580C0090709B /* Operation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operation.swift; sourceTree = "<group>"; };
+		228343121BF84D0E00977D93 /* LegalViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegalViewController.swift; sourceTree = "<group>"; };
+		228343161BF8586000977D93 /* TOS.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = TOS.rtf; sourceTree = "<group>"; };
+		228343181BF8AB5800977D93 /* PrivacyPolicy.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = PrivacyPolicy.rtf; sourceTree = "<group>"; };
 		22A811BE1BEC23FE00376FC6 /* TaskDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskDetailsViewController.swift; sourceTree = "<group>"; };
+		22D076F71BF7C384004F1562 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		22D3A44D1BE7F13D003BAB69 /* OptionsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsListViewController.swift; sourceTree = "<group>"; };
-		22D3A44F1BE7F269003BAB69 /* TableViewCellWithTextfield.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewCellWithTextfield.swift; sourceTree = "<group>"; };
-		22D3A4511BE7F27D003BAB69 /* TableViewCellWithTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewCellWithTextView.swift; sourceTree = "<group>"; };
-		22D3A4531BE7F28F003BAB69 /* TableViewCellWithDatePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewCellWithDatePicker.swift; sourceTree = "<group>"; };
-		22D3A4551BE7F2AB003BAB69 /* TableViewCellWithSelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewCellWithSelection.swift; sourceTree = "<group>"; };
 		22EB09041BCEE464007999C5 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		22EB09061BCEE464007999C5 /* Field.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Field.swift; sourceTree = "<group>"; };
 		22EB09081BCEE464007999C5 /* Contact.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
@@ -297,6 +291,8 @@
 				226D31731BC828A6002140E9 /* LaunchScreen.storyboard */,
 				226D31711BC828A5002140E9 /* Assets.xcassets */,
 				226D31761BC828A6002140E9 /* Info.plist */,
+				228343161BF8586000977D93 /* TOS.rtf */,
+				228343181BF8AB5800977D93 /* PrivacyPolicy.rtf */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -357,6 +353,7 @@
 				226D31671BC828A5002140E9 /* AppDelegate.swift */,
 				226D31691BC828A5002140E9 /* ViewController.swift */,
 				2230BEF61BEA25970033BA26 /* SignInViewController.swift */,
+				228343121BF84D0E00977D93 /* LegalViewController.swift */,
 				22178A2E1BEA5AC4002DAFA0 /* SignUpViewController.swift */,
 				223BB27C1BC9E8580095DCB6 /* VerifyPhoneViewController.swift */,
 				222041EC1BD14862009E5DBF /* SyncViewController.swift */,
@@ -371,17 +368,11 @@
 				22F7CD681BED485200F40323 /* FieldsPageViewController.swift */,
 				22F7CD601BED403D00F40323 /* FieldViewController.swift */,
 				22D3A44D1BE7F13D003BAB69 /* OptionsListViewController.swift */,
+				22D076F71BF7C384004F1562 /* Utilities.swift */,
 				22F93F8D1BD5558B0026DAD2 /* Frameworks */,
 				220948081BE0D45100FBA9CE /* Hive Operations */,
 				220947F61BE0D36B00FBA9CE /* Concurrency */,
 				220947F71BE0D3BF00FBA9CE /* Supporting Files */,
-				2231A48F1BD1C2C9007D7DDE /* CustomTableViewCell.swift */,
-				22D3A44F1BE7F269003BAB69 /* TableViewCellWithTextfield.swift */,
-				22D3A4511BE7F27D003BAB69 /* TableViewCellWithTextView.swift */,
-				22D3A4531BE7F28F003BAB69 /* TableViewCellWithDatePicker.swift */,
-				22D3A4551BE7F2AB003BAB69 /* TableViewCellWithSelection.swift */,
-				2230BEF21BEA24AF0033BA26 /* TableViewCellWithButton.swift */,
-				2230BEF41BEA24C40033BA26 /* TableViewCellWithSwitch.swift */,
 			);
 			path = Hive;
 			sourceTree = "<group>";
@@ -526,8 +517,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				226D31751BC828A6002140E9 /* LaunchScreen.storyboard in Resources */,
+				228343191BF8AB5800977D93 /* PrivacyPolicy.rtf in Resources */,
 				226D31721BC828A5002140E9 /* Assets.xcassets in Resources */,
 				226D316D1BC828A5002140E9 /* Main.storyboard in Resources */,
+				228343171BF8586000977D93 /* TOS.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -555,15 +548,12 @@
 				22178A2F1BEA5AC4002DAFA0 /* SignUpViewController.swift in Sources */,
 				222775E51BD8E051006CBC98 /* Organisation.swift in Sources */,
 				220948061BE0D44A00FBA9CE /* NetworkObserver.swift in Sources */,
-				22D3A4501BE7F269003BAB69 /* TableViewCellWithTextfield.swift in Sources */,
 				220948051BE0D44A00FBA9CE /* MoreInformationOperation.swift in Sources */,
 				220947E81BE0D32B00FBA9CE /* PhotosCondition.swift in Sources */,
 				220947B61BE0CDF500FBA9CE /* BlockOperation.swift in Sources */,
 				22F7CD611BED403D00F40323 /* FieldViewController.swift in Sources */,
 				226D319B1BC82976002140E9 /* NetworkService.swift in Sources */,
 				22EB091A1BCEE464007999C5 /* Staff.swift in Sources */,
-				2230BEF51BEA24C40033BA26 /* TableViewCellWithSwitch.swift in Sources */,
-				2231A4901BD1C2C9007D7DDE /* CustomTableViewCell.swift in Sources */,
 				22F7CD5B1BEC592100F40323 /* TasksViewController.swift in Sources */,
 				220947F21BE0D35200FBA9CE /* NSOperation+Operations.swift in Sources */,
 				226D31701BC828A5002140E9 /* Hive.xcdatamodeld in Sources */,
@@ -572,12 +562,12 @@
 				22D3A44E1BE7F13D003BAB69 /* OptionsListViewController.swift in Sources */,
 				220947EA1BE0D32B00FBA9CE /* RemoteNotificationCondition.swift in Sources */,
 				226D319D1BC829F5002140E9 /* SwiftyJSON.swift in Sources */,
+				22D076F81BF7C384004F1562 /* Utilities.swift in Sources */,
 				22F7CD691BED485200F40323 /* FieldsPageViewController.swift in Sources */,
 				223BB27D1BC9E8580095DCB6 /* VerifyPhoneViewController.swift in Sources */,
 				226D316A1BC828A5002140E9 /* ViewController.swift in Sources */,
 				220947E31BE0D32B00FBA9CE /* ReachabilityCondition.swift in Sources */,
 				22F7CD5D1BEC595500F40323 /* RecordTaskViewController.swift in Sources */,
-				2230BEF31BEA24AF0033BA26 /* TableViewCellWithButton.swift in Sources */,
 				220947C41BE0D2DF00FBA9CE /* OperationQueue.swift in Sources */,
 				220947E11BE0D32B00FBA9CE /* NoCancelledDependencies.swift in Sources */,
 				220947F91BE0D40600FBA9CE /* AlertOperation.swift in Sources */,
@@ -588,15 +578,14 @@
 				220948071BE0D44A00FBA9CE /* BackgroundObserver.swift in Sources */,
 				220947CB1BE0D30300FBA9CE /* BlockObserver.swift in Sources */,
 				226F5C441BDE580C0090709B /* Operation.swift in Sources */,
-				22D3A4541BE7F28F003BAB69 /* TableViewCellWithDatePicker.swift in Sources */,
 				220947F41BE0D35200FBA9CE /* UIUserNotifications+Operations.swift in Sources */,
 				220947E01BE0D32B00FBA9CE /* NegatedCondition.swift in Sources */,
-				22D3A4521BE7F27D003BAB69 /* TableViewCellWithTextView.swift in Sources */,
 				220947E61BE0D32B00FBA9CE /* LocationCondition.swift in Sources */,
 				220947F31BE0D35200FBA9CE /* CKContainer+Operations.swift in Sources */,
 				220947F11BE0D35200FBA9CE /* Dictionary+Operations.swift in Sources */,
 				220947CC1BE0D30300FBA9CE /* TimeoutObserver.swift in Sources */,
 				22A811BF1BEC23FE00376FC6 /* TaskDetailsViewController.swift in Sources */,
+				228343131BF84D0E00977D93 /* LegalViewController.swift in Sources */,
 				220947C51BE0D2DF00FBA9CE /* ExclusivityController.swift in Sources */,
 				220947E71BE0D32B00FBA9CE /* CalendarCondition.swift in Sources */,
 				220947CA1BE0D30300FBA9CE /* OperationObserver.swift in Sources */,
@@ -617,7 +606,6 @@
 				220947B41BE0C50000FBA9CE /* NSLock+Operations.swift in Sources */,
 				220947C01BE0D2B400FBA9CE /* DelayOperation.swift in Sources */,
 				220947E21BE0D32B00FBA9CE /* MutuallyExclusive.swift in Sources */,
-				22D3A4561BE7F2AB003BAB69 /* TableViewCellWithSelection.swift in Sources */,
 				22EB09121BCEE464007999C5 /* Field.swift in Sources */,
 				226D31681BC828A5002140E9 /* AppDelegate.swift in Sources */,
 				220947DD1BE0D32B00FBA9CE /* OperationErrors.swift in Sources */,

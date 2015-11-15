@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol OptionsListDelegate
+protocol OptionsListDataSource
 {
     func updateCell(atIndex index: NSIndexPath, withOption option: String, selectedIndex: Int)
 }
@@ -19,7 +19,7 @@ class OptionsListViewController: UITableViewController
     // MARK: - Properties
     //
     
-    var delegate: OptionsListDelegate!
+    var delegate: OptionsListDataSource!
     var options: [String]!
     var senderCellIndexPath: NSIndexPath?
     var selectedIndex: Int = -1

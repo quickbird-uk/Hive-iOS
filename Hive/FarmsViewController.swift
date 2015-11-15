@@ -129,8 +129,8 @@ class FarmsViewController: UIViewController, UITableViewDelegate, UITableViewDat
     func configureCell(cell: CustomTableViewCell, indexPath: NSIndexPath)
     {
         let farm = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Organisation
-        cell.title.text = farm.name
-        cell.subtitle.text = farm.orgDescription!
+		cell.title = farm.name ?? "Farm has no name. Weird."
+		cell.subtitle = farm.orgDescription ?? ""
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int

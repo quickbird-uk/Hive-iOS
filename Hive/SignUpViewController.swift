@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SignUpViewController: UITableViewController
+class SignUpViewController: UITableViewController, UITextFieldDelegate, LegalDataSource
 {
     //
     // MARK: - Properties
@@ -25,24 +25,63 @@ class SignUpViewController: UITableViewController
     @IBOutlet weak var lastNameCell: TableViewCellWithTextfield!
     @IBOutlet weak var phoneCell: TableViewCellWithTextfield!
     @IBOutlet weak var passwordCell: TableViewCellWithTextfield!
-
+	@IBOutlet weak var privacyPolicyCell: TableViewCellWithButton!
+	@IBOutlet weak var termsOfServiceCell: TableViewCellWithButton!
     @IBOutlet weak var signupCell: TableViewCellWithButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
+	
+	//
+	// MARK: - Methods
+	//
+	
+	func showError(message: String)
+	{
+		let alert = UIAlertController(
+			title: "Oops!",
+			message: message,
+			preferredStyle: .ActionSheet)
+		
+		let cancelAction = UIAlertAction(title: "Try Again", style: .Cancel, handler: nil)
+		alert.addAction(cancelAction)
+		
+		self.presentViewController(alert, animated: true, completion: nil)
+	}
+	
     //
     // MARK: - Actions
     //
     
     @IBAction func signup(sender: UIButton)
     {
-        signupCell.button.alpha = 0.0
+		if firstNameCell.userResponse == "" {
+			showError("First name can't be blank.")
+			return
+		}
+		
+		if lastNameCell.userResponse == "" {
+			showError("Last name can't be blank.")
+			return
+		}
+		
+		guard let phone = NSNumberFormatter().numberFromString(phoneCell.userResponse) else
+		{
+			showError("Phone number can't be blank.")
+			return
+		}
+		
+		if passwordCell.userResponse == "" {
+			showError("Password must be 8 or more characters long.")
+			return
+		}
+		
+        signupCell.buttonHidden = true
         activityIndicator.startAnimating()
         
     // Create a temporary user variable
-        tempUser.firstName = firstNameCell.getText()
-        tempUser.lastName = lastNameCell.getText()
-        tempUser.phone = NSNumberFormatter().numberFromString(phoneCell.getText())!
-        tempUser.passcode = passwordCell.getText()
+        tempUser.firstName = firstNameCell.userResponse
+        tempUser.lastName = lastNameCell.userResponse
+		tempUser.phone = phone
+        tempUser.passcode = passwordCell.userResponse
         
     // Send a registration request
         HiveService.shared.signup(tempUser) {
@@ -70,7 +109,7 @@ class SignUpViewController: UITableViewController
                 alertController.addAction(defaultAction)
                 
                 dispatch_async(dispatch_get_main_queue()) {
-                    self.signupCell.button.alpha = 1
+                    self.signupCell.buttonHidden = false
                     self.activityIndicator.stopAnimating()
                     self.presentViewController(alertController, animated: true, completion: nil)
                 }
@@ -78,27 +117,58 @@ class SignUpViewController: UITableViewController
         }
     }
 
+	//
+	// MARK: - Legal Data Source
+	//
+	
+	func userDidAcceptAgreement(atIndexPath index: NSIndexPath)
+	{
+		let cell = tableView.cellForRowAtIndexPath(index) as! TableViewCellWithButton
+		cell.accessoryType = UITableViewCellAccessoryType.Checkmark
+		cell.buttonTouchEnabled = false
+		cell.reloadInputViews()
+	}
+	
+	func userDidDeclineAgreement(atIndexPath index: NSIndexPath)
+	{
+		let cell = tableView.cellForRowAtIndexPath(index) as! TableViewCellWithButton
+		cell.accessoryType = UITableViewCellAccessoryType.DetailButton
+		cell.reloadInputViews()
+	}
+	
     //
-    // MARK: - View Controller
+    // MARK: - View Controller Lifecycle
     //
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
+		firstNameCell.textFieldDelegate = self
+		lastNameCell.textFieldDelegate = self
+		phoneCell.textFieldDelegate = self
+		passwordCell.textFieldDelegate = self
     }
+	
+	override func viewWillAppear(animated: Bool)
+	{
+		navigationItem.title = "Quickbird Account"
+		guard termsOfServiceCell.accessoryType == .Checkmark && privacyPolicyCell.accessoryType == .Checkmark else
+		{
+			signupCell.buttonFaded = true
+			signupCell.buttonTouchEnabled = false
+			return
+		}
+		
+		signupCell.buttonFaded = false
+		signupCell.buttonTouchEnabled = true
+	}
     
     override func didReceiveMemoryWarning()
     {
         super.didReceiveMemoryWarning()
         // FIXME: - Handler memory warnings
     }
-    
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?)
-    {
-        // Dismiss keyboard on tap
-        self.view.endEditing(true)
-    }
-    
+	
     //
     // MARK: - Text Field Delegate
     //
@@ -132,11 +202,29 @@ class SignUpViewController: UITableViewController
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
     {
+		navigationItem.title = ""
+		
         if segue.identifier == "verifyPhone"
         {
             let destination = segue.destinationViewController as! VerifyPhoneViewController
             destination.user = User.get()
             destination.isUsingTempUser = false
         }
+		
+		if segue.identifier == "showTOS" || segue.identifier == "accessoryTOS"
+		{
+			let destination = segue.destinationViewController as! LegalViewController
+			destination.delegate = self
+			destination.senderIndexPath = tableView.indexPathForCell(termsOfServiceCell)
+			destination.documentName = "TOS"
+		}
+		
+		if segue.identifier == "showPrivacyPolicy" || segue.identifier == "accessoryPrivacy"
+		{
+			let destination = segue.destinationViewController as! LegalViewController
+			destination.delegate = self
+			destination.senderIndexPath = tableView.indexPathForCell(privacyPolicyCell)
+			destination.documentName = "PrivacyPolicy"
+		}
     }
 }
