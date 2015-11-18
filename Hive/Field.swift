@@ -16,7 +16,7 @@ class Field: NSManagedObject
     //
     
     static let entityName = "Field"
-    @NSManaged var area: NSNumber?
+    @NSManaged var areaInAcres: NSNumber?
     @NSManaged var fieldDescription: String?
     @NSManaged var id: NSNumber?
     @NSManaged var name: String?
@@ -33,7 +33,7 @@ class Field: NSManagedObject
 	struct Key
 	{
 		static let id					= "id"
-		static let area					= "area"
+		static let areaInAcres			= "areaInAcres"
 		static let fieldDescription		= "fieldDescription"
 		static let name					= "name"
 		static let onOrganisationID		= "onOrganisationID"
@@ -57,7 +57,7 @@ class Field: NSManagedObject
     private func save(newField: Field) -> Bool
     {
         id					= newField.id
-        area					= newField.area
+        areaInAcres			= newField.areaInAcres
         fieldDescription		= newField.fieldDescription
         name					= newField.name
         onOrganisationID		= newField.onOrganisationID

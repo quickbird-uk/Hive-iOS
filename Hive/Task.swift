@@ -42,7 +42,7 @@ class Task: NSManagedObject
 	struct Key
 	{
 		static let id					= "id"
-		static let assignedByID			= "assignedBy"
+		static let assignedByID			= "assignedByID"
 		static let assignedToID			= "assignedToID"
 		static let completedOnDate		= "completedOnDate"
 		static let dueDate				= "dueDate"

@@ -19,7 +19,7 @@ class Contact: NSManagedObject
     @NSManaged var firstName: String?
     @NSManaged var id: NSNumber?
     @NSManaged var lastName: String?
-    @NSManaged var personID: NSNumber?
+    @NSManaged var friendID: NSNumber?
     @NSManaged var phone: NSNumber?
     @NSManaged var state: String?
     @NSManaged var version: String?
@@ -36,7 +36,7 @@ class Contact: NSManagedObject
 		static let id				= "id"
 		static let firstName			= "firstName"
 		static let lastName			= "lastName"
-		static let personID			= "personID"
+		static let friendID			= "friendID"
 		static let phone				= "phone"
 		static let state				= "state"
 		static let createdOn			= "createdOn"
@@ -61,7 +61,7 @@ class Contact: NSManagedObject
         id              = newContact.id
         firstName       = newContact.firstName
         lastName        = newContact.lastName
-        personID        = newContact.personID
+        friendID        = newContact.friendID
         phone           = newContact.phone
         state           = newContact.state
         createdOn       = newContact.createdOn

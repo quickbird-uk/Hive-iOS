@@ -37,18 +37,20 @@ class User: NSManagedObject
 	
 	struct Key
 	{
-		static let id					= "id"
-		static let firstName				= "firstName"
-		static let lastName				= "lastName"
-		static let phone					= "phone"
-		static let isVerified			= "isVerified"
-		static let createdOn				= "createdOn"
-		static let updatedOn				= "updatedOn"
-		static let version				= "version"
-		static let markedDeleted			= "markedDeleted"
-		static let lastSync				= "lastSync"
-		static let accessExpiresOn		= "accessExpiresOn"
-		static let accessToken			= "accessToken"
+		static let id						= "id"
+		static let firstName					= "firstName"
+		static let lastName					= "lastName"
+		static let phone						= "phone"
+		static let isVerified				= "isVerified"
+		static let createdOn					= "createdOn"
+		static let updatedOn					= "updatedOn"
+		static let version					= "version"
+		static let markedDeleted				= "markedDeleted"
+		static let lastSync					= "lastSync"
+		static let accessExpiresOn			= "accessExpiresOn"
+		static let accessExpiresInSeconds	= "accessExpiresInSeconds"
+		static let accessToken				= "accessToken"
+		static let password					= "password"
 		
 		private init() { }
 	}

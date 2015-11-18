@@ -31,6 +31,7 @@ class HiveService
     var applicationKey: String!
     var apiBaseURL: NSURL!
 	let dateFormatter = NSDateFormatter()
+	let errorDescriptionKey = "error_description"
     
     //l    // MARK: - Methods
     //
@@ -148,10 +149,10 @@ class HiveService
         
     // Prepare the body
         let requestBody: NSDictionary? = [
-            "firstName": "\(user.firstName!)",
-            "lastName" : "\(user.lastName!)",
-            "phone"    : "\(user.phone!)",
-            "password" : "\(user.passcode!)"
+            User.Key.firstName	: user.firstName!,
+            User.Key.lastName	: user.lastName!,
+            User.Key.phone		: "\(user.phone!)",
+            User.Key.password	: user.passcode!
         ]
         print("\n⋮    \(requestBody!)\n")
         
@@ -178,7 +179,7 @@ class HiveService
                     details = "\(user.phone!)"
                 }
                 else {
-                    details = response?["error_description"].string
+                    details = response?[self.errorDescriptionKey].string
                 }
                 print("⋮")
                 print("⋮  ✗  User registration failed. \(error!.describe(details!))")
@@ -209,7 +210,7 @@ class HiveService
         // Request successful
             if error == nil
             {
-                guard let token = response?["access_token"].string, let expiresIn = response?["expires_in"].double else
+                guard let token = response?[User.Key.accessToken].string, let expiresIn = response?[User.Key.accessExpiresInSeconds].double else
                 {
                     print("⋮")
                     print("⋮  ✗  Invalid token.")
@@ -230,7 +231,7 @@ class HiveService
             {
                 var details: String?
                 if error!.rawValue != 103 {
-                    details = response?["error_description"].stringValue
+                    details = response?[self.errorDescriptionKey].stringValue
 					print("⋮")
 					print("⋮  ✗  Login/token renewal failed. \(error!.describe(details!))\n")
                 }
@@ -264,16 +265,16 @@ class HiveService
         // Request successful
             if error == nil
             {
-                user.firstName = response!["firstName"].string
-                user.lastName = response!["lastName"].string
-                user.phone = response!["phone"].double
-                user.id = response!["Id"].int
-                user.version = response!["Version"].string
-                user.markedDeleted = response!["Deleted"].bool
+                user.firstName		= response![User.Key.firstName].string
+                user.lastName		= response![User.Key.lastName].string
+                user.phone			= response![User.Key.phone].double
+                user.id				= response![User.Key.id].int
+                user.version			= response![User.Key.version].string
+                user.markedDeleted	= response![User.Key.markedDeleted].bool
 				
-                let updateDateString = response!["UpdatedAt"].string
+                let updateDateString = response![User.Key.updatedOn].string
                 user.updatedOn = self.dateFormatter.dateFromString(updateDateString!)
-                let creationDateString = response!["CreatedAt"].string
+                let creationDateString = response![User.Key.createdOn].string
                 user.createdOn = self.dateFormatter.dateFromString(creationDateString!)
                 
                 
@@ -289,7 +290,7 @@ class HiveService
         // Request unsuccessful
             else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("⋮  getAccountDetails: request failed. \(error!.describe(details!))")
                 completion(user: nil, error: error!.describe(details!))
             }
@@ -302,8 +303,8 @@ class HiveService
         
     // Prepare request body
         let body: NSDictionary? = [
-            "lastName": "\(user.lastName!)",
-            "phone"    : "\(user.phone!)"
+            User.Key.lastName	: "\(user.lastName!)",
+            User.Key.phone		: "\(user.phone!)"
         ]
         print("⋮  BODY")
         print("⋮    \(body!)\n")
@@ -326,7 +327,7 @@ class HiveService
         // Request unsuccessful
             else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("⋮  ✗  We couldn't send the code. HTTP Response code \(error!.describe(details!))\n")
                 completion(smsSent: false, error: error!.describe(details!))
             }
@@ -362,7 +363,7 @@ class HiveService
                 
         // Request Failed
             else {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("Password change failed. \(error!.describe(details!))")
                 completion(passwordChanged: false, error: error!.describe(details!))
             }
@@ -397,7 +398,7 @@ class HiveService
         // Request failed
             else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("Phone number couldn't be changed. \(error!.describe(details!))")
                 completion(phoneChanged: false, error: error!.describe(details!))
             }
@@ -432,7 +433,7 @@ class HiveService
         // Request Failed
             else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("Email couldn't be changed. \(error!.describe(details!))")
                 completion(emailChanged: false, error: error!.describe(details!))
             }
@@ -463,19 +464,19 @@ class HiveService
                     let contactCard = info.1
                     let contact = NSEntityDescription.insertNewObjectForEntityForName(Contact.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Contact
                     
-                    contact.firstName       = contactCard["firstName"].string
-                    contact.lastName        = contactCard["lastName"].string
-                    contact.phone           = contactCard["phone"].number
-                    contact.personID        = contactCard["personID"].number
-                    contact.id              = contactCard["Id"].numberValue
-                    contact.state           = contactCard["state"].string
-                    contact.markedDeleted   = contactCard["Deleted"].bool
-                    contact.version         = contactCard["Version"].string
+                    contact.firstName       = contactCard[Contact.Key.firstName].string
+                    contact.lastName        = contactCard[Contact.Key.lastName].string
+                    contact.phone           = contactCard[Contact.Key.phone].number
+                    contact.friendID        = contactCard[Contact.Key.friendID].number
+                    contact.id              = contactCard[Contact.Key.id].numberValue
+                    contact.state           = contactCard[Contact.Key.state].string
+                    contact.markedDeleted   = contactCard[Contact.Key.markedDeleted].bool
+                    contact.version         = contactCard[Contact.Key.version].string
                     
                     
-                    let updateDateString    = contactCard["UpdatedAt"].stringValue
+                    let updateDateString    = contactCard[Contact.Key.updatedOn].stringValue
                     contact.updatedOn       = self.dateFormatter.dateFromString(updateDateString)
-                    let creationDateString  = contactCard["CreatedAt"].stringValue
+                    let creationDateString  = contactCard[Contact.Key.createdOn].stringValue
                     contact.createdOn       = self.dateFormatter.dateFromString(creationDateString)
                     
                     contacts.append(contact)
@@ -487,7 +488,7 @@ class HiveService
                 // Request unsuccessful
             else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("getAllContacts: request failed. \(error!.describe(details!))")
                 completion(contacts: nil, error: error!.describe(details!))
             }
@@ -518,15 +519,15 @@ class HiveService
                 {
                     let contactCard = contact.1
                     let newContact = Contact.temporary()
-                    newContact.firstName = contactCard["firstName"].string
-                    newContact.lastName = contactCard["lastName"].string
-                    newContact.phone = contactCard["phone"].number
-                    newContact.personID = contactCard["personID"].number
-                    newContact.id = contactCard["Id"].intValue
-					print("The ID coming from server - \(newContact.id)")
-                    newContact.state = contactCard["state"].string
-                    newContact.markedDeleted = contactCard["Deleted"].bool
-                    newContact.version = contactCard["version"].string
+					
+                    newContact.firstName			= contactCard[Contact.Key.firstName].string
+                    newContact.lastName			= contactCard[Contact.Key.lastName].string
+                    newContact.phone				= contactCard[Contact.Key.phone].number
+                    newContact.friendID			= contactCard[Contact.Key.friendID].number
+                    newContact.id				= contactCard[Contact.Key.id].intValue
+                    newContact.state				= contactCard[Contact.Key.state].string
+                    newContact.markedDeleted		= contactCard[Contact.Key.markedDeleted].bool
+                    newContact.version			= contactCard[Contact.Key.version].string
                     contacts.append(newContact)
                 }
                 completion(contacts: contacts, error: nil)
@@ -535,7 +536,7 @@ class HiveService
                 // Request unsuccessful
             else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("findContacts: request failed. \(error!.describe(details!))")
                 completion(contacts: nil, error: error!.describe(details!))
             }
@@ -545,13 +546,6 @@ class HiveService
     func addContact(accessToken token: String, contactID: Int, completion: (requestSent: Bool, error: String?) -> Void)
     {
         print("Adding contact...")
-//    
-//    // Prepare request body
-//        let body: NSDictionary = [
-//            "contactID": contactID
-//        ]
-//        print("⋮  BODY")
-//        print("⋮    \(body)\n")
 		
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsPercentEncodedString: "\(contactID)", request: API.CreateContact.httpRequest(), token: token)
@@ -570,7 +564,7 @@ class HiveService
         // Request Failed
             else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("Invite couldn't be sent. \(error!.describe(details!))")
                 completion(requestSent: false, error: error!.describe(details!))
             }
@@ -583,12 +577,12 @@ class HiveService
         
     // Prepare request body
         let body: NSDictionary? = [
-            "personID"  : contact.personID!,
-            "state"     : contact.state!,
-            "firstName" : contact.firstName!,
-            "lastName"  : contact.lastName!,
-            "phone"     : contact.phone!,
-            "id"        : contact.id!
+            Contact.Key.friendID  : contact.friendID!,
+            Contact.Key.state     : contact.state!,
+            Contact.Key.firstName : contact.firstName!,
+            Contact.Key.lastName  : contact.lastName!,
+            Contact.Key.phone     : contact.phone!,
+            Contact.Key.id		  : contact.id!
         ]
         print("⋮  BODY")
         print("⋮    \(body!)\n")
@@ -609,7 +603,7 @@ class HiveService
         // Request unsuccessful
             else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("editContact: request failed. \(error!.describe(details!))")
                 completion(detailsChanged: false, error: error!.describe(details!))
             }
@@ -634,7 +628,7 @@ class HiveService
         // Request failed
             else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("deleteContact(_, completion: _) failed. \(error!.describe(details!))")
                 completion(deleted: false, error: error!.describe(details!))
             }
@@ -659,7 +653,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("getAllOrganisations: request failed. \(error!.describe(details!))")
                 completion(orgs: nil, error: error!.describe(details!))
                 return
@@ -672,16 +666,16 @@ class HiveService
                 let orgInfo = info.1
                 let organisation            = Organisation.temporary()
 				
-                organisation.name           = orgInfo["name"].string
-                organisation.orgDescription = orgInfo["orgDescription"].string
-                organisation.role           = orgInfo["role"].string
-                organisation.id             = orgInfo["Id"].int
-                organisation.markedDeleted  = orgInfo["Deleted"].bool
-                organisation.version        = orgInfo["Version"].string
+                organisation.name           = orgInfo[Organisation.Key.name].string
+                organisation.orgDescription = orgInfo[Organisation.Key.orgDescription].string
+                organisation.role           = orgInfo[Organisation.Key.role].string
+                organisation.id             = orgInfo[Organisation.Key.id].int
+                organisation.markedDeleted  = orgInfo[Organisation.Key.markedDeleted].bool
+                organisation.version        = orgInfo[Organisation.Key.version].string
 				
-				let createdString = orgInfo["CreatedAt"].stringValue
+				let createdString = orgInfo[Organisation.Key.createdOn].stringValue
 				organisation.createdOn = self.dateFormatter.dateFromString(createdString)
-				let updatedString = orgInfo["UpdatedAt"].stringValue
+				let updatedString = orgInfo[Organisation.Key.updatedOn].stringValue
 				organisation.updatedOn = self.dateFormatter.dateFromString(updatedString)
                 
                 organisations.append(organisation)
@@ -698,9 +692,9 @@ class HiveService
         
     // Prepare request body
         let body: NSDictionary = [
-            "name"              : organisation.name!,
-            "orgDescription"    : organisation.orgDescription!,
-            "role"              : organisation.role!
+            Organisation.Key.name			: organisation.name!,
+            Organisation.Key.orgDescription : organisation.orgDescription!,
+            Organisation.Key.role           : organisation.role!
         ]
         
     // Setup a network connection
@@ -713,7 +707,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("getAllOrganisations: request failed. \(error!.describe(details!))")
                 completion(added: false, error: error!.describe(details!))
                 return
@@ -730,11 +724,11 @@ class HiveService
         
     // Prepare request body
         let body: NSDictionary = [
-            "name"              : newOrg.name!,
-            "orgDescription"    : newOrg.orgDescription!,
-            "role"              : newOrg.role!,
-            "Id"                : newOrg.id!.integerValue,
-            "Deleted"           : newOrg.markedDeleted!.boolValue
+            Organisation.Key.name           : newOrg.name!,
+            Organisation.Key.orgDescription : newOrg.orgDescription!,
+            Organisation.Key.role			: newOrg.role!,
+            Organisation.Key.id             : newOrg.id!.integerValue,
+            Organisation.Key.markedDeleted	: newOrg.markedDeleted!.boolValue
         ]
         print("⋮  BODY")
         print("⋮    \(body)\n")
@@ -749,7 +743,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("editOrganisation: request failed. \(error!.describe(details!))")
                 completion(edited: false, error: error!.describe(details!))
                 return
@@ -771,7 +765,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("deleteOrganisation: request failed. \(error!.describe(details!))")
                 completion(deleted: false, error: error!.describe(details!))
                 return
@@ -797,7 +791,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("getAllTasks: request failed. \(error!.describe(details!))")
                 completion(tasks: nil, error: error!.describe(details!))
                 return
@@ -862,7 +856,7 @@ class HiveService
         // Request failed
             guard error == nil, let json = response else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("addTask: request failed. \(error!.describe(details!))")
 				completion(added: false, task: nil, error: error!.describe(details!))
                 return
@@ -920,7 +914,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("editTask: request failed. \(error!.describe(details!))")
                 completion(edited: false, error: error!.describe(details!))
                 return
@@ -942,7 +936,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("deleteTask: request failed. \(error!.describe(details!))")
                 completion(deleted: false, error: error!.describe(details!))
                 return
@@ -968,7 +962,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("getAllFields: request failed. \(error!.describe(details!))")
                 completion(fields: nil, error: error!.describe(details!))
                 return
@@ -982,7 +976,7 @@ class HiveService
                 let field = Field.temporary()
                 
                 field.name              = fieldInfo[Field.Key.name].stringValue
-                field.area              = fieldInfo[Field.Key.area].numberValue
+                field.areaInAcres       = fieldInfo[Field.Key.areaInAcres].numberValue
                 field.fieldDescription  = fieldInfo[Field.Key.fieldDescription].stringValue
                 field.onOrganisationID  = fieldInfo[Field.Key.onOrganisationID].numberValue
                 field.id                = fieldInfo[Field.Key.id].numberValue
@@ -1007,7 +1001,7 @@ class HiveService
         
         let body: NSDictionary = [
             Field.Key.name             : newField.name!,
-            Field.Key.area             : newField.area!,
+            Field.Key.areaInAcres      : newField.areaInAcres!,
             Field.Key.fieldDescription : newField.fieldDescription!,
             Field.Key.onOrganisationID : newField.onOrganisationID!
         ]
@@ -1019,7 +1013,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("createField: request failed. \(error!.describe(details!))")
                 completion(added: false, error: error!.describe(details!))
                 return
@@ -1036,7 +1030,7 @@ class HiveService
         
         let body: NSDictionary = [
 			Field.Key.name             : newField.name!,
-			Field.Key.area             : newField.area!,
+			Field.Key.areaInAcres      : newField.areaInAcres!,
 			Field.Key.fieldDescription : newField.fieldDescription!,
 			Field.Key.onOrganisationID : newField.onOrganisationID!
         ]
@@ -1048,7 +1042,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("editField: request failed. \(error!.describe(details!))")
                 completion(edited: false, error: error!.describe(details!))
                 return
@@ -1070,7 +1064,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("deleteField: request failed. \(error!.describe(details!))")
                 completion(deleted: false, error: error!.describe(details!))
                 return
@@ -1096,7 +1090,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("createField: request failed. \(error!.describe(details!))")
                 completion(staffs: nil, error: error!.describe(details!))
                 return
@@ -1152,7 +1146,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("addStaff: request failed. \(error!.describe(details!))")
                 completion(added: false, error: error!.describe(details!))
                 return
@@ -1183,7 +1177,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("editStaff: request failed. \(error!.describe(details!))")
                 completion(edited: false, error: error!.describe(details!))
                 return
@@ -1205,7 +1199,7 @@ class HiveService
         // Request failed
             guard error == nil else
             {
-                let details = response?["error_description"].string
+                let details = response?[self.errorDescriptionKey].string
                 print("deleteStaff: request failed. \(error!.describe(details!))")
                 completion(deleted: false, error: error!.describe(details!))
                 return
