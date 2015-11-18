@@ -20,12 +20,31 @@ class Field: NSManagedObject
     @NSManaged var fieldDescription: String?
     @NSManaged var id: NSNumber?
     @NSManaged var name: String?
-    @NSManaged var parentOrgID: NSNumber?
+    @NSManaged var onOrganisationID: NSNumber?
     @NSManaged var createdOn: NSDate?
     @NSManaged var updatedOn: NSDate?
     @NSManaged var version: String?
     @NSManaged var markedDeleted: NSNumber?
 
+	//
+	// MARK: - API Response JSON Keys
+	//
+	
+	struct Key
+	{
+		static let id					= "id"
+		static let area					= "area"
+		static let fieldDescription		= "fieldDescription"
+		static let name					= "name"
+		static let onOrganisationID		= "onOrganisationID"
+		static let createdOn				= "createdOn"
+		static let updatedOn				= "updatedOn"
+		static let version				= "version"
+		static let markedDeleted			= "markedDeleted"
+		
+		private init() { }
+	}
+	
     //
     // MARK: - Instance Methods
     //
@@ -37,15 +56,15 @@ class Field: NSManagedObject
     
     private func save(newField: Field) -> Bool
     {
-        id = newField.id
-        area = newField.area
-        fieldDescription = newField.fieldDescription
-        name = newField.name
-        parentOrgID = newField.parentOrgID
-        createdOn = newField.createdOn
-        updatedOn = newField.updatedOn
-        version = newField.version
-        markedDeleted = newField.markedDeleted
+        id					= newField.id
+        area					= newField.area
+        fieldDescription		= newField.fieldDescription
+        name					= newField.name
+        onOrganisationID		= newField.onOrganisationID
+        createdOn			= newField.createdOn
+        updatedOn			= newField.updatedOn
+        version				= newField.version
+        markedDeleted		= newField.markedDeleted
         
         return Data.shared.saveContext(message: "Updated field with name \(self.name).")
     }
@@ -103,7 +122,10 @@ class Field: NSManagedObject
     
     class func temporary() -> Field
     {
-        return NSEntityDescription.insertNewObjectForEntityForName(Field.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Field
+        let tempField = NSEntityDescription.insertNewObjectForEntityForName(Field.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Field
+		tempField.createdOn = NSDate()
+		tempField.updatedOn = NSDate()
+		return tempField
     }
     
     class func getFieldWithID(id: NSNumber) -> Field?
@@ -129,7 +151,12 @@ class Field: NSManagedObject
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Field]
             print("\nTotal number of field in main context = \(result?.count)")
-            return result
+			if result?.count > 0 {
+				return result
+			}
+			else {
+				return nil
+			}
         }
         catch
         {

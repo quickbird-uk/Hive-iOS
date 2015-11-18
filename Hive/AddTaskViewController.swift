@@ -40,21 +40,23 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
     
     @IBAction func add(sender: UIBarButtonItem)
     {
-        let task                = Task.temporary()
-        task.name               = nameCell.userResponse
-        task.type               = typeCell.selectedOption
-        task.forField           = 1
-        task.assignedTo         = selectedContactID
-        task.dueDate            = datePicker.date
-        task.taskDescription    = notesCell.plainText
-        task.assignedBy         = user!.id
-        task.payRate            = 0
+        let newTask					= Task.temporary()
+        newTask.name					= nameCell.userResponse
+        newTask.type					= typeCell.selectedOption
+		newTask.state				= TaskState.Pending.rawValue
+        newTask.forFieldID			= selectedFieldID
+		newTask.assignedToID			= selectedContactID
+        newTask.dueDate				= datePicker.date
+        newTask.taskDescription		= notesCell.plainText
+        newTask.assignedByID			= user!.id
+        newTask.payRate				= 66.6
         
-        HiveService.shared.addTask(accessToken: user!.accessToken!, newTask: task) {
-            (added, error) in
+        HiveService.shared.addTask(accessToken: user!.accessToken!, newTask: newTask) {
+            (added, task, error) in
             if added
             {
-                task.moveToPersistentStore()
+                task!.moveToPersistentStore()
+				self.dismissViewControllerAnimated(true, completion: nil)
             }
             else
             {

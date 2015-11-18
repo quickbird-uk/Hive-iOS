@@ -27,7 +27,10 @@ class FieldsPageViewController: UIViewController, UIPageViewControllerDataSource
         pageController.dataSource = self
         
         let startingController = self.storyboard!.instantiateViewControllerWithIdentifier("FieldContentController") as! FieldViewController
-        
+		if fields != nil {
+			startingController.field = fields![0]
+		}
+		
         pageController.setViewControllers([startingController], direction: .Forward, animated: true, completion: nil)
         
         fieldsPageController = pageController
@@ -44,7 +47,7 @@ class FieldsPageViewController: UIViewController, UIPageViewControllerDataSource
     }
     
     //
-    // MARK: - Page View Controller Delegate
+    // MARK: - Page View Controller
     //
     
     func pageViewController(pageViewController: UIPageViewController, viewControllerAfterViewController viewController: UIViewController) -> UIViewController?
@@ -75,6 +78,9 @@ class FieldsPageViewController: UIViewController, UIPageViewControllerDataSource
         {
             let fieldItemController = self.storyboard!.instantiateViewControllerWithIdentifier("FieldContentController") as! FieldViewController
             fieldItemController.itemIndex = itemIndex
+			if fields != nil {
+				fieldItemController.field = fields![itemIndex]
+			}
             return fieldItemController
         }
         

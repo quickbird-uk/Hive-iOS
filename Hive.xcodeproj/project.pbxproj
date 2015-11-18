@@ -51,6 +51,7 @@
 		223BB27D1BC9E8580095DCB6 /* VerifyPhoneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223BB27C1BC9E8580095DCB6 /* VerifyPhoneViewController.swift */; };
 		223CF1951BD548FB003E232F /* AddContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223CF1941BD548FB003E232F /* AddContactViewController.swift */; };
 		2251FF4F1BD2E9D700AC4E12 /* FarmsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2251FF4E1BD2E9D700AC4E12 /* FarmsViewController.swift */; };
+		226865311BFB4F0F00F4B270 /* FarmDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226865301BFB4F0F00F4B270 /* FarmDetailsViewController.swift */; };
 		226D31681BC828A5002140E9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226D31671BC828A5002140E9 /* AppDelegate.swift */; };
 		226D316A1BC828A5002140E9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226D31691BC828A5002140E9 /* ViewController.swift */; };
 		226D316D1BC828A5002140E9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 226D316B1BC828A5002140E9 /* Main.storyboard */; };
@@ -145,6 +146,7 @@
 		223BB27C1BC9E8580095DCB6 /* VerifyPhoneViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerifyPhoneViewController.swift; sourceTree = "<group>"; };
 		223CF1941BD548FB003E232F /* AddContactViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddContactViewController.swift; sourceTree = "<group>"; };
 		2251FF4E1BD2E9D700AC4E12 /* FarmsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FarmsViewController.swift; sourceTree = "<group>"; };
+		226865301BFB4F0F00F4B270 /* FarmDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FarmDetailsViewController.swift; sourceTree = "<group>"; };
 		226D31641BC828A5002140E9 /* Hive.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hive.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		226D31671BC828A5002140E9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		226D31691BC828A5002140E9 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -360,6 +362,7 @@
 				2231A4911BD1C83B007D7DDE /* ContactsViewController.swift */,
 				223CF1941BD548FB003E232F /* AddContactViewController.swift */,
 				2251FF4E1BD2E9D700AC4E12 /* FarmsViewController.swift */,
+				226865301BFB4F0F00F4B270 /* FarmDetailsViewController.swift */,
 				22F7CD5A1BEC592100F40323 /* TasksViewController.swift */,
 				22178A301BEA7C82002DAFA0 /* AddTaskViewController.swift */,
 				22A811BE1BEC23FE00376FC6 /* TaskDetailsViewController.swift */,
@@ -575,6 +578,7 @@
 				220948031BE0D44A00FBA9CE /* DownloadUserOperation.swift in Sources */,
 				220948021BE0D44A00FBA9CE /* GetUserOperation.swift in Sources */,
 				220947EB1BE0D32B00FBA9CE /* UserNotificationCondition.swift in Sources */,
+				226865311BFB4F0F00F4B270 /* FarmDetailsViewController.swift in Sources */,
 				220948071BE0D44A00FBA9CE /* BackgroundObserver.swift in Sources */,
 				220947CB1BE0D30300FBA9CE /* BlockObserver.swift in Sources */,
 				226F5C441BDE580C0090709B /* Operation.swift in Sources */,

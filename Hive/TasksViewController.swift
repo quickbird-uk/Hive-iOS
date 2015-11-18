@@ -55,6 +55,7 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
         let deleteAction = UIAlertAction(title: "Delete", style: .Destructive) {
             alert in
             Data.shared.permanentContext.deleteObject(task)
+			Data.shared.saveContext(message: "Deleted task successfully.")
         }
         alert.addAction(deleteAction)
         
@@ -116,8 +117,8 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     func configureCell(cell: UITableViewCell, indexPath: NSIndexPath)
     {
         let task = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Task
-        cell.textLabel!.text = task.name!
-        cell.detailTextLabel!.text = task.type
+        cell.textLabel!.text = task.name ?? "A task with no name? Blasphemy!"
+        cell.detailTextLabel!.text = task.state ?? "Undefined"
     }
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int
@@ -157,7 +158,7 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool
     {
         let task = fetchedResultsController.objectAtIndexPath(indexPath) as! Task
-        if task.assignedBy == user.id {
+        if task.assignedByID == user.id {
             return true
         }
         else {

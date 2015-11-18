@@ -19,7 +19,7 @@ class Staff: NSManagedObject
     @NSManaged var firstName: String?
     @NSManaged var id: NSNumber?
     @NSManaged var lastName: String?
-    @NSManaged var organization: NSNumber?
+    @NSManaged var onOrganisationID: NSNumber?
     @NSManaged var personID: NSNumber?
     @NSManaged var phone: NSNumber?
     @NSManaged var role: String?
@@ -27,7 +27,28 @@ class Staff: NSManagedObject
     @NSManaged var createdOn: NSDate?
     @NSManaged var updatedOn: NSDate?
     @NSManaged var markedDeleted: NSNumber?
-    
+	
+	//
+	// MARK: - API Response JSON Keys
+	//
+	
+	struct Key
+	{
+		static let id					= "id"
+		static let firstName				= "firstName"
+		static let lastName				= "lastName"
+		static let onOrganisationID		= "onOrganisationID"
+		static let personID				= "personID"
+		static let phone					= "phone"
+		static let role					= "role"
+		static let createdOn				= "createdOn"
+		static let updatedOn				= "updatedOn"
+		static let version				= "version"
+		static let markedDeleted			= "markedDeleted"
+		
+		private init() { }
+	}
+	
     //
     // MARK: - Instance Methods
     //
@@ -46,17 +67,17 @@ class Staff: NSManagedObject
     
     private func save(newStaff: Staff) -> Bool
     {
-        id              = newStaff.id
-        firstName       = newStaff.firstName
-        lastName        = newStaff.lastName
-        organization    = newStaff.organization
-        personID        = newStaff.personID
-        phone           = newStaff.phone
-        role            = newStaff.role
-        createdOn       = newStaff.createdOn
-        updatedOn       = newStaff.updatedOn
-        version         = newStaff.version
-        markedDeleted   = newStaff.markedDeleted
+        id					= newStaff.id
+        firstName			= newStaff.firstName
+        lastName				= newStaff.lastName
+        onOrganisationID    = newStaff.onOrganisationID
+        personID				= newStaff.personID
+        phone				= newStaff.phone
+        role					= newStaff.role
+        createdOn			= newStaff.createdOn
+        updatedOn			= newStaff.updatedOn
+        version				= newStaff.version
+        markedDeleted		= newStaff.markedDeleted
         
         return Data.shared.saveContext(message: "Staff with last name \(self.lastName) saved.")
     }
@@ -65,6 +86,7 @@ class Staff: NSManagedObject
     {
         if self.isTheSameAsStaff(other)
         {
+			print(self)
             if self.updatedOn!.timeIntervalSinceDate(other.updatedOn!) < 0
             {
                 return save(other)
@@ -113,7 +135,10 @@ class Staff: NSManagedObject
     
     class func temporary() -> Staff
     {
-        return NSEntityDescription.insertNewObjectForEntityForName(Staff.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Staff
+        let tempStaff = NSEntityDescription.insertNewObjectForEntityForName(Staff.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Staff
+		tempStaff.createdOn = NSDate()
+		tempStaff.updatedOn = NSDate()
+		return tempStaff
     }
     
     class func getStaffWithID(id: NSNumber) -> Staff?
@@ -139,7 +164,12 @@ class Staff: NSManagedObject
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Staff]
             print("\nTotal number of staff in main context = \(result?.count)")
-            return result
+			if result?.count > 0 {
+				return result
+			}
+			else {
+				return nil
+			}
         }
         catch
         {

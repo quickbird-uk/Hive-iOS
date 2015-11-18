@@ -15,6 +15,13 @@ class JobSheetViewController: UITableViewController
     //
     
     var task: Task!
+	var secondsTaken: Int!
+	var minutesTaken: Int!
+	var hoursTaken: Int!
+	var assignedBy: String!
+	var onField: String!
+	var areaCovered: Double!
+	
     @IBOutlet var jobSheetView: UITableView!
     @IBOutlet weak var nameCell: UITableViewCell!
     @IBOutlet weak var taskTypeCell: UITableViewCell!
@@ -42,12 +49,13 @@ class JobSheetViewController: UITableViewController
     override func viewDidLoad()
     {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+		timeSpentCell.detailTextLabel!.text = "\(hoursTaken):\(minutesTaken):\(secondsTaken)"
+		nameCell.detailTextLabel!.text = "\(task.name!)"
+		taskTypeCell.detailTextLabel!.text = "\(task.type!)"
+		assignedByCell.detailTextLabel!.text = "\(task.assignedByID!)"
+		doneByCell.detailTextLabel!.text = "\(task.completedOnDate)"
+		fieldNameCell.detailTextLabel!.text = "\(task.forFieldID!)"
+		dateCell.detailTextLabel!.text = "\(task.completedOnDate!)"
     }
 
     override func didReceiveMemoryWarning()

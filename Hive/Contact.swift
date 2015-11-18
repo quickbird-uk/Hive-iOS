@@ -27,6 +27,26 @@ class Contact: NSManagedObject
     @NSManaged var updatedOn: NSDate?
     @NSManaged var markedDeleted: NSNumber?
 
+	//
+	// MARK: - API Response JSON Keys
+	//
+	
+	struct Key
+	{
+		static let id				= "id"
+		static let firstName			= "firstName"
+		static let lastName			= "lastName"
+		static let personID			= "personID"
+		static let phone				= "phone"
+		static let state				= "state"
+		static let createdOn			= "createdOn"
+		static let updatedOn			= "updatedOn"
+		static let version			= "version"
+		static let markedDeleted		= "markedDeleted"
+		
+		private init() {}
+	}
+	
     //
     // MARK: - Instance Methods
     //
@@ -100,7 +120,10 @@ class Contact: NSManagedObject
     
     class func temporary() -> Contact
     {
-        return NSEntityDescription.insertNewObjectForEntityForName(Contact.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Contact
+        let tempContact = NSEntityDescription.insertNewObjectForEntityForName(Contact.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Contact
+		tempContact.updatedOn = NSDate()
+		tempContact.createdOn = NSDate()
+		return tempContact
     }
     
     class func getContactWithID(id: NSNumber) -> Contact?
@@ -126,14 +149,12 @@ class Contact: NSManagedObject
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Contact]
             print("\nTotal number of contacts in main context = \(result?.count)")
-            if result?.count > 0
-            {
-                return result
-            }
-            else
-            {
-                return nil
-            }
+			if result?.count > 0 {
+				return result
+			}
+			else {
+				return nil
+			}
         }
         catch
         {

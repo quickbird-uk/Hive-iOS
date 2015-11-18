@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9057" systemVersion="15B42" minimumToolsVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9057" systemVersion="15C40a" minimumToolsVersion="Automatic">
     <entity name="Contact" representedClassName=".Contact" syncable="YES">
         <attribute name="createdOn" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="firstName" optional="YES" attributeType="String" syncable="YES"/>
@@ -19,7 +19,7 @@
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="markedDeleted" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="parentOrgID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="onOrganisationID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="updatedOn" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="version" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
@@ -39,7 +39,7 @@
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="lastName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="markedDeleted" optional="YES" attributeType="Boolean" syncable="YES"/>
-        <attribute name="organization" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="onOrganisationID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="personID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="phone" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="role" optional="YES" attributeType="String" syncable="YES"/>
@@ -47,13 +47,13 @@
         <attribute name="version" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Task" representedClassName=".Task" syncable="YES">
-        <attribute name="assignedBy" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
-        <attribute name="assignedTo" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="assignedByID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="assignedToID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="completedOnDate" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="createdOn" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="dueDate" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="forField" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
-        <attribute name="forOrganization" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="forFieldID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="forOrganizationID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="lastAction" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="markedDeleted" optional="YES" attributeType="Boolean" syncable="YES"/>
@@ -61,6 +61,7 @@
         <attribute name="payRate" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
         <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="taskDescription" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="timeTaken" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
         <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="updatedOn" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="version" optional="YES" attributeType="String" syncable="YES"/>
@@ -84,7 +85,7 @@
         <element name="Field" positionX="-36" positionY="54" width="128" height="180"/>
         <element name="Organisation" positionX="-54" positionY="36" width="128" height="165"/>
         <element name="Staff" positionX="-36" positionY="108" width="128" height="210"/>
-        <element name="Task" positionX="-18" positionY="63" width="128" height="300"/>
+        <element name="Task" positionX="-18" positionY="63" width="128" height="315"/>
         <element name="User" positionX="-27" positionY="117" width="128" height="225"/>
     </elements>
 </model>

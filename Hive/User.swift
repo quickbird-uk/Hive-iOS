@@ -30,7 +30,29 @@ class User: NSManagedObject
     @NSManaged var version: String?
     @NSManaged var markedDeleted: NSNumber?
     @NSManaged var lastSync: NSDate?
-    
+	
+	//
+	// MARK: - API Response JSON Keys
+	//
+	
+	struct Key
+	{
+		static let id					= "id"
+		static let firstName				= "firstName"
+		static let lastName				= "lastName"
+		static let phone					= "phone"
+		static let isVerified			= "isVerified"
+		static let createdOn				= "createdOn"
+		static let updatedOn				= "updatedOn"
+		static let version				= "version"
+		static let markedDeleted			= "markedDeleted"
+		static let lastSync				= "lastSync"
+		static let accessExpiresOn		= "accessExpiresOn"
+		static let accessToken			= "accessToken"
+		
+		private init() { }
+	}
+	
     //
     // MARK: - Instance Methods
     //
@@ -115,7 +137,10 @@ class User: NSManagedObject
     
     class func temporary() -> User
     {
-        return NSEntityDescription.insertNewObjectForEntityForName(User.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! User
+        let tempUser = NSEntityDescription.insertNewObjectForEntityForName(User.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! User
+		tempUser.updatedOn = NSDate()
+		tempUser.createdOn = NSDate()
+		return tempUser
     }
     
     class func get() -> User?
@@ -124,7 +149,12 @@ class User: NSManagedObject
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [User]
             print("\nNumber of users = \(result?.count)")
-            return result?.first
+			if result?.count > 0 {
+				return result?.first
+			}
+			else {
+				return nil
+			}
         }
         catch
         {

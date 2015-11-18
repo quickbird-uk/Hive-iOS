@@ -12,26 +12,12 @@ import CoreData
 class FarmsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate
 {
     //
-    // MARK: - Properties
+    // MARK: - Properties & Outlets
     //
     
     var selectedCell: Int?
     var fetchedResultsController: NSFetchedResultsController!
-    
-    //
-    // MARK: - Outlets
-    //
-    
     @IBOutlet weak var farmsTable: UITableView!
-    
-    //
-    // MARK: - Actions
-    //
-    
-    @IBAction func add(sender: UIBarButtonItem)
-    {
-        
-    }
     
     //
     // MARK: - Methods
@@ -189,6 +175,8 @@ class FarmsViewController: UIViewController, UITableViewDelegate, UITableViewDat
     {
         super.viewDidLoad()
         self.initFetchedResultsController()
+		UINavigationBar.appearance().titleTextAttributes = Design.shared.NavigationBarTitleStyle
+		UIBarButtonItem.appearance().setTitleTextAttributes(Design.shared.NavigationBarButtonStyle, forState: UIControlState.Normal)
     }
     
     override func didReceiveMemoryWarning()
@@ -197,4 +185,18 @@ class FarmsViewController: UIViewController, UITableViewDelegate, UITableViewDat
         // Dispose of any resources that can be recreated.
     }
 
+	//
+	// MARK: - Navigation
+	//
+	
+	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
+	{
+		if segue.identifier == "showFarmDetails"
+		{
+			let destination = segue.destinationViewController as! FarmDetailsViewController
+			let senderCell = sender as! CustomTableViewCell
+			let senderIndex = farmsTable.indexPathForCell(senderCell)
+			destination.farm = fetchedResultsController.objectAtIndexPath(senderIndex!) as? Organisation
+		}
+	}
 }

@@ -45,7 +45,10 @@ class NetworkService: NSOperation
         // Attach header for POST/PUT requests
         if request.HTTPMethod == "POST" || request.HTTPMethod == "PUT"
         {
-            request.HTTPBody = body?.dataUsingEncoding(NSUTF8StringEncoding)
+			if body != nil
+			{
+				request.HTTPBody = body!.dataUsingEncoding(NSUTF8StringEncoding)
+			}
         }
         self.httpRequest = request
         
@@ -60,6 +63,8 @@ class NetworkService: NSOperation
         print(self.httpRequest.valueForHTTPHeaderField("Content-Type")!)
         print("⋮   ⋮  AUTHORIZATION      ", terminator:"")
         print(self.httpRequest.valueForHTTPHeaderField("Authorization"))
+		print("⋮   ⋮  HTTP BODY      ", terminator:"")
+		print(self.httpBody)
     }
     
     convenience init(bodyAsJSON dictionary: NSDictionary?, request: NSMutableURLRequest, token: NSString?)

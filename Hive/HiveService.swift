@@ -19,6 +19,9 @@ class HiveService
     {
         self.applicationKey = "defaultApplicationKey"
         self.apiBaseURL = NSURL(string: "https://api.quickbird.uk/")!
+		self.dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSxxx"
+		self.dateFormatter.calendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierISO8601)
+		self.dateFormatter.locale = NSLocale(localeIdentifier: "en_GB")
     }
     
     //
@@ -27,10 +30,9 @@ class HiveService
     
     var applicationKey: String!
     var apiBaseURL: NSURL!
-    let dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSxxx"
+	let dateFormatter = NSDateFormatter()
     
-    //
-    // MARK: - Methods
+    //l    // MARK: - Methods
     //
     
     func downsync(user: User, completion: (error: String?) -> Void)
@@ -68,7 +70,7 @@ class HiveService
                 dispatch_group_leave(dispatchGroup)
             }
         }
-        
+		
     // Get all farms for user
         dispatch_group_enter(dispatchGroup)
         self.getAllOrganisations(accessToken: user.accessToken!) {
@@ -128,7 +130,7 @@ class HiveService
                 dispatch_group_leave(dispatchGroup)
             }
         }
-        
+		
         // this block will be called async only when the above are done
         dispatch_group_notify(dispatchGroup, dispatch_get_main_queue()) {
             print("Sync complete.")
@@ -195,7 +197,7 @@ class HiveService
         let password = user.passcode!.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())
         let body = "grant_type=password&username=\(username!)&password=\(password!)"
         print("⋮  BODY")
-        print("⋮    \(body)\n")
+        print("⋮  \(body)\n")
         
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsPercentEncodedString: body, request: API.RequestToken.httpRequest(), token: nil)
@@ -268,13 +270,11 @@ class HiveService
                 user.id = response!["Id"].int
                 user.version = response!["Version"].string
                 user.markedDeleted = response!["Deleted"].bool
-                
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSxxx"
+				
                 let updateDateString = response!["UpdatedAt"].string
-                user.updatedOn = dateFormatter.dateFromString(updateDateString!)
+                user.updatedOn = self.dateFormatter.dateFromString(updateDateString!)
                 let creationDateString = response!["CreatedAt"].string
-                user.createdOn = dateFormatter.dateFromString(creationDateString!)
+                user.createdOn = self.dateFormatter.dateFromString(creationDateString!)
                 
                 
                 print("⋮   ⋮    First name      - \(user.firstName)")
@@ -462,8 +462,6 @@ class HiveService
                 {
                     let contactCard = info.1
                     let contact = NSEntityDescription.insertNewObjectForEntityForName(Contact.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Contact
-                    let dateFormatter = NSDateFormatter()
-                    dateFormatter.dateFormat = self.dateFormat
                     
                     contact.firstName       = contactCard["firstName"].string
                     contact.lastName        = contactCard["lastName"].string
@@ -475,10 +473,10 @@ class HiveService
                     contact.version         = contactCard["Version"].string
                     
                     
-                    let updateDateString    = contactCard["UpdatedAt"].string
-                    contact.updatedOn       = dateFormatter.dateFromString(updateDateString!)
-                    let creationDateString  = contactCard["CreatedAt"].string
-                    contact.createdOn       = dateFormatter.dateFromString(creationDateString!)
+                    let updateDateString    = contactCard["UpdatedAt"].stringValue
+                    contact.updatedOn       = self.dateFormatter.dateFromString(updateDateString)
+                    let creationDateString  = contactCard["CreatedAt"].stringValue
+                    contact.createdOn       = self.dateFormatter.dateFromString(creationDateString)
                     
                     contacts.append(contact)
                 }
@@ -515,7 +513,7 @@ class HiveService
             // Request successful
             if error == nil
             {
-                var contacts = [Contact]()
+				var contacts = [Contact]()
                 for contact in response!
                 {
                     let contactCard = contact.1
@@ -524,7 +522,8 @@ class HiveService
                     newContact.lastName = contactCard["lastName"].string
                     newContact.phone = contactCard["phone"].number
                     newContact.personID = contactCard["personID"].number
-                    newContact.id = contactCard["id"].numberValue
+                    newContact.id = contactCard["Id"].intValue
+					print("The ID coming from server - \(newContact.id)")
                     newContact.state = contactCard["state"].string
                     newContact.markedDeleted = contactCard["Deleted"].bool
                     newContact.version = contactCard["version"].string
@@ -546,16 +545,16 @@ class HiveService
     func addContact(accessToken token: String, contactID: Int, completion: (requestSent: Bool, error: String?) -> Void)
     {
         print("Adding contact...")
-    
-    // Prepare request body
-        let body: NSDictionary = [
-            "recipientID": contactID
-        ]
-        print("⋮  BODY")
-        print("⋮    \(body)\n")
-        
+//    
+//    // Prepare request body
+//        let body: NSDictionary = [
+//            "contactID": contactID
+//        ]
+//        print("⋮  BODY")
+//        print("⋮    \(body)\n")
+		
     // Setup a network connection
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateContact.httpRequest(), token: token)
+        let networkConnection = NetworkService(bodyAsPercentEncodedString: "\(contactID)", request: API.CreateContact.httpRequest(), token: token)
         
     // Make the network request
         networkConnection.makeHTTPRequest() {
@@ -672,13 +671,18 @@ class HiveService
             {
                 let orgInfo = info.1
                 let organisation            = Organisation.temporary()
-                
+				
                 organisation.name           = orgInfo["name"].string
                 organisation.orgDescription = orgInfo["orgDescription"].string
                 organisation.role           = orgInfo["role"].string
                 organisation.id             = orgInfo["Id"].int
                 organisation.markedDeleted  = orgInfo["Deleted"].bool
                 organisation.version        = orgInfo["Version"].string
+				
+				let createdString = orgInfo["CreatedAt"].stringValue
+				organisation.createdOn = self.dateFormatter.dateFromString(createdString)
+				let updatedString = orgInfo["UpdatedAt"].stringValue
+				organisation.updatedOn = self.dateFormatter.dateFromString(updatedString)
                 
                 organisations.append(organisation)
             }
@@ -805,28 +809,27 @@ class HiveService
             {
                 let taskInfo = info.1
                 let task = Task.temporary()
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.dateFormat = self.dateFormat
                 
-                task.name               = taskInfo["name"].stringValue
-                task.taskDescription    = taskInfo["jobDescription"].stringValue
-                task.type               = taskInfo["type"].stringValue
-                task.forField           = taskInfo["onFieldId"].intValue
-                task.assignedBy         = taskInfo["assignedById"].intValue
-                task.assignedTo         = taskInfo["assignedToId"].intValue
-                let dueDateString       = taskInfo["DueDate"].stringValue
-                task.dueDate            = dateFormatter.dateFromString(dueDateString)
-                let finishDateString    = taskInfo["DateFinished"].stringValue
-                task.completedOnDate    = dateFormatter.dateFromString(finishDateString)
-                task.state              = taskInfo["state"].stringValue
-                task.payRate            = taskInfo["rate"].numberValue
-                task.id                 = taskInfo["Id"].intValue
-                let createdOnString     = taskInfo["CreatedAt"].stringValue
-                task.createdOn          = dateFormatter.dateFromString(createdOnString)
-                let updatedOnString     = taskInfo["UpdatedAt"].stringValue
-                task.updatedOn          = dateFormatter.dateFromString(updatedOnString)
-                task.version            = taskInfo["Version"].stringValue
-                task.markedDeleted      = taskInfo["Deleted"].boolValue
+                task.name               = taskInfo[Task.Key.name].stringValue
+                task.taskDescription    = taskInfo[Task.Key.taskDescription].stringValue
+                task.type               = taskInfo[Task.Key.type].stringValue
+                task.forFieldID         = taskInfo[Task.Key.forFieldID].intValue
+                task.assignedByID       = taskInfo[Task.Key.assignedByID].intValue
+                task.assignedToID       = taskInfo[Task.Key.assignedToID].intValue
+                let dueDateString       = taskInfo[Task.Key.dueDate].stringValue
+                task.dueDate            = self.dateFormatter.dateFromString(dueDateString)
+                let finishDateString    = taskInfo[Task.Key.completedOnDate].stringValue
+                task.completedOnDate    = self.dateFormatter.dateFromString(finishDateString)
+				task.timeTaken			= taskInfo[Task.Key.timeTaken].doubleValue
+                task.state              = taskInfo[Task.Key.state].stringValue
+                task.payRate            = taskInfo[Task.Key.payRate].numberValue
+                task.id                 = taskInfo[Task.Key.id].intValue
+                let createdOnString     = taskInfo[Task.Key.createdOn].stringValue
+                task.createdOn          = self.dateFormatter.dateFromString(createdOnString)
+                let updatedOnString     = taskInfo[Task.Key.updatedOn].stringValue
+                task.updatedOn          = self.dateFormatter.dateFromString(updatedOnString)
+                task.version            = taskInfo[Task.Key.version].stringValue
+                task.markedDeleted      = taskInfo[Task.Key.markedDeleted].boolValue
                 
                 tasks.append(task)
             }
@@ -836,19 +839,20 @@ class HiveService
         }
     }
     
-    func addTask(accessToken token: String, newTask: Task, completion: (added: Bool, error: String?) -> Void)
+	func addTask(accessToken token: String, newTask: Task, completion: (added: Bool, task: Task?, error: String?) -> Void)
     {
         print("Adding task...")
         
         let body: NSDictionary = [
-            "name"              : newTask.name!,
-            "jobDescription"    : newTask.taskDescription!,
-            "type"              : newTask.type!,
-            "onFieldId"         : newTask.forField!.integerValue,
-            "assignedById"      : newTask.assignedBy!.integerValue,
-            "assignedToId"      : newTask.assignedTo!.integerValue,
-            "DueDate"           : "\(newTask.dueDate!)",
-            "rate"              : newTask.payRate!
+            Task.Key.name				: newTask.name!,
+            Task.Key.taskDescription		: newTask.taskDescription!,
+            Task.Key.type				: newTask.type!,
+			Task.Key.state				: newTask.state!,
+            Task.Key.forFieldID			: newTask.forFieldID!.integerValue,
+            Task.Key.assignedByID		: newTask.assignedByID!.integerValue,
+            Task.Key.assignedToID		: newTask.assignedToID!.integerValue,
+            Task.Key.dueDate				: "\(newTask.dueDate!)",
+            Task.Key.payRate				: 2.20
         ]
         
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateTask.httpRequest(), token: token)
@@ -856,34 +860,57 @@ class HiveService
             (response, error) in
             
         // Request failed
-            guard error == nil else
+            guard error == nil, let json = response else
             {
                 let details = response?["error_description"].string
                 print("addTask: request failed. \(error!.describe(details!))")
-                completion(added: false, error: error!.describe(details!))
+				completion(added: false, task: nil, error: error!.describe(details!))
                 return
             }
             
         // Request successful
-            completion(added: true, error: nil)
+			
+			newTask.name					= json[Task.Key.name].stringValue
+			newTask.taskDescription		= json[Task.Key.taskDescription].stringValue
+			newTask.type					= json[Task.Key.type].stringValue
+			newTask.forFieldID			= json[Task.Key.forFieldID].intValue
+			newTask.assignedByID			= json[Task.Key.assignedByID].intValue
+			newTask.assignedToID			= json[Task.Key.assignedToID].intValue
+			let dueDateString			= json[Task.Key.dueDate].stringValue
+			newTask.dueDate				= self.dateFormatter.dateFromString(dueDateString)
+			let finishDateString			= json[Task.Key.completedOnDate].stringValue
+			newTask.completedOnDate		= self.dateFormatter.dateFromString(finishDateString)
+			newTask.timeTaken			= json[Task.Key.timeTaken].doubleValue
+			newTask.state				= json[Task.Key.state].stringValue
+			newTask.payRate				= json[Task.Key.payRate].numberValue
+			newTask.id					= json[Task.Key.id].intValue
+			let createdOnString			= json[Task.Key.createdOn].stringValue
+			newTask.createdOn			= self.dateFormatter.dateFromString(createdOnString)
+			let updatedOnString			= json[Task.Key.updatedOn].stringValue
+			newTask.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
+			newTask.version				= json[Task.Key.version].stringValue
+			newTask.markedDeleted		= json[Task.Key.markedDeleted].boolValue
+			
+			completion(added: true, task: newTask, error: nil)
         }
     }
-    
+	
     func editTask(accessToken token: String, newTask: Task, completion: (edited: Bool, error: String?) -> Void)
     {
         print("Editing task...")
-        
+		
         let body: NSDictionary = [
-            "name"              : newTask.name!,
-            "jobDescription"    : newTask.taskDescription!,
-            "type"              : newTask.type!,
-            "onFieldId"         : newTask.forField!.integerValue,
-            "assignedById"      : newTask.assignedBy!.integerValue,
-            "assignedToId"      : newTask.assignedTo!.integerValue,
-            "DateFinished"      : "\(newTask.completedOnDate!)",
-            "DueDate"           : "\(newTask.dueDate!)",
-            "state"             : newTask.state!,
-            "rate"              : newTask.payRate!
+            Task.Key.name             : newTask.name!,
+            Task.Key.taskDescription  : newTask.taskDescription!,
+            Task.Key.type             : newTask.type!,
+            Task.Key.forFieldID       : newTask.forFieldID!.integerValue,
+            Task.Key.assignedByID     : newTask.assignedByID!.integerValue,
+            Task.Key.assignedToID     : newTask.assignedToID!.integerValue,
+			Task.Key.timeTaken		  : newTask.timeTaken!.doubleValue,
+            Task.Key.completedOnDate  : "\(newTask.completedOnDate!)",
+            Task.Key.dueDate          : "\(newTask.dueDate!)",
+            Task.Key.state            : newTask.state!,
+            Task.Key.payRate          : newTask.payRate!
         ]
         
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateTask.httpRequest(urlParameter: "\(newTask.id!.integerValue)"), token: token)
@@ -953,20 +980,18 @@ class HiveService
             {
                 let fieldInfo = info.1
                 let field = Field.temporary()
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.dateFormat = self.dateFormat
                 
-                field.name              = fieldInfo["name"].stringValue
-                field.area              = fieldInfo["size"].numberValue
-                field.fieldDescription  = fieldInfo["fieldDescription"].stringValue
-                field.parentOrgID       = fieldInfo["onOrg"].numberValue
-                field.id                = fieldInfo["Id"].numberValue
-                let createdOnString     = fieldInfo["CreatedAt"].stringValue
-                field.createdOn         = dateFormatter.dateFromString(createdOnString)
-                let updatedOnString     = fieldInfo["UpdatedAt"].stringValue
-                field.updatedOn         = dateFormatter.dateFromString(updatedOnString)
-                field.version           = fieldInfo["Version"].stringValue
-                field.markedDeleted     = fieldInfo["Deleted"].boolValue
+                field.name              = fieldInfo[Field.Key.name].stringValue
+                field.area              = fieldInfo[Field.Key.area].numberValue
+                field.fieldDescription  = fieldInfo[Field.Key.fieldDescription].stringValue
+                field.onOrganisationID  = fieldInfo[Field.Key.onOrganisationID].numberValue
+                field.id                = fieldInfo[Field.Key.id].numberValue
+                let createdOnString     = fieldInfo[Field.Key.createdOn].stringValue
+                field.createdOn         = self.dateFormatter.dateFromString(createdOnString)
+                let updatedOnString     = fieldInfo[Field.Key.updatedOn].stringValue
+                field.updatedOn         = self.dateFormatter.dateFromString(updatedOnString)
+                field.version           = fieldInfo[Field.Key.version].stringValue
+                field.markedDeleted     = fieldInfo[Field.Key.markedDeleted].boolValue
                 
                 fields.append(field)
             }
@@ -981,10 +1006,10 @@ class HiveService
         print("Creating a field...")
         
         let body: NSDictionary = [
-            "name"              : newField.name!,
-            "size"              : newField.area!,
-            "fieldDescription"  : newField.fieldDescription!,
-            "orgId"             : newField.parentOrgID!,
+            Field.Key.name             : newField.name!,
+            Field.Key.area             : newField.area!,
+            Field.Key.fieldDescription : newField.fieldDescription!,
+            Field.Key.onOrganisationID : newField.onOrganisationID!
         ]
         
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateField.httpRequest(), token: token)
@@ -1010,12 +1035,12 @@ class HiveService
         print("Editing field...")
         
         let body: NSDictionary = [
-            "name"              : newField.name!,
-            "size"              : newField.area!,
-            "fieldDescription"  : newField.fieldDescription!,
-            "orgId"             : newField.parentOrgID!,
+			Field.Key.name             : newField.name!,
+			Field.Key.area             : newField.area!,
+			Field.Key.fieldDescription : newField.fieldDescription!,
+			Field.Key.onOrganisationID : newField.onOrganisationID!
         ]
-        
+		
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateField.httpRequest(urlParameter: "\(newField.id!.integerValue)"), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
@@ -1083,23 +1108,22 @@ class HiveService
             {
                 let staffInfo = info.1
                 let staff = Staff.temporary()
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.dateFormat = self.dateFormat
                 
-                staff.personID      = staffInfo["personID"].numberValue
-                staff.organization  = staffInfo["atOrgID"].numberValue
-                staff.role          = staffInfo["role"].stringValue
-                staff.firstName     = staffInfo["firstName"].stringValue
-                staff.lastName      = staffInfo["lastName"].stringValue
-                staff.phone         = staffInfo["phone"].numberValue
-                staff.id            = staffInfo["Id"].numberValue
-                let createdOnString = staffInfo["CreatedAt"].stringValue
-                staff.createdOn     = dateFormatter.dateFromString(createdOnString)
-                let updatedOnString = staffInfo["UpdatedAt"].stringValue
-                staff.updatedOn     = dateFormatter.dateFromString(updatedOnString)
-                staff.version       = staffInfo["Version"].stringValue
-                staff.markedDeleted = staffInfo["Deleted"].boolValue
-                
+                staff.personID			= staffInfo[Staff.Key.personID].numberValue
+                staff.onOrganisationID  = staffInfo[Staff.Key.onOrganisationID].numberValue
+                staff.role				= staffInfo[Staff.Key.role].stringValue
+                staff.firstName			= staffInfo[Staff.Key.firstName].stringValue
+                staff.lastName			= staffInfo[Staff.Key.lastName].stringValue
+                staff.phone				= staffInfo[Staff.Key.phone].numberValue
+                staff.id					= staffInfo[Staff.Key.id].numberValue
+                let createdOnString		= staffInfo[Staff.Key.createdOn].stringValue
+                staff.createdOn			= self.dateFormatter.dateFromString(createdOnString)
+                let updatedOnString		= staffInfo[Staff.Key.updatedOn].stringValue
+                staff.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
+                staff.version			= staffInfo[Staff.Key.version].stringValue
+                staff.markedDeleted		= staffInfo[Staff.Key.markedDeleted].boolValue
+				
+				print("Updated on \(updatedOnString) \(staff.updatedOn)")
                 staffs.append(staff)
             }
             
@@ -1113,12 +1137,12 @@ class HiveService
         print("Adding staff...")
         
         let body: NSDictionary = [
-            "personID"          : newStaff.personID!,
-            "atOrgID"           : newStaff.organization!,
-            "role"              : newStaff.role!,
-            "firstName"         : newStaff.firstName!,
-            "lastName"          : newStaff.lastName!,
-            "phone"             : newStaff.phone!
+            Staff.Key.personID          : newStaff.personID!,
+            Staff.Key.onOrganisationID  : newStaff.onOrganisationID!,
+            Staff.Key.role              : newStaff.role!,
+            Staff.Key.firstName         : newStaff.firstName!,
+            Staff.Key.lastName          : newStaff.lastName!,
+            Staff.Key.phone             : newStaff.phone!
         ]
         
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateStaff.httpRequest(), token: token)
@@ -1144,14 +1168,14 @@ class HiveService
         print("Editing staff....")
         
         let body: NSDictionary = [
-            "personID"          : newStaff.personID!,
-            "atOrgID"           : newStaff.organization!,
-            "role"              : newStaff.role!,
-            "firstName"         : newStaff.firstName!,
-            "lastName"          : newStaff.lastName!,
-            "phone"             : newStaff.phone!
+			Staff.Key.personID          : newStaff.personID!,
+			Staff.Key.onOrganisationID  : newStaff.onOrganisationID!,
+			Staff.Key.role              : newStaff.role!,
+			Staff.Key.firstName         : newStaff.firstName!,
+			Staff.Key.lastName          : newStaff.lastName!,
+			Staff.Key.phone             : newStaff.phone!
         ]
-        
+		
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateStaff.httpRequest(urlParameter: "\(newStaff.id!.integerValue)"), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in

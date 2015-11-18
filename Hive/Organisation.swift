@@ -24,7 +24,25 @@ class Organisation: NSManagedObject
     @NSManaged var updatedOn: NSDate?
     @NSManaged var version: String?
     @NSManaged var markedDeleted: NSNumber?
-    
+	
+	//
+	// MARK: - API Response JSON Keys
+	//
+	
+	struct Key
+	{
+		static let id				= "id"
+		static let name				= "name"
+		static let orgDescription	= "orgDescription"
+		static let role				= "role"
+		static let createdOn			= "createdOn"
+		static let updatedOn			= "updatedOn"
+		static let version			= "version"
+		static let markedDeleted		= "markedDeleted"
+		
+		private init() { }
+	}
+	
     //
     // MARK: - Instance Methods
     //
@@ -65,7 +83,7 @@ class Organisation: NSManagedObject
         }
         else
         {
-            print("Parameter object is not the same as the stale object.")
+            print("Parameter farm objects is not the same as the farm object being updated.")
             return false
         }
     }
@@ -101,7 +119,10 @@ class Organisation: NSManagedObject
     
     class func temporary() -> Organisation
     {
-        return NSEntityDescription.insertNewObjectForEntityForName(Organisation.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Organisation
+        let tempOrg = NSEntityDescription.insertNewObjectForEntityForName(Organisation.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Organisation
+		tempOrg.updatedOn = NSDate()
+		tempOrg.createdOn = NSDate()
+		return tempOrg
     }
     
     class func getAll() -> [Organisation]?
@@ -110,7 +131,12 @@ class Organisation: NSManagedObject
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Organisation]
             print("\nTotal number of organizations in main context = \(result?.count)")
-            return result
+			if result?.count > 0 {
+				return result
+			}
+			else {
+				return nil
+			}
         }
         catch
         {
@@ -142,7 +168,7 @@ class Organisation: NSManagedObject
         
         guard let organisations = Organisation.getAll() else
         {
-            print("Local database has no contacts. Adding new contacts.")
+            print("Local database has no organisations. Adding new organisations.")
             for newOrg in newOrganisations
             {
                 newOrg.moveToPersistentStore()

@@ -18,8 +18,9 @@ class AddContactViewController: UIViewController, UITableViewDelegate, UITableVi
     var contactStore = CNContactStore()
     var phoneNumbers = [NSNumber]()
     var contacts: [Contact]?
-    var selectedRows = [Int]()
-    
+	let user = User.get()
+	var selectedContact: Contact!
+	
     //
     // MARK: - Outlets
     //
@@ -38,7 +39,37 @@ class AddContactViewController: UIViewController, UITableViewDelegate, UITableVi
     
     @IBAction func done(sender: UIBarButtonItem)
     {
-        
+		HiveService.shared.addContact(accessToken: user!.accessToken!, contactID: selectedContact.id!.integerValue) {
+			(requestSent, error) -> Void in
+			if error == nil
+			{
+				let alertController = UIAlertController(title: "Invite sent", message: "We have sent your invitation to \(self.selectedContact.firstName!) on their phone number +44 \(self.selectedContact.phone!). They will be notified on their phone and will appear in your Contacts if they accept your request.", preferredStyle: .ActionSheet)
+				let okAction = UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default) {
+					alert -> Void in
+					self.dismissViewControllerAnimated(true, completion: nil)
+				}
+				alertController.addAction(okAction)
+				
+				HiveService.shared.downsync(self.user!) {
+					error -> Void in
+					print("Downsync complete after sending connection request.")
+				}
+				
+				dispatch_async(dispatch_get_main_queue()) {
+					self.presentViewController(alertController, animated: true, completion: nil)
+				}
+			}
+			else
+			{
+				let alertController = UIAlertController(title: "Oops!", message: error!, preferredStyle: .ActionSheet)
+				let tryAgainAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: nil)
+				alertController.addAction(tryAgainAction)
+				
+				dispatch_async(dispatch_get_main_queue()) {
+					self.presentViewController(alertController, animated: true, completion: nil)
+				}
+			}
+		}
     }
     
     //
@@ -157,6 +188,8 @@ class AddContactViewController: UIViewController, UITableViewDelegate, UITableVi
         {
             cell.accessoryType = .Checkmark
         }
+		
+		selectedContact = contacts![indexPath.row]
     }
     
     func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath)
@@ -184,8 +217,7 @@ class AddContactViewController: UIViewController, UITableViewDelegate, UITableVi
                 print(self.phoneNumbers)
                 
         // Make Hive API call
-                let user = User.get()
-                HiveService.shared.findContacts(accessToken: user!.accessToken!, phoneNumbers: self.phoneNumbers) {
+                HiveService.shared.findContacts(accessToken: self.user!.accessToken!, phoneNumbers: self.phoneNumbers) {
                     (contacts, error) in
                     if error == nil
                     {

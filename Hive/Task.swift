@@ -16,15 +16,16 @@ class Task: NSManagedObject
     //
     
     static let entityName = "Task"
-    @NSManaged var assignedBy: NSNumber?
-    @NSManaged var assignedTo: NSNumber?
+    @NSManaged var assignedByID: NSNumber?
+    @NSManaged var assignedToID: NSNumber?
     @NSManaged var completedOnDate: NSDate?
     @NSManaged var dueDate: NSDate?
-    @NSManaged var forField: NSNumber?
-    @NSManaged var forOrganization: NSNumber?
+    @NSManaged var forFieldID: NSNumber?
+    @NSManaged var forOrganizationID: NSNumber?
     @NSManaged var id: NSNumber?
     @NSManaged var lastAction: String?
     @NSManaged var name: String?
+	@NSManaged var timeTaken: NSNumber?
     @NSManaged var payRate: NSNumber?
     @NSManaged var state: String?
     @NSManaged var taskDescription: String?
@@ -33,7 +34,35 @@ class Task: NSManagedObject
     @NSManaged var createdOn: NSDate?
     @NSManaged var updatedOn: NSDate?
     @NSManaged var markedDeleted: NSNumber?
-    
+	
+	//
+	// MARK: - API Response JSON Keys
+	//
+	
+	struct Key
+	{
+		static let id					= "id"
+		static let assignedByID			= "assignedBy"
+		static let assignedToID			= "assignedToID"
+		static let completedOnDate		= "completedOnDate"
+		static let dueDate				= "dueDate"
+		static let forFieldID			= "forFieldID"
+		static let forOrganisationID		= "forOrganisationID"
+		static let lastAction			= "lastAction"
+		static let name					= "name"
+		static let timeTaken				= "timeTaken"
+		static let payRate				= "payRate"
+		static let state					= "state"
+		static let taskDescription		= "taskDescription"
+		static let type					= "type"
+		static let createdOn				= "createdOn"
+		static let updatedOn				= "updatedOn"
+		static let version				= "version"
+		static let markedDeleted			= "markedDeleted"
+		
+		private init() { }
+	}
+	
     //
     // MARK: - Instance Methods
     //
@@ -46,14 +75,15 @@ class Task: NSManagedObject
     private func save(newTask: Task) -> Bool
     {
         id                  = newTask.id
-        assignedBy          = newTask.assignedBy
-        assignedTo          = newTask.assignedTo
+        assignedByID        = newTask.assignedByID
+        assignedToID        = newTask.assignedToID
         completedOnDate     = newTask.completedOnDate
         dueDate             = newTask.dueDate
-        forField            = newTask.forField
-        forOrganization     = newTask.forOrganization
+        forFieldID          = newTask.forFieldID
+        forOrganizationID   = newTask.forOrganizationID
         lastAction          = newTask.lastAction
         name                = newTask.name
+		timeTaken			= newTask.timeTaken
         payRate             = newTask.payRate
         state               = newTask.state
         taskDescription     = newTask.taskDescription
@@ -118,7 +148,10 @@ class Task: NSManagedObject
     
     class func temporary() -> Task
     {
-        return NSEntityDescription.insertNewObjectForEntityForName(Task.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Task
+        let tempTask = NSEntityDescription.insertNewObjectForEntityForName(Task.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Task
+		tempTask.updatedOn = NSDate()
+		tempTask.createdOn = NSDate()
+		return tempTask
     }
     
     class func getTaskWithID(id: NSNumber) -> Task?
@@ -144,7 +177,12 @@ class Task: NSManagedObject
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Task]
             print("\nTotal number of tasks in main context = \(result?.count)")
-            return result
+			if result?.count > 0 {
+				return result
+			}
+			else {
+				return nil
+			}
         }
         catch
         {
@@ -204,6 +242,15 @@ class Task: NSManagedObject
             task.remove()
         }
     }
+}
+
+enum TaskState: String
+{
+	case Pending = "Pending"
+	case Assigned = "Assigned"
+	case InProgress = "In Progress"
+	case Paused = "Paused"
+	case Finished = "Finished"
 }
 
 enum TaskType: String
