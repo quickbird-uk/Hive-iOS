@@ -76,7 +76,7 @@ class Contact: NSManagedObject
     {
         if self.isTheSameAsContact(other)
         {
-            if self.updatedOn!.timeIntervalSinceDate(other.updatedOn!) < 0
+            if other.updatedOn!.timeIntervalSinceDate(self.updatedOn!) > 0
             {
                 return save(other)
             }
@@ -143,12 +143,26 @@ class Contact: NSManagedObject
         }
     }
     
-    class func getAll() -> [Contact]?
+	class func getAll(filter: String? = nil) -> [Contact]?
     {
         let request = NSFetchRequest(entityName: Contact.entityName)
+		
+		if filter != nil
+		{
+			switch filter!
+			{
+				case "friends" :
+					request.predicate = NSPredicate(format: "state == %@", "Fr")
+					print("Fetching contacts using Friends filter.")
+				default:
+					break
+			}
+			
+		}
+		
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Contact]
-            print("\nTotal number of contacts in main context = \(result?.count)")
+            print("\nTotal number of filtered contacts in main context = \(result?.count)")
 			if result?.count > 0 {
 				return result
 			}
@@ -166,6 +180,8 @@ class Contact: NSManagedObject
     class func updateAllContacts(newContacts: [Contact]) -> Int
     {
         var count = 0
+		var contactToSync: Contact!
+		var matchFound = false
         
         guard let contacts = Contact.getAll() else
         {
@@ -178,17 +194,24 @@ class Contact: NSManagedObject
             return newContacts.count
         }
         
-        for newContact in newContacts
-        {
-            for contact in contacts
-            {
-                if contact.updatedWithDetailsFromContact(newContact)
-                {
-                    count++
-                }
-            }
-        }
-        print(contacts)
+		for newContact in newContacts {
+			for contact in contacts {
+				if contact.isTheSameAsContact(newContact) {
+					matchFound = true
+					contactToSync = contact
+					break
+				}
+			}
+			if matchFound {
+				contactToSync.updatedWithDetailsFromContact(newContact)
+				count++
+			}
+			else {
+				newContact.moveToPersistentStore()
+				count++
+			}
+		}
+		
         return count
     }
     

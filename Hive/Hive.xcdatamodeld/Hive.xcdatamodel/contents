@@ -13,10 +13,12 @@
         <attribute name="version" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Field" representedClassName=".Field" syncable="YES">
-        <attribute name="areaInAcres" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="areaInHectares" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
         <attribute name="createdOn" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="fieldDescription" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
         <attribute name="markedDeleted" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="onOrganisationID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -82,7 +84,7 @@
     </entity>
     <elements>
         <element name="Contact" positionX="-63" positionY="-18" width="128" height="195"/>
-        <element name="Field" positionX="-36" positionY="54" width="128" height="180"/>
+        <element name="Field" positionX="-36" positionY="54" width="128" height="210"/>
         <element name="Organisation" positionX="-54" positionY="36" width="128" height="165"/>
         <element name="Staff" positionX="-36" positionY="108" width="128" height="210"/>
         <element name="Task" positionX="-18" positionY="63" width="128" height="315"/>

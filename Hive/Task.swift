@@ -100,7 +100,7 @@ class Task: NSManagedObject
     {
         if self.isTheSameAsTask(other)
         {
-            if self.updatedOn!.timeIntervalSinceDate(other.updatedOn!) < 0
+			if other.updatedOn!.timeIntervalSinceDate(self.updatedOn!) > 0
             {
                 return save(other)
             }
@@ -205,6 +205,8 @@ class Task: NSManagedObject
     class func updateAllTasks(newTasks: [Task]) -> Int
     {
         var count = 0
+		var taskToSync: Task!
+		var matchFound = false
         
         guard let tasks = Task.getAll() else
         {
@@ -216,16 +218,24 @@ class Task: NSManagedObject
             return newTasks.count
         }
         
-        for newTask in newTasks
-        {
-            for task in tasks
-            {
-                if task.updatedWithDetailsFromTask(newTask)
-                {
-                    count++
-                }
-            }
-        }
+		for newTask	in newTasks {
+			for task in tasks {
+				if task.isTheSameAsTask(newTask) {
+					matchFound = true
+					taskToSync = task
+					break
+				}
+			}
+			if matchFound {
+				taskToSync.updatedWithDetailsFromTask(newTask)
+				count++
+			}
+			else {
+				newTask.moveToPersistentStore()
+				count++
+			}
+		}
+		
         return count
     }
     

@@ -55,14 +55,7 @@ class Staff: NSManagedObject
     
     func isTheSameAsStaff(other: Staff) -> Bool
     {
-        let request = NSFetchRequest(entityName: Staff.entityName)
-        request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "id == %@", other.id!)
-        
-        let errorPointer: NSErrorPointer = nil
-        let count = Data.shared.permanentContext.countForFetchRequest(request, error: errorPointer)
-        
-        return Bool(count)
+        return self.id == other.id
     }
     
     private func save(newStaff: Staff) -> Bool
@@ -87,7 +80,7 @@ class Staff: NSManagedObject
         if self.isTheSameAsStaff(other)
         {
 			print(self)
-            if self.updatedOn!.timeIntervalSinceDate(other.updatedOn!) < 0
+			if other.updatedOn!.timeIntervalSinceDate(self.updatedOn!) > 0
             {
                 return save(other)
             }
@@ -157,7 +150,7 @@ class Staff: NSManagedObject
             return nil
         }
     }
-    
+	
     class func getAll() -> [Staff]?
     {
         let request = NSFetchRequest(entityName: Staff.entityName)
@@ -181,6 +174,8 @@ class Staff: NSManagedObject
     class func updateAllStaff(newStaffs: [Staff]) -> Int
     {
         var count = 0
+		var staffToSync: Staff!
+		var matchFound = false
         
         guard let staffs = Staff.getAll() else
         {
@@ -192,16 +187,24 @@ class Staff: NSManagedObject
             return newStaffs.count
         }
         
-        for newStaff in newStaffs
-        {
-            for staff in staffs
-            {
-                if staff.updatedWithDetailsFromStaff(newStaff)
-                {
-                    count++
-                }
-            }
-        }
+		for newStaff	 in newStaffs {
+			for staff in staffs {
+				if staff.isTheSameAsStaff(newStaff) {
+					matchFound = true
+					staffToSync = staff
+					break
+				}
+			}
+			if matchFound {
+				staffToSync.updatedWithDetailsFromStaff(newStaff)
+				count++
+			}
+			else {
+				newStaff.moveToPersistentStore()
+				count++
+			}
+		}
+		
         return count
     }
     
@@ -218,4 +221,45 @@ class Staff: NSManagedObject
             staff.remove()
         }
     }
+	
+	//
+	// MARK: - Roles & Authorisations
+	//
+	
+	enum Role: String
+	{
+		case Owner		= "Owner"
+		case Manager		= "Manager"
+		case Specialist = "Specialist"
+		case Crew		= "Crew"
+		
+		static var allRoles: [String] {
+			get {
+				return [
+					Owner.rawValue,
+					Manager.rawValue,
+					Specialist.rawValue,
+					Crew.rawValue
+				]
+			}
+		}
+	}
+	
+	var canManageOrganisation: Bool {
+		get {
+			return role! == Role.Owner.rawValue
+		}
+	}
+	
+	var canManageStaff: Bool {
+		get {
+			return role! == Role.Manager.rawValue
+		}
+	}
+	
+	var canManageTasks: Bool {
+		get {
+			return role! == Role.Specialist.rawValue
+		}
+	}
 }

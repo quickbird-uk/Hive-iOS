@@ -13,9 +13,8 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
     //
     // MARK: - Properties
     //
-    
-    var selectedCellIndex: NSIndexPath!
-    let user = User.get()
+	
+	let user = User.get()
     let types = Task.getAllTypes()
     let fields = Field.getAll()
     var selectedFieldID: NSNumber?
@@ -145,9 +144,8 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
     {
         if segue.identifier == "selectTypeForTask"
         {
-            let destination = segue.destinationViewController as! OptionsListViewController
+            let destination = segue.destinationViewController as! TaskTypeViewController
             destination.delegate = self
-            destination.options = types
             destination.senderCellIndexPath = addTaskForm.indexPathForCell(typeCell)
         }
         

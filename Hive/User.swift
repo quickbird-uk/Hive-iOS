@@ -48,8 +48,8 @@ class User: NSManagedObject
 		static let markedDeleted				= "markedDeleted"
 		static let lastSync					= "lastSync"
 		static let accessExpiresOn			= "accessExpiresOn"
-		static let accessExpiresInSeconds	= "accessExpiresInSeconds"
-		static let accessToken				= "accessToken"
+		static let accessExpiresInSeconds	= "expires_in"
+		static let accessToken				= "access_token"
 		static let password					= "password"
 		
 		private init() { }
@@ -58,35 +58,35 @@ class User: NSManagedObject
     //
     // MARK: - Instance Methods
     //
-    
+	
+	private func save(newUser: User) -> Bool
+	{
+		passcode            = newUser.passcode
+		id                  = newUser.id
+		accessExpiresOn     = newUser.accessExpiresOn
+		accessToken         = newUser.accessToken
+		firstName           = newUser.firstName
+		lastName            = newUser.lastName
+		phone               = newUser.phone
+		isVerified          = newUser.isVerified
+		createdOn           = newUser.createdOn
+		updatedOn           = newUser.updatedOn
+		version             = newUser.version
+		markedDeleted       = newUser.markedDeleted
+		
+		return Data.shared.saveContext(message: "\nUpdating user details.")
+	}
+	
     func isTheSameAsUser(other: User) -> Bool
     {
         return self.id == other.id
     }
-    
-    private func save(newUser: User) -> Bool
-    {
-        passcode            = newUser.passcode
-        id                  = newUser.id
-        accessExpiresOn     = newUser.accessExpiresOn
-        accessToken         = newUser.accessToken
-        firstName           = newUser.firstName
-        lastName            = newUser.lastName
-        phone               = newUser.phone
-        isVerified          = newUser.isVerified
-        createdOn           = newUser.createdOn
-        updatedOn           = newUser.updatedOn
-        version             = newUser.version
-        markedDeleted       = newUser.markedDeleted
-        
-        return Data.shared.saveContext(message: "\nUpdating user details.")
-    }
-    
+	
     func updatedWithDetailsFromUser(other: User) -> Bool
     {
         if self.isTheSameAsUser(other)
         {
-            if self.updatedOn!.timeIntervalSinceDate(other.updatedOn!) < 0
+			if other.updatedOn!.timeIntervalSinceDate(self.updatedOn!) > 0
             {
                 return save(other)
             }

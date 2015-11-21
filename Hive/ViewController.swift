@@ -49,7 +49,7 @@ class ViewController: UIViewController
         let yesAction = UIAlertAction(title: "Yes", style: .Default) {
             alert in
             Data.shared.deleteAllData()
-            self.performSegueWithIdentifier("authenticate", sender: nil)
+            self.navigationController?.performSegueWithIdentifier("authenticate", sender: nil)
         }
         alert.addAction(yesAction)
         let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
@@ -77,6 +77,8 @@ class ViewController: UIViewController
         super.viewDidLoad()
         UINavigationBar.appearance().titleTextAttributes = Design.shared.NavigationBarTitleStyle
         UIBarButtonItem.appearance().setTitleTextAttributes(Design.shared.NavigationBarButtonStyle, forState: UIControlState.Normal)
+		offlineView.hidden = NetworkService.isConnected()
+		syncButton.enabled = NetworkService.isConnected()
     }
 	
 	override func viewDidAppear(animated: Bool)
@@ -100,9 +102,6 @@ class ViewController: UIViewController
 		self.titleLabel.text = "\(user.firstName ?? "Darth") \(user.lastName ?? "Vader")"
 		self.phoneLabel.text! = "+44 \(user.phone ?? 0123456789)"
 		self.lastUpdatedLabel.text! = "Last updated " + Design.shared.stringFromDate(user.lastSync)
-		
-		offlineView.hidden = NetworkService.isConnected()
-		syncButton.enabled = NetworkService.isConnected()
 	}
     
     override func didReceiveMemoryWarning()

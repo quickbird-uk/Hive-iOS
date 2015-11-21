@@ -125,9 +125,17 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     {
         guard let sections = self.fetchedResultsController.sections else
         {
+			// Display a message when the table is empty
+			let messageLabel = UILabel(frame: CGRect(x: 37, y: 103, width: 247, height: 50))
+			messageLabel.text = "You have got no tasks to do. Woooohooo!"
+			messageLabel.numberOfLines = 3
+			messageLabel.textAlignment = NSTextAlignment.Center
+			messageLabel.font = UIFont(name: "Avenir-Next", size: 17.0)
+			tasksTableView.backgroundView = messageLabel
+			
             return 0
         }
-        
+		
         return sections.count
     }
     
@@ -179,7 +187,7 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     {
         super.viewDidLoad()
         initFetchedResultsController()
-    }
+	}
 
     override func didReceiveMemoryWarning()
     {
@@ -195,8 +203,7 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     {
         if segue.identifier == "showTaskDetails"
         {
-            let taskCell = sender as! UITableViewCell
-            
+			
         }
         
     }

@@ -29,8 +29,9 @@ class FarmDetailsViewController: UIViewController, UITableViewDataSource, UITabl
 	func initFetchedResultsController()
 	{
 		let request = NSFetchRequest(entityName: Staff.entityName)
-		request.predicate = NSPredicate(format: "organisation == %@", farm?.id ?? 0)
-		let nameSort = NSSortDescriptor(key: "name", ascending: true)
+		request.predicate = NSPredicate(format: "onOrganisationID == %@", farm!.id!)
+		print(request.predicate)
+		let nameSort = NSSortDescriptor(key: "firstName", ascending: true)
 		request.sortDescriptors = [nameSort]
 		
 		staffResultsController = NSFetchedResultsController(
@@ -48,6 +49,14 @@ class FarmDetailsViewController: UIViewController, UITableViewDataSource, UITabl
 			print("Fatal error. Failed to initialize fetched results controller \(error)")
 		}
 	}
+	
+	func configureCell(cell: UITableViewCell, indexPath: NSIndexPath)
+	{
+		let staff = self.staffResultsController.objectAtIndexPath(indexPath) as! Staff
+		cell.textLabel?.text = "\(staff.firstName ?? "Darth") \(staff.lastName ?? "Vader")"
+		cell.detailTextLabel?.text = staff.role!
+	}
+	
 	
 	//
 	// MARK: - Table View
@@ -68,8 +77,7 @@ class FarmDetailsViewController: UIViewController, UITableViewDataSource, UITabl
 		let cell = tableView.dequeueReusableCellWithIdentifier("staffCell")
 		
 		if staff != nil {
-			cell!.textLabel!.text = "Abc"
-			cell!.detailTextLabel!.text = "Def"
+			configureCell(cell!, indexPath: indexPath)
 			return cell!
 		}
 		else {
@@ -86,6 +94,7 @@ class FarmDetailsViewController: UIViewController, UITableViewDataSource, UITabl
 	override func viewDidLoad()
 	{
 		super.viewDidLoad()
+		initFetchedResultsController()
 		nameLabel.text = farm?.name ?? "Unnamed Farm"
 		descriptionTextView.text = farm?.orgDescription == "" ? "No description either. Wow!" : farm?.orgDescription
 		roleLabel.text = farm?.role ?? "Undefined"
@@ -97,15 +106,13 @@ class FarmDetailsViewController: UIViewController, UITableViewDataSource, UITabl
 		// Dispose of any resources that can be recreated.
 	}
 	
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
+	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
+	{
+		if segue.identifier == "addStaff"
+		{
+			let destination = segue.destinationViewController as! AddStaffViewController
+			destination.organisation = farm
+		}
+	}
 
 }

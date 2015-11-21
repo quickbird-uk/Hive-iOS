@@ -25,14 +25,17 @@ class FieldsPageViewController: UIViewController, UIPageViewControllerDataSource
     {
         let pageController = self.storyboard!.instantiateViewControllerWithIdentifier("FieldsPageController") as! UIPageViewController
         pageController.dataSource = self
-        
-        let startingController = self.storyboard!.instantiateViewControllerWithIdentifier("FieldContentController") as! FieldViewController
+		
 		if fields != nil {
+			let startingController = self.storyboard!.instantiateViewControllerWithIdentifier("FieldContentController") as! FieldViewController
 			startingController.field = fields![0]
+			pageController.setViewControllers([startingController], direction: .Forward, animated: true, completion: nil)
+		}
+		else {
+			let startingController = self.storyboard!.instantiateViewControllerWithIdentifier("noFieldsPageController")
+			pageController.setViewControllers([startingController], direction: .Forward, animated: true, completion: nil)
 		}
 		
-        pageController.setViewControllers([startingController], direction: .Forward, animated: true, completion: nil)
-        
         fieldsPageController = pageController
         addChildViewController(fieldsPageController)
         self.view.addSubview(fieldsPageController.view)
@@ -52,6 +55,11 @@ class FieldsPageViewController: UIViewController, UIPageViewControllerDataSource
     
     func pageViewController(pageViewController: UIPageViewController, viewControllerAfterViewController viewController: UIViewController) -> UIViewController?
     {
+		if fields == nil
+		{
+			return self.storyboard!.instantiateViewControllerWithIdentifier("noFieldsPageController")
+		}
+		
         let fieldController = viewController as! FieldViewController
         
         if ( (fieldController.itemIndex + 1) < fields?.count ) {
@@ -63,6 +71,10 @@ class FieldsPageViewController: UIViewController, UIPageViewControllerDataSource
     
     func pageViewController(pageViewController: UIPageViewController, viewControllerBeforeViewController viewController: UIViewController) -> UIViewController?
     {
+		if fields == nil
+		{
+			return self.storyboard!.instantiateViewControllerWithIdentifier("noFieldsPageController")
+		}
         let fieldController = viewController as! FieldViewController
         
         if fieldController.itemIndex > 0 {

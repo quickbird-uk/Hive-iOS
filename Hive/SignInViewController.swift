@@ -113,9 +113,6 @@ class SignInViewController: UITableViewController, UITextFieldDelegate
                             user!.updatedWithDetailsFromUser(updatedUser!)
                             dispatch_async(dispatch_get_main_queue()) {
 								self.signInButtonCell.buttonTitle = "Let's start."
-								self.signInButtonCell.buttonHidden = false
-                                self.activityIndicator.stopAnimating()
-                                
                                 // Segue to verify phone number
                                 self.performSegueWithIdentifier("verifyPhone", sender: nil)
                             }
@@ -169,9 +166,9 @@ class SignInViewController: UITableViewController, UITextFieldDelegate
                     alertController.addAction(defaultAction)
                     
                     dispatch_async(dispatch_get_main_queue()) {
+						self.activityIndicator.stopAnimating()
+						self.signInButtonCell.buttonHidden = false
                         self.presentViewController(alertController, animated: true, completion: nil)
-                        self.signInButtonCell.buttonHidden = false
-                        self.activityIndicator.stopAnimating()
                     }
                 }
             }
@@ -243,6 +240,8 @@ class SignInViewController: UITableViewController, UITextFieldDelegate
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
     {
 		navigationItem.title = ""
+		activityIndicator.stopAnimating()
+		signInButtonCell.buttonHidden = false
 		
         if segue.identifier == "verifyPhone"
         {

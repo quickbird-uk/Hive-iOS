@@ -8,9 +8,10 @@
 
 import UIKit
 
-protocol OptionsListDataSource
+@objc protocol OptionsListDataSource
 {
-    func updateCell(atIndex index: NSIndexPath, withOption option: String, selectedIndex: Int)
+    optional func updateCell(atIndex index: NSIndexPath, withOption option: String, selectedIndex: Int)
+	optional func updateLocationCell(atIndex index: NSIndexPath, withOption: String, selectedLatitude: Double, selectedLongitude: Double)
 }
 
 class OptionsListViewController: UITableViewController
@@ -65,7 +66,7 @@ class OptionsListViewController: UITableViewController
     {
         selectedIndex = indexPath.row
         tableView.reloadData()
-        delegate.updateCell(atIndex: senderCellIndexPath!, withOption: options[indexPath.row], selectedIndex: selectedIndex)
+        delegate.updateCell!(atIndex: senderCellIndexPath!, withOption: options[indexPath.row], selectedIndex: selectedIndex)
         self.navigationController?.popViewControllerAnimated(true)
     }
 

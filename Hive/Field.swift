@@ -16,10 +16,12 @@ class Field: NSManagedObject
     //
     
     static let entityName = "Field"
-    @NSManaged var areaInAcres: NSNumber?
+    @NSManaged var areaInHectares: NSNumber?
     @NSManaged var fieldDescription: String?
     @NSManaged var id: NSNumber?
     @NSManaged var name: String?
+	@NSManaged var latitude: NSNumber?
+	@NSManaged var longitude: NSNumber?
     @NSManaged var onOrganisationID: NSNumber?
     @NSManaged var createdOn: NSDate?
     @NSManaged var updatedOn: NSDate?
@@ -33,9 +35,11 @@ class Field: NSManagedObject
 	struct Key
 	{
 		static let id					= "id"
-		static let areaInAcres			= "areaInAcres"
+		static let areaInHectares		= "areaInHectares"
 		static let fieldDescription		= "fieldDescription"
 		static let name					= "name"
+		static let latitude				= "latitude"
+		static let longitude				= "longitude"
 		static let onOrganisationID		= "onOrganisationID"
 		static let createdOn				= "createdOn"
 		static let updatedOn				= "updatedOn"
@@ -57,9 +61,11 @@ class Field: NSManagedObject
     private func save(newField: Field) -> Bool
     {
         id					= newField.id
-        areaInAcres			= newField.areaInAcres
+        areaInHectares		= newField.areaInHectares
         fieldDescription		= newField.fieldDescription
         name					= newField.name
+		latitude				= newField.latitude
+		longitude			= newField.longitude
         onOrganisationID		= newField.onOrganisationID
         createdOn			= newField.createdOn
         updatedOn			= newField.updatedOn
@@ -74,7 +80,7 @@ class Field: NSManagedObject
         if self.isTheSameAsField(other)
         {
         // If `other` is more recent than `self`
-            if self.updatedOn!.timeIntervalSinceDate(other.updatedOn!) < 0
+			if other.updatedOn!.timeIntervalSinceDate(self.updatedOn!) > 0
             {
                 return save(other)
             }
@@ -168,7 +174,9 @@ class Field: NSManagedObject
     class func updateAllFields(newFields: [Field]) -> Int
     {
         var count = 0
-        
+		var fieldToSync: Field!
+		var matchFound = false
+		
         guard let fields = Field.getAll() else
         {
             print("Local database has no fields. Adding new fields.")
@@ -179,16 +187,24 @@ class Field: NSManagedObject
             return newFields.count
         }
         
-        for newField in newFields
-        {
-            for field in fields
-            {
-                if field.updatedWithDetailsFromField(newField)
-                {
-                    count++
-                }
-            }
-        }
+		for newField in newFields {
+			for field in fields {
+				if field.isTheSameAsField(newField) {
+					matchFound = true
+					fieldToSync = field
+					break
+				}
+			}
+			if matchFound {
+				fieldToSync.updatedWithDetailsFromField(newField)
+				count++
+			}
+			else {
+				newField.moveToPersistentStore()
+				count++
+			}
+		}
+		
         return count
     }
     

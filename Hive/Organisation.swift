@@ -71,7 +71,7 @@ class Organisation: NSManagedObject
         if self.isTheSameAsOrganisation(other)
         {
         // If other is more recent than self
-            if self.updatedOn!.timeIntervalSinceDate(other.updatedOn!) < 0
+			if other.updatedOn!.timeIntervalSinceDate(self.updatedOn!) > 0
             {
                 return save(other)
             }
@@ -83,7 +83,7 @@ class Organisation: NSManagedObject
         }
         else
         {
-            print("Parameter farm objects is not the same as the farm object being updated.")
+            print("Parameter farm objects \(self.name) is not the same as the farm object being updated.")
             return false
         }
     }
@@ -125,10 +125,24 @@ class Organisation: NSManagedObject
 		return tempOrg
     }
     
-    class func getAll() -> [Organisation]?
+	class func getAll(filter: String? = nil) -> [Organisation]?
     {
         let request = NSFetchRequest(entityName: Organisation.entityName)
-        do {
+		
+		if filter != nil
+		{
+			switch filter!
+			{
+				case "owned":
+					request.predicate = NSPredicate(format: "role == %@", "Owner")
+					print("Fetching organisations using Owned filter")
+				default:
+					break
+			}
+			
+		}
+		
+		do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Organisation]
             print("\nTotal number of organizations in main context = \(result?.count)")
 			if result?.count > 0 {
@@ -144,7 +158,7 @@ class Organisation: NSManagedObject
             return nil
         }
     }
-    
+	
     class func getOrganisationWithID(id: NSNumber) -> Organisation?
     {
         let request = NSFetchRequest(entityName: Organisation.entityName)
@@ -165,6 +179,8 @@ class Organisation: NSManagedObject
     class func updateAllOrganisations(newOrganisations: [Organisation]) -> Int
     {
         var count = 0
+		var matchFound = false
+		var orgToSync: Organisation!
         
         guard let organisations = Organisation.getAll() else
         {
@@ -172,20 +188,29 @@ class Organisation: NSManagedObject
             for newOrg in newOrganisations
             {
                 newOrg.moveToPersistentStore()
+				count++
             }
             return newOrganisations.count
         }
-        
-        for newOrg in newOrganisations
-        {
-            for organisation in organisations
-            {
-                if organisation.updatedWithDetailsFromOrganisation(newOrg)
-                {
-                    count++
-                }
-            }
-        }
+		
+		for newOrg in newOrganisations {
+			for org in organisations {
+				if org.isTheSameAsOrganisation(newOrg) {
+					matchFound = true
+					orgToSync = org
+					break
+				}
+			}
+			if matchFound {
+				orgToSync.updatedWithDetailsFromOrganisation(newOrg)
+				count++
+			}
+			else {
+				newOrg.moveToPersistentStore()
+				count++
+			}
+		}
+	
         return count
     }
     
@@ -201,7 +226,7 @@ class Organisation: NSManagedObject
         {
             org.remove()
         }
-    }
+    }	
 }
 
     

@@ -68,7 +68,12 @@
 		228343131BF84D0E00977D93 /* LegalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228343121BF84D0E00977D93 /* LegalViewController.swift */; };
 		228343171BF8586000977D93 /* TOS.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 228343161BF8586000977D93 /* TOS.rtf */; };
 		228343191BF8AB5800977D93 /* PrivacyPolicy.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 228343181BF8AB5800977D93 /* PrivacyPolicy.rtf */; };
+		228A2ED61BFF704800568695 /* AddFarmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228A2ED51BFF704800568695 /* AddFarmViewController.swift */; };
 		22A811BF1BEC23FE00376FC6 /* TaskDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A811BE1BEC23FE00376FC6 /* TaskDetailsViewController.swift */; };
+		22A8B6F81BFFD36F00F679E5 /* AddStaffViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8B6F71BFFD36F00F679E5 /* AddStaffViewController.swift */; };
+		22A8B6FA1C00113300F679E5 /* AddFieldViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8B6F91C00113300F679E5 /* AddFieldViewController.swift */; };
+		22A8B6FC1C00114F00F679E5 /* SpatialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8B6FB1C00114F00F679E5 /* SpatialViewController.swift */; };
+		22A8B6FE1C00DA9000F679E5 /* TaskTypeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8B6FD1C00DA9000F679E5 /* TaskTypeViewController.swift */; };
 		22D076F81BF7C384004F1562 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D076F71BF7C384004F1562 /* Utilities.swift */; };
 		22D3A44E1BE7F13D003BAB69 /* OptionsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D3A44D1BE7F13D003BAB69 /* OptionsListViewController.swift */; };
 		22EB09101BCEE464007999C5 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EB09041BCEE464007999C5 /* User.swift */; };
@@ -169,7 +174,12 @@
 		228343121BF84D0E00977D93 /* LegalViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegalViewController.swift; sourceTree = "<group>"; };
 		228343161BF8586000977D93 /* TOS.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = TOS.rtf; sourceTree = "<group>"; };
 		228343181BF8AB5800977D93 /* PrivacyPolicy.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = PrivacyPolicy.rtf; sourceTree = "<group>"; };
+		228A2ED51BFF704800568695 /* AddFarmViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFarmViewController.swift; sourceTree = "<group>"; };
 		22A811BE1BEC23FE00376FC6 /* TaskDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskDetailsViewController.swift; sourceTree = "<group>"; };
+		22A8B6F71BFFD36F00F679E5 /* AddStaffViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddStaffViewController.swift; sourceTree = "<group>"; };
+		22A8B6F91C00113300F679E5 /* AddFieldViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFieldViewController.swift; sourceTree = "<group>"; };
+		22A8B6FB1C00114F00F679E5 /* SpatialViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpatialViewController.swift; sourceTree = "<group>"; };
+		22A8B6FD1C00DA9000F679E5 /* TaskTypeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskTypeViewController.swift; sourceTree = "<group>"; };
 		22D076F71BF7C384004F1562 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		22D3A44D1BE7F13D003BAB69 /* OptionsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsListViewController.swift; sourceTree = "<group>"; };
 		22EB09041BCEE464007999C5 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -354,22 +364,12 @@
 				223BB2611BC830770095DCB6 /* Model */,
 				226D31671BC828A5002140E9 /* AppDelegate.swift */,
 				226D31691BC828A5002140E9 /* ViewController.swift */,
-				2230BEF61BEA25970033BA26 /* SignInViewController.swift */,
-				228343121BF84D0E00977D93 /* LegalViewController.swift */,
-				22178A2E1BEA5AC4002DAFA0 /* SignUpViewController.swift */,
-				223BB27C1BC9E8580095DCB6 /* VerifyPhoneViewController.swift */,
+				22A8B6F21BFFB1AD00F679E5 /* Onboarding */,
 				222041EC1BD14862009E5DBF /* SyncViewController.swift */,
-				2231A4911BD1C83B007D7DDE /* ContactsViewController.swift */,
-				223CF1941BD548FB003E232F /* AddContactViewController.swift */,
-				2251FF4E1BD2E9D700AC4E12 /* FarmsViewController.swift */,
-				226865301BFB4F0F00F4B270 /* FarmDetailsViewController.swift */,
-				22F7CD5A1BEC592100F40323 /* TasksViewController.swift */,
-				22178A301BEA7C82002DAFA0 /* AddTaskViewController.swift */,
-				22A811BE1BEC23FE00376FC6 /* TaskDetailsViewController.swift */,
-				22F7CD5C1BEC595500F40323 /* RecordTaskViewController.swift */,
-				22F7CD5E1BEC599E00F40323 /* JobSheetViewController.swift */,
-				22F7CD681BED485200F40323 /* FieldsPageViewController.swift */,
-				22F7CD601BED403D00F40323 /* FieldViewController.swift */,
+				22A8B6F31BFFB1CD00F679E5 /* Contacts */,
+				22A8B6F41BFFB1E000F679E5 /* Farms */,
+				22A8B6F51BFFB1EC00F679E5 /* Tasks */,
+				22A8B6F61BFFB1F500F679E5 /* Fields */,
 				22D3A44D1BE7F13D003BAB69 /* OptionsListViewController.swift */,
 				22D076F71BF7C384004F1562 /* Utilities.swift */,
 				22F93F8D1BD5558B0026DAD2 /* Frameworks */,
@@ -396,6 +396,61 @@
 				226D318C1BC828A6002140E9 /* Info.plist */,
 			);
 			path = HiveUITests;
+			sourceTree = "<group>";
+		};
+		22A8B6F21BFFB1AD00F679E5 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				2230BEF61BEA25970033BA26 /* SignInViewController.swift */,
+				228343121BF84D0E00977D93 /* LegalViewController.swift */,
+				22178A2E1BEA5AC4002DAFA0 /* SignUpViewController.swift */,
+				223BB27C1BC9E8580095DCB6 /* VerifyPhoneViewController.swift */,
+			);
+			name = Onboarding;
+			sourceTree = "<group>";
+		};
+		22A8B6F31BFFB1CD00F679E5 /* Contacts */ = {
+			isa = PBXGroup;
+			children = (
+				2231A4911BD1C83B007D7DDE /* ContactsViewController.swift */,
+				223CF1941BD548FB003E232F /* AddContactViewController.swift */,
+			);
+			name = Contacts;
+			sourceTree = "<group>";
+		};
+		22A8B6F41BFFB1E000F679E5 /* Farms */ = {
+			isa = PBXGroup;
+			children = (
+				2251FF4E1BD2E9D700AC4E12 /* FarmsViewController.swift */,
+				226865301BFB4F0F00F4B270 /* FarmDetailsViewController.swift */,
+				228A2ED51BFF704800568695 /* AddFarmViewController.swift */,
+				22A8B6F71BFFD36F00F679E5 /* AddStaffViewController.swift */,
+			);
+			name = Farms;
+			sourceTree = "<group>";
+		};
+		22A8B6F51BFFB1EC00F679E5 /* Tasks */ = {
+			isa = PBXGroup;
+			children = (
+				22F7CD5A1BEC592100F40323 /* TasksViewController.swift */,
+				22178A301BEA7C82002DAFA0 /* AddTaskViewController.swift */,
+				22A811BE1BEC23FE00376FC6 /* TaskDetailsViewController.swift */,
+				22F7CD5C1BEC595500F40323 /* RecordTaskViewController.swift */,
+				22F7CD5E1BEC599E00F40323 /* JobSheetViewController.swift */,
+				22A8B6FD1C00DA9000F679E5 /* TaskTypeViewController.swift */,
+			);
+			name = Tasks;
+			sourceTree = "<group>";
+		};
+		22A8B6F61BFFB1F500F679E5 /* Fields */ = {
+			isa = PBXGroup;
+			children = (
+				22F7CD681BED485200F40323 /* FieldsPageViewController.swift */,
+				22F7CD601BED403D00F40323 /* FieldViewController.swift */,
+				22A8B6F91C00113300F679E5 /* AddFieldViewController.swift */,
+				22A8B6FB1C00114F00F679E5 /* SpatialViewController.swift */,
+			);
+			name = Fields;
 			sourceTree = "<group>";
 		};
 		22F93F8D1BD5558B0026DAD2 /* Frameworks */ = {
@@ -568,16 +623,19 @@
 				22D076F81BF7C384004F1562 /* Utilities.swift in Sources */,
 				22F7CD691BED485200F40323 /* FieldsPageViewController.swift in Sources */,
 				223BB27D1BC9E8580095DCB6 /* VerifyPhoneViewController.swift in Sources */,
+				228A2ED61BFF704800568695 /* AddFarmViewController.swift in Sources */,
 				226D316A1BC828A5002140E9 /* ViewController.swift in Sources */,
 				220947E31BE0D32B00FBA9CE /* ReachabilityCondition.swift in Sources */,
 				22F7CD5D1BEC595500F40323 /* RecordTaskViewController.swift in Sources */,
 				220947C41BE0D2DF00FBA9CE /* OperationQueue.swift in Sources */,
 				220947E11BE0D32B00FBA9CE /* NoCancelledDependencies.swift in Sources */,
 				220947F91BE0D40600FBA9CE /* AlertOperation.swift in Sources */,
+				22A8B6FE1C00DA9000F679E5 /* TaskTypeViewController.swift in Sources */,
 				220947FB1BE0D42F00FBA9CE /* LoadModelOperation.swift in Sources */,
 				220948031BE0D44A00FBA9CE /* DownloadUserOperation.swift in Sources */,
 				220948021BE0D44A00FBA9CE /* GetUserOperation.swift in Sources */,
 				220947EB1BE0D32B00FBA9CE /* UserNotificationCondition.swift in Sources */,
+				22A8B6FA1C00113300F679E5 /* AddFieldViewController.swift in Sources */,
 				226865311BFB4F0F00F4B270 /* FarmDetailsViewController.swift in Sources */,
 				220948071BE0D44A00FBA9CE /* BackgroundObserver.swift in Sources */,
 				220947CB1BE0D30300FBA9CE /* BlockObserver.swift in Sources */,
@@ -605,11 +663,13 @@
 				222041ED1BD14862009E5DBF /* SyncViewController.swift in Sources */,
 				22EB09101BCEE464007999C5 /* User.swift in Sources */,
 				226D319F1BC82A8C002140E9 /* Data.swift in Sources */,
+				22A8B6FC1C00114F00F679E5 /* SpatialViewController.swift in Sources */,
 				223CF1951BD548FB003E232F /* AddContactViewController.swift in Sources */,
 				22F7CD5F1BEC599E00F40323 /* JobSheetViewController.swift in Sources */,
 				220947B41BE0C50000FBA9CE /* NSLock+Operations.swift in Sources */,
 				220947C01BE0D2B400FBA9CE /* DelayOperation.swift in Sources */,
 				220947E21BE0D32B00FBA9CE /* MutuallyExclusive.swift in Sources */,
+				22A8B6F81BFFD36F00F679E5 /* AddStaffViewController.swift in Sources */,
 				22EB09121BCEE464007999C5 /* Field.swift in Sources */,
 				226D31681BC828A5002140E9 /* AppDelegate.swift in Sources */,
 				220947DD1BE0D32B00FBA9CE /* OperationErrors.swift in Sources */,
@@ -762,7 +822,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = uk.quickbird.Hive;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -778,7 +838,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = uk.quickbird.Hive;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

@@ -145,8 +145,6 @@ class HiveService
     
     func signup(user: User, completion: (user: User?, error: String?)  -> Void)
     {
-        print("Signing up...")
-        
     // Prepare the body
         let requestBody: NSDictionary? = [
             User.Key.firstName	: user.firstName!,
@@ -154,7 +152,6 @@ class HiveService
             User.Key.phone		: "\(user.phone!)",
             User.Key.password	: user.passcode!
         ]
-        print("\n⋮    \(requestBody!)\n")
         
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsJSON: requestBody, request: API.CreateUser.httpRequest(), token: nil)
@@ -166,7 +163,6 @@ class HiveService
         // Request successful
             if error == nil
             {
-                print(response)
                 print("\n⋮  ✓  User registration successful. Requesting access token...\n")
                 completion(user: user, error: nil)
             }
@@ -190,15 +186,11 @@ class HiveService
     
     func renewAccessToken(user: User, completion: (token: String?, expiryDate: NSDate?, error: String?)  -> Void)
     {
-        print("Logging in...")
-    
     // Prepare request body
         let phoneString = String(user.phone!)
         let username = phoneString.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())
         let password = user.passcode!.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())
         let body = "grant_type=password&username=\(username!)&password=\(password!)"
-        print("⋮  BODY")
-        print("⋮  \(body)\n")
         
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsPercentEncodedString: body, request: API.RequestToken.httpRequest(), token: nil)
@@ -243,8 +235,6 @@ class HiveService
     
     func getAccountDetails(user: User, completion: (user: User?, error: String?) -> Void)
     {
-        print("⋮  Downloading user account data...\n")
-        
     // Check access token
         if user.accessToken == nil
         {
@@ -261,7 +251,6 @@ class HiveService
     // Make the network request
         networkConnection.makeHTTPRequest() {
             (response, error) in
-            
         // Request successful
             if error == nil
             {
@@ -271,7 +260,6 @@ class HiveService
                 user.id				= response![User.Key.id].int
                 user.version			= response![User.Key.version].string
                 user.markedDeleted	= response![User.Key.markedDeleted].bool
-				
                 let updateDateString = response![User.Key.updatedOn].string
                 user.updatedOn = self.dateFormatter.dateFromString(updateDateString!)
                 let creationDateString = response![User.Key.createdOn].string
@@ -280,9 +268,9 @@ class HiveService
                 
                 print("⋮   ⋮    First name      - \(user.firstName)")
                 print("⋮   ⋮    Last name       - \(user.lastName)")
-                print("⋮   ⋮    Phone       - \(user.phone)\n")
-                print("⋮   ⋮    Created       - \(user.createdOn)\n")
-                print("⋮   ⋮    Updated       - \(user.updatedOn)\n")
+                print("⋮   ⋮    Phone           - \(user.phone)\n")
+                print("⋮   ⋮    Created         - \(user.createdOn)\n")
+                print("⋮   ⋮    Updated         - \(user.updatedOn)\n")
                 
                 completion(user: user, error: nil)
             }
@@ -299,15 +287,11 @@ class HiveService
     
     func requestSMSCode(user: User, completion: (smsSent: Bool, error: String?) -> Void)
     {
-        print("⋮  Requesting SMS code...\n")
-        
     // Prepare request body
         let body: NSDictionary? = [
             User.Key.lastName	: "\(user.lastName!)",
             User.Key.phone		: "\(user.phone!)"
         ]
-        print("⋮  BODY")
-        print("⋮    \(body!)\n")
         
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsJSON: body!, request: API.RequestSMSCode.httpRequest(), token: nil)
@@ -336,17 +320,13 @@ class HiveService
     
     func changePassword(accessToken token: String?, oldPassword: String, newPassword: String, completion: (passwordChanged: Bool, error: String?) -> Void)
     {
-        print("Changing password...")
-        
     // Prepare request body
         let body: NSDictionary? = [
             "OldPassword": oldPassword,
             "NewPassword": newPassword,
             "ConfirmPassword": newPassword
         ]
-        print("⋮  BODY")
-        print("⋮    \(body!)\n")
-        
+		
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.ChangePassword.httpRequest(), token: token)
         
@@ -372,15 +352,11 @@ class HiveService
     
     func changePhone(accessToken token: String?, phone: NSNumber, completion: (phoneChanged: Bool, error: String?) -> Void)
     {
-        print("Changing phone number...")
-        
     // Prepare request body
         let body: NSDictionary? = [
             "PhoneNumber": phone.integerValue
         ]
-        print("⋮  BODY")
-        print("⋮    \(body!)\n")
-        
+
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.ChangePhone.httpRequest(), token: token)
         
@@ -407,14 +383,10 @@ class HiveService
     
     func changeEmail(accessToken token: String?, email: String, completion: (emailChanged: Bool, error: String?) -> Void)
     {
-        print("Changing email...")
-        
     // Prepare request body
         let body: NSDictionary? = [
             "Email": email
         ]
-        print("⋮  BODY")
-        print("⋮    \(body!)\n")
         
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.ChangeEmail.httpRequest(), token: token)
@@ -446,8 +418,6 @@ class HiveService
     
     func getAllContacts(accessToken token: String, completion: (contacts: [Contact]?, error: String?) -> Void)
     {
-        print("Getting contacts...")
-        
     // Setup a network connection
         let networkConnection = NetworkService(request: API.ReadContacts.httpRequest(), token: token)
         
@@ -497,12 +467,8 @@ class HiveService
     
     func findContacts(accessToken token: String, phoneNumbers: [NSNumber], completion:(contacts: [Contact]?, error: String?) -> Void)
     {
-        print("Finding contacts...")
-        
         // Preparing request body
         let body = String(phoneNumbers)
-        print("⋮  BODY")
-        print("⋮    \(body)\n")
         
         // Setup a network connection
         let networkConnection = NetworkService(bodyAsPercentEncodedString: body, request: API.FindContacts.httpRequest(), token: token)
@@ -545,8 +511,6 @@ class HiveService
     
     func addContact(accessToken token: String, contactID: Int, completion: (requestSent: Bool, error: String?) -> Void)
     {
-        print("Adding contact...")
-		
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsPercentEncodedString: "\(contactID)", request: API.CreateContact.httpRequest(), token: token)
         
@@ -573,8 +537,6 @@ class HiveService
     
     func editContact(accessToken token: String, contact: Contact, completion: (detailsChanged: Bool, error: String?) -> Void)
     {
-        print("Editing contact... \(contact)")
-        
     // Prepare request body
         let body: NSDictionary? = [
             Contact.Key.friendID  : contact.friendID!,
@@ -584,8 +546,6 @@ class HiveService
             Contact.Key.phone     : contact.phone!,
             Contact.Key.id		  : contact.id!
         ]
-        print("⋮  BODY")
-        print("⋮    \(body!)\n")
         
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateContact.httpRequest(urlParameter: "/\(contact.id!)"), token: token)
@@ -641,8 +601,6 @@ class HiveService
     
     func getAllOrganisations(accessToken token: String, completion: (orgs: [Organisation]?, error: String?) -> Void)
     {
-        print("Getting organisations...")
-        
     // Setup a network connection
         let networkConnection = NetworkService(request: API.ReadOrganisation.httpRequest(), token: token)
     
@@ -686,16 +644,13 @@ class HiveService
         }
     }
     
-    func addOrganisation(accessToken token: String, organisation: Organisation, completion: (added: Bool, error: String?) -> Void)
+	func addOrganisation(accessToken token: String, organisation: Organisation, completion: (added: Bool, newOrg: Organisation?, error: String?) -> Void)
     {
-        print("Adding organisation...")
-        
     // Prepare request body
         let body: NSDictionary = [
             Organisation.Key.name			: organisation.name!,
-            Organisation.Key.orgDescription : organisation.orgDescription!,
-            Organisation.Key.role           : organisation.role!
-        ]
+            Organisation.Key.orgDescription : organisation.orgDescription!
+		]
         
     // Setup a network connection
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateOrganisation.httpRequest(), token: token)
@@ -709,19 +664,19 @@ class HiveService
             {
                 let details = response?[self.errorDescriptionKey].string
                 print("getAllOrganisations: request failed. \(error!.describe(details!))")
-                completion(added: false, error: error!.describe(details!))
+				completion(added: false, newOrg: nil, error: error!.describe(details!))
                 return
             }
             
         // Request succeeded
-            completion(added: true, error: nil)
+			organisation.id = response![Organisation.Key.id].numberValue
+			organisation.role = response![Organisation.Key.role].stringValue
+            completion(added: true, newOrg: organisation, error: nil)
         }
     }
     
     func editOrganisation(accessToken token: String, newOrg: Organisation, completion: (edited: Bool, error: String?) -> Void)
     {
-        print("Editing organisation...")
-        
     // Prepare request body
         let body: NSDictionary = [
             Organisation.Key.name           : newOrg.name!,
@@ -730,8 +685,6 @@ class HiveService
             Organisation.Key.id             : newOrg.id!.integerValue,
             Organisation.Key.markedDeleted	: newOrg.markedDeleted!.boolValue
         ]
-        print("⋮  BODY")
-        print("⋮    \(body)\n")
         
     // Setup the network connection
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateOrganisation.httpRequest(urlParameter: "\(newOrg.id!.integerValue)"), token: token)
@@ -756,8 +709,6 @@ class HiveService
     
     func deleteOrganisation(accessToken token: String, orgID: Int, completion: (deleted: Bool, error: String?) -> Void)
     {
-        print("Deleting organisation...")
-
         let networkConnection = NetworkService(request: API.DeleteOrganisation.httpRequest(urlParameter: "\(orgID)"), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
@@ -782,8 +733,6 @@ class HiveService
     
     func getAllTasks(accessToken token: String, completion: (tasks: [Task]?, error: String?) -> Void)
     {
-        print("Getting all tasks...")
-        
         let networkConnection = NetworkService(request: API.ReadTasks.httpRequest(), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
@@ -835,8 +784,6 @@ class HiveService
     
 	func addTask(accessToken token: String, newTask: Task, completion: (added: Bool, task: Task?, error: String?) -> Void)
     {
-        print("Adding task...")
-        
         let body: NSDictionary = [
             Task.Key.name				: newTask.name!,
             Task.Key.taskDescription		: newTask.taskDescription!,
@@ -976,9 +923,12 @@ class HiveService
                 let field = Field.temporary()
                 
                 field.name              = fieldInfo[Field.Key.name].stringValue
-                field.areaInAcres       = fieldInfo[Field.Key.areaInAcres].numberValue
+                field.areaInHectares    = fieldInfo[Field.Key.areaInHectares].numberValue
                 field.fieldDescription  = fieldInfo[Field.Key.fieldDescription].stringValue
                 field.onOrganisationID  = fieldInfo[Field.Key.onOrganisationID].numberValue
+				field.latitude			= fieldInfo[Field.Key.latitude].numberValue
+				field.longitude			= fieldInfo[Field.Key.longitude].numberValue
+				print("field is on organisation id \(field.onOrganisationID)")
                 field.id                = fieldInfo[Field.Key.id].numberValue
                 let createdOnString     = fieldInfo[Field.Key.createdOn].stringValue
                 field.createdOn         = self.dateFormatter.dateFromString(createdOnString)
@@ -995,18 +945,20 @@ class HiveService
         }
     }
     
-    func addField(accessToken token: String, newField: Field, completion: (added: Bool, error: String?) -> Void)
+	func addField(accessToken token: String, newField: Field, completion: (added: Bool, newField: Field?, error: String?) -> Void)
     {
         print("Creating a field...")
         
         let body: NSDictionary = [
             Field.Key.name             : newField.name!,
-            Field.Key.areaInAcres      : newField.areaInAcres!,
+            Field.Key.areaInHectares   : newField.areaInHectares!,
             Field.Key.fieldDescription : newField.fieldDescription!,
-            Field.Key.onOrganisationID : newField.onOrganisationID!
+            Field.Key.onOrganisationID : newField.onOrganisationID!,
+			Field.Key.latitude		   : newField.latitude!,
+			Field.Key.longitude		   : newField.longitude!
         ]
         
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateField.httpRequest(), token: token)
+        let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateField.httpRequest(), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
             
@@ -1015,24 +967,40 @@ class HiveService
             {
                 let details = response?[self.errorDescriptionKey].string
                 print("createField: request failed. \(error!.describe(details!))")
-                completion(added: false, error: error!.describe(details!))
+                completion(added: false, newField: nil, error: error!.describe(details!))
                 return
             }
             
         // Request successful
-            completion(added: true, error: nil)
+			newField.name              = response![Field.Key.name].stringValue
+			newField.areaInHectares    = response![Field.Key.areaInHectares].numberValue
+			newField.fieldDescription  = response![Field.Key.fieldDescription].stringValue
+			newField.onOrganisationID  = response![Field.Key.onOrganisationID].numberValue
+			newField.latitude			= response![Field.Key.latitude].numberValue
+			newField.longitude			= response![Field.Key.longitude].numberValue
+			print("field is on organisation id \(newField.onOrganisationID)")
+			newField.id                = response![Field.Key.id].numberValue
+			let createdOnString     = response![Field.Key.createdOn].stringValue
+			newField.createdOn         = self.dateFormatter.dateFromString(createdOnString)
+			let updatedOnString     = response![Field.Key.updatedOn].stringValue
+			newField.updatedOn         = self.dateFormatter.dateFromString(updatedOnString)
+			newField.version           = response![Field.Key.version].stringValue
+			newField.markedDeleted     = response![Field.Key.markedDeleted].boolValue
+			completion(added: true, newField: newField, error: nil)
         }
     }
-    
+	
     func editField(accessToken token: String, newField: Field, completion: (edited: Bool, error: String?) -> Void)
     {
         print("Editing field...")
         
         let body: NSDictionary = [
 			Field.Key.name             : newField.name!,
-			Field.Key.areaInAcres      : newField.areaInAcres!,
+			Field.Key.areaInHectares   : newField.areaInHectares!,
 			Field.Key.fieldDescription : newField.fieldDescription!,
-			Field.Key.onOrganisationID : newField.onOrganisationID!
+			Field.Key.onOrganisationID : newField.onOrganisationID!,
+			Field.Key.latitude		   : newField.latitude!,
+			Field.Key.longitude	       : newField.longitude!
         ]
 		
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateField.httpRequest(urlParameter: "\(newField.id!.integerValue)"), token: token)
@@ -1122,6 +1090,7 @@ class HiveService
             }
             
         // Callback
+			print("Sending \(staffs.count) to local.")
             completion(staffs: staffs, error: nil)
         }
     }
@@ -1133,10 +1102,7 @@ class HiveService
         let body: NSDictionary = [
             Staff.Key.personID          : newStaff.personID!,
             Staff.Key.onOrganisationID  : newStaff.onOrganisationID!,
-            Staff.Key.role              : newStaff.role!,
-            Staff.Key.firstName         : newStaff.firstName!,
-            Staff.Key.lastName          : newStaff.lastName!,
-            Staff.Key.phone             : newStaff.phone!
+            Staff.Key.role              : newStaff.role!
         ]
         
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateStaff.httpRequest(), token: token)

@@ -121,7 +121,12 @@ class ContactsViewController: UIViewController, UITableViewDelegate, UITableView
     {
         let contact = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Contact
         cell.title = "\(contact.firstName ?? "Darth") \(contact.lastName ?? "Vader")"
-        cell.subtitle = "\((contact.phone ?? "0123456789") ?? "1234567890")"
+		if contact.state == "P1" || contact.state == "P2" {
+			cell.subtitle = "Pending"
+		}
+		else {
+			cell.subtitle = String(contact.phone ?? 0000000000)
+		}
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int

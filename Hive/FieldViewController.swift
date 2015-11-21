@@ -50,7 +50,7 @@ class FieldViewController: UIViewController, UITableViewDataSource, UITableViewD
 		let farmID = field.onOrganisationID
 		let farmName = Organisation.getOrganisationWithID(farmID!)!.name!
 		farmNameButton.setTitle(farmName, forState: .Normal)
-		areaLabel.text = "\(field.area!) acres"
+		areaLabel.text = "\(field.areaInHectares!) acres"
 		descriptionLabel.text = field.fieldDescription!
     }
 	
