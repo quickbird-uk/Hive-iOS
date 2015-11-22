@@ -17,7 +17,6 @@ class ViewController: UIViewController
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var phoneLabel: UILabel!
-    @IBOutlet weak var expiryDateLabel: UILabel!
     @IBOutlet weak var offlineView: UIView!
     @IBOutlet weak var syncButton: UIBarButtonItem!
     @IBOutlet weak var lastUpdatedLabel: UILabel!
@@ -77,16 +76,22 @@ class ViewController: UIViewController
         super.viewDidLoad()
         UINavigationBar.appearance().titleTextAttributes = Design.shared.NavigationBarTitleStyle
         UIBarButtonItem.appearance().setTitleTextAttributes(Design.shared.NavigationBarButtonStyle, forState: UIControlState.Normal)
+    }
+	
+	override func viewWillAppear(animated: Bool)
+	{
+		if let user = User.get()
+		{
+			self.titleLabel.text = "\(user.firstName ?? "Darth") \(user.lastName ?? "Vader")"
+			self.phoneLabel.text! = "+44 \(user.phone ?? 0123456789)"
+			self.lastUpdatedLabel.text! = "Last updated " + Design.shared.stringFromDate(user.lastSync)
+		}
 		offlineView.hidden = NetworkService.isConnected()
 		syncButton.enabled = NetworkService.isConnected()
-    }
+	}
 	
 	override func viewDidAppear(animated: Bool)
 	{
-		// Check if a user is signed in
-		// Then check if their phone number is verified
-		// Then get on with it
-		
 		guard let user = User.get() else
 		{
 			self.navigationController?.performSegueWithIdentifier("authenticate", sender: nil)
@@ -98,10 +103,6 @@ class ViewController: UIViewController
 			self.navigationController?.performSegueWithIdentifier("verifyPhone", sender: nil)
 			return
 		}
-		
-		self.titleLabel.text = "\(user.firstName ?? "Darth") \(user.lastName ?? "Vader")"
-		self.phoneLabel.text! = "+44 \(user.phone ?? 0123456789)"
-		self.lastUpdatedLabel.text! = "Last updated " + Design.shared.stringFromDate(user.lastSync)
 	}
     
     override func didReceiveMemoryWarning()

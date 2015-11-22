@@ -11,65 +11,42 @@ import CoreData
 
 class TasksViewController: UITableViewController, NSFetchedResultsControllerDelegate
 {
-    //
-    // MARK: - Properties & Outlets
-    //
-    
-    var selectedIndexPath: NSIndexPath!
-    var fetchedResultsController: NSFetchedResultsController!
-    let user = User.get()!
     @IBOutlet var tasksTableView: UITableView!
+	@IBOutlet weak var addBarButton: UIBarButtonItem!
+	@IBOutlet weak var offlineView: UIView!
+	
+	var selectedIndexPath: NSIndexPath!
+	let user = User.get()!
+	
     
     //
-    // MARK: - Methods
+    // MARK: - Fetched Results Controller
     //
-    
-    func initFetchedResultsController()
-    {
-        let request = NSFetchRequest(entityName: Task.entityName)
-        let dueDateSort = NSSortDescriptor(key: "dueDate", ascending: true)
-        request.sortDescriptors = [dueDateSort]
+	
+	var fetchedResultsController: NSFetchedResultsController!
+
+	func initFetchedResultsController()
+	{
+		let request = NSFetchRequest(entityName: Task.entityName)
+		let dueDateSort = NSSortDescriptor(key: "dueDate", ascending: true)
+		request.sortDescriptors = [dueDateSort]
 		request.predicate = NSPredicate(format: "state == %@", "Pending")
-        
-        self.fetchedResultsController = NSFetchedResultsController(
-            fetchRequest: request,
-            managedObjectContext: Data.shared.permanentContext,
-            sectionNameKeyPath: nil,
-            cacheName: nil)
-        self.fetchedResultsController.delegate = self
-        do {
-            try self.fetchedResultsController.performFetch()
-            print(fetchedResultsController.fetchedObjects as! [Task])
-        }
-        catch {
-            print("Fatal error. Failed to initialize fetched results controller \(error)")
-        }
-    }
-    
-    func confirmDelete(task: Task)
-    {
-        let alert = UIAlertController(
-            title: "Are you sure you want to remove \(task.name!) from your tasks?",
-            message: "The changes made here will sync to all your staff.",
-            preferredStyle: .ActionSheet)
-        
-        let deleteAction = UIAlertAction(title: "Delete", style: .Destructive) {
-            alert in
-            Data.shared.permanentContext.deleteObject(task)
-			Data.shared.saveContext(message: "Deleted task successfully.")
-        }
-        alert.addAction(deleteAction)
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-        alert.addAction(cancelAction)
-        
-        self.presentViewController(alert, animated: true, completion: nil)
-    }
-    
-    //
-    // MARK: - Fetched Results Controller Delegate
-    //
-    
+		
+		self.fetchedResultsController = NSFetchedResultsController(
+			fetchRequest: request,
+			managedObjectContext: Data.shared.permanentContext,
+			sectionNameKeyPath: nil,
+			cacheName: nil)
+		self.fetchedResultsController.delegate = self
+		do {
+			try self.fetchedResultsController.performFetch()
+			print(fetchedResultsController.fetchedObjects as! [Task])
+		}
+		catch {
+			print("Fatal error. Failed to initialize fetched results controller \(error)")
+		}
+	}
+	
     func controllerWillChangeContent(controller: NSFetchedResultsController)
     {
         tasksTableView.beginUpdates()
@@ -112,7 +89,7 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     }
     
     //
-    // MARK: - Table View Datasource
+    // MARK: - Table View
     //
     
     func configureCell(cell: UITableViewCell, indexPath: NSIndexPath)
@@ -146,11 +123,7 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
         let sectionInfo = sections[section]
         return sectionInfo.numberOfObjects
     }
-    
-    //
-    // MARK: - Table View Delegate
-    //
-    
+	
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
     {
         let cell = tableView.dequeueReusableCellWithIdentifier("TaskCell")
@@ -166,7 +139,12 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool
     {
-        let task = fetchedResultsController.objectAtIndexPath(indexPath) as! Task
+		guard online else
+		{
+			return false
+		}
+		
+		let task = fetchedResultsController.objectAtIndexPath(indexPath) as! Task
         if task.assignedByID == user.id {
             return true
         }
@@ -183,17 +161,62 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
             self.confirmDelete(taskToDelete)
         }
     }
-    
+	
+	func confirmDelete(task: Task)
+	{
+		let alert = UIAlertController(
+			title: "Are you sure you want to remove \(task.name!) from your tasks?",
+			message: "The changes made here will sync to all your staff.",
+			preferredStyle: .ActionSheet)
+		
+		let deleteAction = UIAlertAction(title: "Delete", style: .Destructive) {
+			alert in
+			Data.shared.permanentContext.deleteObject(task)
+			Data.shared.saveContext(message: "Deleted task successfully.")
+		}
+		alert.addAction(deleteAction)
+		
+		let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+		alert.addAction(cancelAction)
+		
+		self.presentViewController(alert, animated: true, completion: nil)
+	}
+	
+	//
+	// MARK: - View Controller Lifecycle
+	//
+	
+	var online: Bool {
+		get {
+			return NetworkService.isConnected()
+		}
+	}
+	
+	let offlineViewHeight: CGFloat = 30.0
+	
     override func viewDidLoad()
     {
         super.viewDidLoad()
         initFetchedResultsController()
 	}
+	
+	override func viewWillAppear(animated: Bool)
+	{
+		if online
+		{
+			self.offlineView.frame = CGRect(x: 0, y: 0, width: self.offlineView.frame.width, height: 0)
+			self.addBarButton.enabled = true
+		}
+		else
+		{
+			self.offlineView.frame = CGRect(x: 0, y: 0, width: self.offlineView.frame.width, height: self.offlineViewHeight)
+			self.addBarButton.enabled = false
+		}
+	}
 
     override func didReceiveMemoryWarning()
     {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
     //

@@ -43,13 +43,11 @@ class JobSheetViewController: UITableViewController
 		task.completedOnDate = NSDate()
 		task.taskDescription! += "\n\nComments from \(user.firstName!) \(user.lastName!):\n" + commentsCell.plainText
 		HiveService.shared.editTask(accessToken: user.accessToken!, newTask: task) {
-			(edited, error) -> Void in
-			if edited
-			{
-				print("Hurrrah!!!!")
+			(edited, editedTask, error) -> Void in
+			if edited {
+				editedTask!.moveToPersistentStore()
 			}
-			else
-			{
+			else {
 				print(error)
 			}
 		}

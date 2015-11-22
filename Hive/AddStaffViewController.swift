@@ -56,9 +56,9 @@ class AddStaffViewController: UITableViewController, OptionsListDataSource
 		newStaff.onOrganisationID = organisation.id
 		newStaff.role = selectedRole
 		HiveService.shared.addStaff(accessToken: accessToken, newStaff: newStaff) {
-			(added, error) -> Void in
+			(added, newStaff, error) -> Void in
 			if added {
-				print("Fuck yeah!")
+				newStaff!.moveToPersistentStore()
 			}
 		}
 	}

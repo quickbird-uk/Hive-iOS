@@ -59,12 +59,11 @@ class NetworkService: NSOperation
         
         print("⋮   ⋮  URL                ", terminator:"")
         print(self.httpRequest.URL!)
-        print("⋮   ⋮  CONTENT-TYPE       ", terminator:"")
-        print(self.httpRequest.valueForHTTPHeaderField("Content-Type")!)
-        print("⋮   ⋮  AUTHORIZATION      ", terminator:"")
-        print(self.httpRequest.valueForHTTPHeaderField("Authorization"))
-		print("⋮   ⋮  HTTP BODY      ", terminator:"")
-		print(self.httpBody)
+		print("⋮   ⋮  HTTP METHOD        ", terminator:"")
+		print(self.httpRequest.HTTPMethod)
+		print("⋮   ⋮  HTTP BODY          ", terminator:"")
+		let body = self.httpBody ?? "No body."
+		print(body)
     }
     
     convenience init(bodyAsJSON dictionary: NSDictionary?, request: NSMutableURLRequest, token: NSString?)

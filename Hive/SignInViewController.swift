@@ -67,6 +67,12 @@ class SignInViewController: UITableViewController, UITextFieldDelegate
     
     @IBAction func login(sender: UIButton)
     {
+		guard NetworkService.isConnected() else
+		{
+			showError("We can't connect to the internet at the moment. Please try again later.")
+			return
+		}
+		
 		if let phone = NSNumberFormatter().numberFromString(phoneCell.userResponse)
 		{
 			tempUser.phone = phone

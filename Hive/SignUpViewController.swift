@@ -53,6 +53,12 @@ class SignUpViewController: UITableViewController, UITextFieldDelegate, LegalDat
     
     @IBAction func signup(sender: UIButton)
     {
+		guard NetworkService.isConnected() else
+		{
+			showError("We can't connect to the internet at the moment. Please try again later.")
+			return
+		}
+		
 		if firstNameCell.userResponse == "" {
 			showError("First name can't be blank.")
 			return
