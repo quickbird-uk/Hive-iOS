@@ -21,6 +21,7 @@ class JobSheetViewController: UITableViewController
 	var assignedBy: String!
 	var onField: String!
 	var areaCovered: Double!
+	let user = User.get()!
 	
     @IBOutlet var jobSheetView: UITableView!
     @IBOutlet weak var nameCell: UITableViewCell!
@@ -28,7 +29,6 @@ class JobSheetViewController: UITableViewController
     @IBOutlet weak var assignedByCell: UITableViewCell!
     @IBOutlet weak var doneByCell: UITableViewCell!
     @IBOutlet weak var fieldNameCell: UITableViewCell!
-    @IBOutlet weak var areaCoveredCell: UITableViewCell!
     @IBOutlet weak var timeSpentCell: UITableViewCell!
     @IBOutlet weak var dateCell: UITableViewCell!
     @IBOutlet weak var commentsCell: TableViewCellWithTextView!
@@ -39,6 +39,20 @@ class JobSheetViewController: UITableViewController
     
     @IBAction func save(sender: UIBarButtonItem)
     {
+		task.state = "Finished"
+		task.completedOnDate = NSDate()
+		task.taskDescription! += "\n\nComments from \(user.firstName!) \(user.lastName!):\n" + commentsCell.plainText
+		HiveService.shared.editTask(accessToken: user.accessToken!, newTask: task) {
+			(edited, error) -> Void in
+			if edited
+			{
+				print("Hurrrah!!!!")
+			}
+			else
+			{
+				print(error)
+			}
+		}
         self.dismissViewControllerAnimated(true, completion: nil)
     }
     
@@ -49,13 +63,14 @@ class JobSheetViewController: UITableViewController
     override func viewDidLoad()
     {
         super.viewDidLoad()
-		timeSpentCell.detailTextLabel!.text = "\(hoursTaken):\(minutesTaken):\(secondsTaken)"
-		nameCell.detailTextLabel!.text = "\(task.name!)"
-		taskTypeCell.detailTextLabel!.text = "\(task.type!)"
-		assignedByCell.detailTextLabel!.text = "\(task.assignedByID!)"
-		doneByCell.detailTextLabel!.text = "\(task.completedOnDate)"
-		fieldNameCell.detailTextLabel!.text = "\(task.forFieldID!)"
-		dateCell.detailTextLabel!.text = "\(task.completedOnDate!)"
+		timeSpentCell.detailTextLabel!.text		= "\(hoursTaken)h \(minutesTaken)m \(secondsTaken)s"
+		nameCell.detailTextLabel!.text			= task.name!
+		taskTypeCell.detailTextLabel!.text		= task.type!
+		assignedByCell.detailTextLabel!.text		= assignedBy
+		let doneBy								= user.firstName! + " " + user.lastName!
+		doneByCell.detailTextLabel!.text			= doneBy
+		fieldNameCell.detailTextLabel!.text		= onField
+		dateCell.detailTextLabel!.text			= Design.shared.stringFromDate(task.completedOnDate!)
     }
 
     override func didReceiveMemoryWarning()
@@ -63,4 +78,21 @@ class JobSheetViewController: UITableViewController
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+	
+	//
+	// MARK: - Table View Delegate
+	//
+	
+	override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String?
+	{
+		switch section
+		{
+			case 0:
+				return "A copy will be sent to " + assignedBy
+			case 1:
+				return "Comments"
+			default:
+				return ""
+		}
+	}
 }

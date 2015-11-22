@@ -15,7 +15,7 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     // MARK: - Properties & Outlets
     //
     
-    var selectedCell: Int?
+    var selectedIndexPath: NSIndexPath!
     var fetchedResultsController: NSFetchedResultsController!
     let user = User.get()!
     @IBOutlet var tasksTableView: UITableView!
@@ -29,6 +29,7 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
         let request = NSFetchRequest(entityName: Task.entityName)
         let dueDateSort = NSSortDescriptor(key: "dueDate", ascending: true)
         request.sortDescriptors = [dueDateSort]
+		request.predicate = NSPredicate(format: "state == %@", "Pending")
         
         self.fetchedResultsController = NSFetchedResultsController(
             fetchRequest: request,
@@ -159,7 +160,7 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     
     override func tableView(tableView: UITableView, willSelectRowAtIndexPath indexPath: NSIndexPath) -> NSIndexPath?
     {
-        self.selectedCell = indexPath.row
+        self.selectedIndexPath = indexPath
         return indexPath
     }
     
@@ -203,8 +204,8 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     {
         if segue.identifier == "showTaskDetails"
         {
-			
+			let destination = segue.destinationViewController as! TaskDetailsViewController
+			destination.task = fetchedResultsController.objectAtIndexPath(selectedIndexPath) as! Task
         }
-        
     }
 }

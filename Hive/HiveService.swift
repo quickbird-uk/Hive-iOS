@@ -683,11 +683,12 @@ class HiveService
             Organisation.Key.orgDescription : newOrg.orgDescription!,
             Organisation.Key.role			: newOrg.role!,
             Organisation.Key.id             : newOrg.id!.integerValue,
-            Organisation.Key.markedDeleted	: newOrg.markedDeleted!.boolValue
+            Organisation.Key.markedDeleted	: newOrg.markedDeleted!.boolValue,
+			Organisation.Key.version			: newOrg.version!
         ]
         
     // Setup the network connection
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateOrganisation.httpRequest(urlParameter: "\(newOrg.id!.integerValue)"), token: token)
+        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateOrganisation.httpRequest(urlParameter: "/\(newOrg.id!.integerValue)"), token: token)
         
     // Make the network request
         networkConnection.makeHTTPRequest {
@@ -709,7 +710,7 @@ class HiveService
     
     func deleteOrganisation(accessToken token: String, orgID: Int, completion: (deleted: Bool, error: String?) -> Void)
     {
-        let networkConnection = NetworkService(request: API.DeleteOrganisation.httpRequest(urlParameter: "\(orgID)"), token: token)
+        let networkConnection = NetworkService(request: API.DeleteOrganisation.httpRequest(urlParameter: "/\(orgID)"), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
             
@@ -795,7 +796,8 @@ class HiveService
             Task.Key.dueDate				: "\(newTask.dueDate!)",
             Task.Key.payRate				: 2.20
         ]
-        
+		
+        print(body)
         let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateTask.httpRequest(), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
@@ -851,10 +853,12 @@ class HiveService
             Task.Key.completedOnDate  : "\(newTask.completedOnDate!)",
             Task.Key.dueDate          : "\(newTask.dueDate!)",
             Task.Key.state            : newTask.state!,
-            Task.Key.payRate          : newTask.payRate!
+            Task.Key.payRate          : newTask.payRate!,
+			Task.Key.version			  : newTask.version!,
+			Task.Key.id				  : newTask.id!
         ]
         
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateTask.httpRequest(urlParameter: "\(newTask.id!.integerValue)"), token: token)
+        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateTask.httpRequest(urlParameter: "/\(newTask.id!.integerValue)"), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
             
@@ -876,7 +880,7 @@ class HiveService
     {
         print("Deleting task...")
         
-        let networkConnection = NetworkService(request: API.DeleteTask.httpRequest(urlParameter: "\(taskID)"), token: token)
+        let networkConnection = NetworkService(request: API.DeleteTask.httpRequest(urlParameter: "/\(taskID)"), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
             
@@ -1000,10 +1004,12 @@ class HiveService
 			Field.Key.fieldDescription : newField.fieldDescription!,
 			Field.Key.onOrganisationID : newField.onOrganisationID!,
 			Field.Key.latitude		   : newField.latitude!,
-			Field.Key.longitude	       : newField.longitude!
+			Field.Key.longitude	       : newField.longitude!,
+			Field.Key.id				   : newField.id!,
+			Field.Key.version		   : newField.version!
         ]
 		
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateField.httpRequest(urlParameter: "\(newField.id!.integerValue)"), token: token)
+        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateField.httpRequest(urlParameter: "/\(newField.id!.integerValue)"), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
             
@@ -1025,7 +1031,7 @@ class HiveService
     {
         print("Deleting field...")
         
-        let networkConnection = NetworkService(request: API.DeleteField.httpRequest(urlParameter: "\(fieldID)"), token: token)
+        let networkConnection = NetworkService(request: API.DeleteField.httpRequest(urlParameter: "/\(fieldID)"), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
             
@@ -1133,10 +1139,12 @@ class HiveService
 			Staff.Key.role              : newStaff.role!,
 			Staff.Key.firstName         : newStaff.firstName!,
 			Staff.Key.lastName          : newStaff.lastName!,
-			Staff.Key.phone             : newStaff.phone!
+			Staff.Key.phone             : newStaff.phone!,
+			Staff.Key.id				    : newStaff.id!,
+			Staff.Key.version			: newStaff.version!
         ]
 		
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateStaff.httpRequest(urlParameter: "\(newStaff.id!.integerValue)"), token: token)
+        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateStaff.httpRequest(urlParameter: "/\(newStaff.id!.integerValue)"), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
             
@@ -1158,7 +1166,7 @@ class HiveService
     {
         print("Deleting staff...")
         
-        let networkConnection = NetworkService(request: API.DeleteStaff.httpRequest(urlParameter: "\(staffID)"), token: token)
+        let networkConnection = NetworkService(request: API.DeleteStaff.httpRequest(urlParameter: "/\(staffID)"), token: token)
         networkConnection.makeHTTPRequest() {
             (response, error) in
             

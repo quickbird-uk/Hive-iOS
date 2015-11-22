@@ -134,19 +134,19 @@ class Staff: NSManagedObject
 		return tempStaff
     }
     
-    class func getStaffWithID(id: NSNumber) -> Staff?
+    class func getStaffWithID(personID: NSNumber) -> Staff?
     {
         let request = NSFetchRequest(entityName: Staff.entityName)
-        request.predicate = NSPredicate(format: "id == %@", id)
+        request.predicate = NSPredicate(format: "personID == %@", personID)
         
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as! [Staff]
-            print("\nNumber of staff with id \(id) = \(result.count)")
+            print("\nNumber of staff with id \(personID) = \(result.count)")
             return result.first
         }
         catch
         {
-            print("\nCouldn't find any staff with ID = \(id).")
+            print("\nCouldn't find any staff with ID = \(personID).")
             return nil
         }
     }

@@ -16,6 +16,7 @@ class FieldViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     var itemIndex: Int = 0
     var field: Field!
+	var tasks: [Task]!
     
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var farmNameButton: UIButton!
@@ -29,13 +30,24 @@ class FieldViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
-        return 3
+        if tasks != nil
+		{
+			return tasks.count
+		}
+		return 0
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
     {
         let cell = tableView.dequeueReusableCellWithIdentifier("ActivityCell")!
-        cell.textLabel?.text = "Activity \(indexPath.row)"
+        cell.textLabel?.text = tasks[indexPath.row].type
+		let completionDate = tasks[indexPath.row].completedOnDate
+		if completionDate != nil {
+			cell.detailTextLabel?.text = Design.shared.stringFromDate(completionDate!)
+		}
+		else {
+			cell.detailTextLabel?.text = "Recently"
+		}
         return cell
     }
 
@@ -52,6 +64,7 @@ class FieldViewController: UIViewController, UITableViewDataSource, UITableViewD
 		farmNameButton.setTitle(farmName, forState: .Normal)
 		areaLabel.text = "\(field.areaInHectares!) acres"
 		descriptionLabel.text = field.fieldDescription!
+		tasks = Task.getTasksForField(Int(field.id!), withState: "Finished")
     }
 	
 	override func viewWillAppear(animated: Bool)

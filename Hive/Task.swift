@@ -171,9 +171,15 @@ class Task: NSManagedObject
         }
     }
     
-    class func getAll() -> [Task]?
+	class func getAll(filter: String! = nil) -> [Task]?
     {
         let request = NSFetchRequest(entityName: Task.entityName)
+		
+		if filter != nil
+		{
+			request.predicate = NSPredicate(format: "state == %@", filter)
+		}
+		
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Task]
             print("\nTotal number of tasks in main context = \(result?.count)")
@@ -190,7 +196,26 @@ class Task: NSManagedObject
             return nil
         }
     }
-    
+	
+	class func getTasksForField(fieldID: Int!, withState state: String!) -> [Task]?
+	{
+		let request = NSFetchRequest(entityName: Task.entityName)
+		request.predicate = NSPredicate(format: "forFieldID == %d AND state == %@", fieldID, state)
+		
+		do {
+			let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Task]
+			if result?.count > 0 {
+				return result
+			}
+			else {
+				return nil
+			}
+		}
+		catch {
+			return nil
+		}
+	}
+
     class func getAllTypes() -> [String]
     {
         var allTypes = [String]()

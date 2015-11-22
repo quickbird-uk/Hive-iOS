@@ -42,6 +42,11 @@ class RecordTaskViewController: UIViewController
     
     @IBAction func reset(sender: UIButton)
     {
+		resetTimer()
+    }
+	
+	func resetTimer()
+	{
 		// Pause display link updates
 		displayLink.paused = true;
 		
@@ -50,27 +55,37 @@ class RecordTaskViewController: UIViewController
 		lastDisplayLinkTimeStamp = 0.0
 		
 		startPauseButton.setTitle("Start", forState: .Normal)
-    }
+	}
 	
     @IBAction func pause(sender: UIButton)
     {
-        displayLink.paused = !displayLink.paused
-        if displayLink.paused {
-            startPauseButton.setTitle("Resume", forState: .Normal)
-        }
-        else {
-            startPauseButton.setTitle("Pause", forState: .Normal)
-        }
+		pauseTimer()
     }
-    
+	
+	func pauseTimer()
+	{
+		displayLink.paused = !displayLink.paused
+		if displayLink.paused {
+			startPauseButton.setTitle("Resume", forState: .Normal)
+		}
+		else {
+			startPauseButton.setTitle("Pause", forState: .Normal)
+		}
+	}
+	
     @IBAction func finish(sender: UILongPressGestureRecognizer)
     {
-        timerDisplay.alpha = 0.7
-        confirmFinish()
+		if sender.state == UIGestureRecognizerState.Began
+		{
+			timerDisplay.alpha = 0.6
+			pauseTimer()
+			confirmFinish()
+		}
     }
     
     @IBAction func cancel(sender: UIBarButtonItem)
     {
+		resetTimer()
         self.dismissViewControllerAnimated(true, completion: nil)
     }
     
@@ -84,7 +99,10 @@ class RecordTaskViewController: UIViewController
         }
         alertController.addAction(yesAction)
         
-        let noAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+		let noAction = UIAlertAction(title: "Cancel", style: .Cancel) {
+			alertAction in
+			self.timerDisplay.alpha = 1.0
+		}
         alertController.addAction(noAction)
         
         self.presentViewController(alertController, animated: true, completion: nil)
@@ -123,6 +141,7 @@ class RecordTaskViewController: UIViewController
     {
         super.viewDidLoad()
         timerDisplay.text = "00:00:00"
+		taskDescriptionLabel.text = task.taskDescription ?? "Task has no detailed description."
         
         // Initializing the display link and directing it to call our displayLinkUpdate: method when an update is available
         displayLink = CADisplayLink(target: self, selector: "displayLinkUpdate:")
@@ -158,6 +177,7 @@ class RecordTaskViewController: UIViewController
 		destination.hoursTaken = hoursTaken
 		destination.assignedBy = assignedBy
 		destination.onField = onField
+		resetTimer()
 	}
 }
  

@@ -126,19 +126,19 @@ class Contact: NSManagedObject
 		return tempContact
     }
     
-    class func getContactWithID(id: NSNumber) -> Contact?
+    class func getContactWithID(personID: NSNumber) -> Contact?
     {
         let request = NSFetchRequest(entityName: Contact.entityName)
-        request.predicate = NSPredicate(format: "id == %@", id)
+        request.predicate = NSPredicate(format: "friendID == %@", personID)
         
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as! [Contact]
-            print("\nNumber of contacts with id \(id) = \(result.count)")
+            print("\nNumber of contacts with id \(personID) = \(result.count)")
             return result.first
         }
         catch
         {
-            print("\nCouldn't find any contacts with ID = \(id).")
+            print("\nCouldn't find any contacts with ID = \(personID).")
             return nil
         }
     }

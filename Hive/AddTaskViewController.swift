@@ -18,7 +18,7 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
     let types = Task.getAllTypes()
     let fields = Field.getAll()
     var selectedFieldID: NSNumber?
-    let contacts = Contact.getAll()
+    let contacts = Contact.getAll("friends")
     var selectedContactID: NSNumber?
     
     //
@@ -49,7 +49,8 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
         newTask.taskDescription		= notesCell.plainText
         newTask.assignedByID			= user!.id
         newTask.payRate				= 66.6
-        
+		
+		print(newTask)
         HiveService.shared.addTask(accessToken: user!.accessToken!, newTask: newTask) {
             (added, task, error) in
             if added
@@ -108,7 +109,7 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
             // Contact for task
             case 3:
                 assignToPersonCell.selectedOption = option
-                selectedContactID = contacts?[selectedIndex].id
+                selectedContactID = contacts?[selectedIndex].friendID
             
             default:    break
         }
@@ -123,8 +124,8 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
     override func viewDidLoad()
     {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
+		
+		// Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
