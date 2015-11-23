@@ -61,7 +61,7 @@ class NetworkService: NSOperation
         print(self.httpRequest.URL!)
 		print("⋮   ⋮  HTTP METHOD        ", terminator:"")
 		print(self.httpRequest.HTTPMethod)
-		print("⋮   ⋮  HTTP BODY          ", terminator:"")
+		print("⋮   ⋮  HTTP BODY          ")
 		let body = self.httpBody ?? "No body."
 		print(body)
     }

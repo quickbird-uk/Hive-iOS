@@ -11,6 +11,7 @@ import UIKit
 class SyncViewController: UIViewController
 {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+	@IBOutlet weak var syncUpdateLabel: UILabel!
     
     override func viewDidLoad()
     {
@@ -23,16 +24,23 @@ class SyncViewController: UIViewController
         if let user = User.get()
         {
     // Sync data
-            HiveService.shared.downsync(user) {
+            HiveService.shared.download(user) {
                 (error) in
-                if error == nil
-                {
+				
+				guard error == nil else
+				{
+					self.activityIndicator.stopAnimating()
+					self.syncUpdateLabel.text = "Sync failed. Taking you back..."
+					sleep(3)
+					self.dismissViewControllerAnimated(true, completion: nil)
+					return
+				}
+				
         // Sync successful. Get back to presenting view controller
-                    user.setSyncDate(NSDate())
-                    self.activityIndicator.stopAnimating()
-					Data.shared.saveContext(message: "Exiting sync...")
-                    self.dismissViewControllerAnimated(true, completion: nil)
-                }
+				user.setSyncDate(NSDate())
+				self.activityIndicator.stopAnimating()
+				Data.shared.saveContext(message: "Exiting sync...")
+				self.dismissViewControllerAnimated(true, completion: nil)
             }
         }
     }

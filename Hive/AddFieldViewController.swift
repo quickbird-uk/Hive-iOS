@@ -34,17 +34,17 @@ class AddFieldViewController: UITableViewController, OptionsListDataSource
 		newField.latitude = latitude
 		newField.longitude = longitude
 		
-		HiveService.shared.addField(accessToken: userAccessToken!, newField: newField) {
-			(added, newField, error) -> Void in
-			if added && newField != nil
-			{
-				newField!.moveToPersistentStore()
-				self.dismissViewControllerAnimated(true, completion: nil)
-			}
-			else
+		HiveService.shared.addField(newField, accessToken: userAccessToken!) {
+			(didAdd, newField, error) -> Void in
+			
+			guard didAdd && newField != nil else
 			{
 				self.showAlert(error!)
+				return
 			}
+	
+			newField!.moveToPersistentStore()
+			self.dismissViewControllerAnimated(true, completion: nil)
 		}
 	}
 	

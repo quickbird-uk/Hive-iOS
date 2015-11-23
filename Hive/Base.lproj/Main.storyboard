@@ -1936,8 +1936,8 @@
                         <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KoP-cP-l23">
-                                <rect key="frame" x="48" y="236" width="102" height="46"/>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KoP-cP-l23">
+                                <rect key="frame" x="76" y="236" width="102" height="46"/>
                                 <animations/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="46" id="Bxf-gL-DKb"/>
@@ -1958,8 +1958,8 @@
                                 <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do" textAlignment="center" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="B5g-Dn-kWA">
-                                <rect key="frame" x="20" y="20" width="280" height="88"/>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" editable="NO" text="Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do" textAlignment="center" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="B5g-Dn-kWA">
+                                <rect key="frame" x="48" y="20" width="280" height="88"/>
                                 <animations/>
                                 <color key="backgroundColor" red="0.96078431372549022" green="0.96078431372549022" blue="0.96078431372549022" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
@@ -1967,8 +1967,8 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" address="YES"/>
                             </textView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KwP-s7-VER">
-                                <rect key="frame" x="171" y="236" width="102" height="46"/>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KwP-s7-VER">
+                                <rect key="frame" x="199" y="236" width="102" height="46"/>
                                 <animations/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="102" id="MHF-LW-hGu"/>
@@ -1982,8 +1982,8 @@
                                     <action selector="pause:" destination="uBg-kb-mx0" eventType="touchUpInside" id="Grl-bN-JHg"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="upg-kN-eYu">
-                                <rect key="frame" x="48" y="104" width="225" height="99"/>
+                            <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="00:00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="upg-kN-eYu">
+                                <rect key="frame" x="76" y="104" width="225" height="99"/>
                                 <animations/>
                                 <gestureRecognizers/>
                                 <fontDescription key="fontDescription" name="AvenirNextCondensed-UltraLight" family="Avenir Next Condensed" pointSize="72"/>
@@ -2349,27 +2349,16 @@
                                 </state>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="FIELD" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Xel-bF-C5J">
-                                <rect key="frame" x="23" y="311" width="33" height="17"/>
+                                <rect key="frame" x="23" y="274" width="33" height="17"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="12"/>
                                 <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ljb-qj-7Vq">
-                                <rect key="frame" x="0.0" y="336" width="320" height="168"/>
+                                <rect key="frame" x="0.0" y="299" width="320" height="205"/>
                                 <animations/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="168" id="HBR-6J-Olh"/>
-                                </constraints>
                             </mapView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HOZ-nt-4EF">
-                                <rect key="frame" x="231" y="303" width="66" height="32"/>
-                                <animations/>
-                                <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="14"/>
-                                <state key="normal" title="Directions">
-                                    <color key="titleColor" red="0.20392156859999999" green="0.59607843140000005" blue="0.85882352939999995" alpha="1" colorSpace="calibratedRGB"/>
-                                </state>
-                            </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Lorem ipsum dolor sit er elit lamet, consectetaur cilliu Lorem ipsum dolor sit er elit lamet, consectetaur cilliu" translatesAutoresizingMaskIntoConstraints="NO" id="hqz-di-RDf">
                                 <rect key="frame" x="19" y="87" width="277" height="60"/>
                                 <animations/>
@@ -2384,7 +2373,7 @@
                                 <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" address="YES"/>
                             </textView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DUE DATE" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vy9-Dj-er1">
-                                <rect key="frame" x="23" y="243" width="59" height="17"/>
+                                <rect key="frame" x="23" y="220" width="59" height="17"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="12"/>
                                 <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
@@ -2403,7 +2392,7 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="148" id="jku-Q5-MuZ"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="AvenirNext-Medium" family="Avenir Next" pointSize="21"/>
+                                <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="18"/>
                                 <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -2425,12 +2414,20 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="18 December 2015" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6wZ-8i-INu">
-                                <rect key="frame" x="23" y="265" width="148" height="21"/>
+                                <rect key="frame" x="23" y="245" width="148" height="21"/>
                                 <animations/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Medium" family="Avenir Next" pointSize="15"/>
                                 <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HOZ-nt-4EF">
+                                <rect key="frame" x="231" y="266" width="66" height="32"/>
+                                <animations/>
+                                <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="14"/>
+                                <state key="normal" title="Directions">
+                                    <color key="titleColor" red="0.20392156859999999" green="0.59607843140000005" blue="0.85882352939999995" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
+                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" red="0.96078431372549022" green="0.96078431372549022" blue="0.96078431372549022" alpha="1" colorSpace="calibratedRGB"/>
@@ -2445,6 +2442,7 @@
                             <constraint firstItem="hqz-di-RDf" firstAttribute="top" secondItem="iKH-nM-uJU" secondAttribute="bottom" constant="1" id="Q9g-Iy-rjG"/>
                             <constraint firstItem="iKH-nM-uJU" firstAttribute="top" secondItem="sCs-kE-ApE" secondAttribute="bottom" constant="-2" id="SEc-RA-afr"/>
                             <constraint firstItem="Xel-bF-C5J" firstAttribute="leading" secondItem="iKH-nM-uJU" secondAttribute="leading" id="TSV-1r-okE"/>
+                            <constraint firstItem="q4r-Ze-NgJ" firstAttribute="top" secondItem="ljb-qj-7Vq" secondAttribute="bottom" id="VIB-Hy-2NC"/>
                             <constraint firstAttribute="trailingMargin" secondItem="sCs-kE-ApE" secondAttribute="trailing" constant="7" id="VK5-tM-d1F"/>
                             <constraint firstItem="6wZ-8i-INu" firstAttribute="width" secondItem="goU-m1-ls8" secondAttribute="width" id="YK4-RJ-nna"/>
                             <constraint firstItem="iKH-nM-uJU" firstAttribute="width" secondItem="sCs-kE-ApE" secondAttribute="width" id="Yj2-WJ-BRD"/>
@@ -2455,14 +2453,14 @@
                             <constraint firstItem="iKH-nM-uJU" firstAttribute="leading" secondItem="sCs-kE-ApE" secondAttribute="leading" id="fEL-ED-wRe"/>
                             <constraint firstItem="IO6-BG-wT2" firstAttribute="top" secondItem="hqz-di-RDf" secondAttribute="bottom" constant="13" id="iyL-ER-5bQ"/>
                             <constraint firstItem="sCs-kE-ApE" firstAttribute="top" secondItem="klm-aj-kIr" secondAttribute="bottom" constant="20" id="mJz-5K-MhE"/>
-                            <constraint firstItem="Vy9-Dj-er1" firstAttribute="top" secondItem="goU-m1-ls8" secondAttribute="bottom" constant="31" id="mkX-sy-M0F"/>
+                            <constraint firstItem="Vy9-Dj-er1" firstAttribute="top" secondItem="goU-m1-ls8" secondAttribute="bottom" constant="8" id="mkX-sy-M0F"/>
                             <constraint firstItem="IO6-BG-wT2" firstAttribute="leading" secondItem="iKH-nM-uJU" secondAttribute="leading" id="nDk-bp-d5z"/>
                             <constraint firstItem="sCs-kE-ApE" firstAttribute="leading" secondItem="ZDe-1X-og1" secondAttribute="leadingMargin" constant="7" id="nJ0-lE-xdS"/>
                             <constraint firstItem="hqz-di-RDf" firstAttribute="leading" secondItem="iKH-nM-uJU" secondAttribute="leading" constant="-4" id="ocH-bV-qKD"/>
                             <constraint firstItem="ljb-qj-7Vq" firstAttribute="centerX" secondItem="ZDe-1X-og1" secondAttribute="centerX" id="qsw-3P-JJ2"/>
-                            <constraint firstItem="6wZ-8i-INu" firstAttribute="top" secondItem="Vy9-Dj-er1" secondAttribute="bottom" constant="5" id="rxd-69-OcX"/>
+                            <constraint firstItem="6wZ-8i-INu" firstAttribute="top" secondItem="Vy9-Dj-er1" secondAttribute="bottom" constant="8" id="rxd-69-OcX"/>
                             <constraint firstItem="HOZ-nt-4EF" firstAttribute="baseline" secondItem="Xel-bF-C5J" secondAttribute="baseline" id="wOg-hH-N0p"/>
-                            <constraint firstItem="Xel-bF-C5J" firstAttribute="top" secondItem="6wZ-8i-INu" secondAttribute="bottom" constant="25" id="yfa-yD-cFT"/>
+                            <constraint firstItem="Xel-bF-C5J" firstAttribute="top" secondItem="6wZ-8i-INu" secondAttribute="bottom" constant="8" id="yfa-yD-cFT"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Details" id="ZzU-CM-QiR">
@@ -3860,6 +3858,7 @@
                     <navigationItem key="navigationItem" title="Syncing" id="063-Dx-XbX"/>
                     <connections>
                         <outlet property="activityIndicator" destination="fIF-gm-Vwl" id="wgV-kV-aT9"/>
+                        <outlet property="syncUpdateLabel" destination="bMw-lQ-wJL" id="AHa-me-myl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="XtH-R7-04i" userLabel="First Responder" sceneMemberID="firstResponder"/>

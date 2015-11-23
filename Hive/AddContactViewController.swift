@@ -39,35 +39,40 @@ class AddContactViewController: UIViewController, UITableViewDelegate, UITableVi
     
     @IBAction func done(sender: UIBarButtonItem)
     {
-		HiveService.shared.addContact(accessToken: user!.accessToken!, contactID: selectedContact.id!.integerValue) {
-			(requestSent, error) -> Void in
-			if error == nil
-			{
-				let alertController = UIAlertController(title: "Invite sent", message: "We have sent your invitation to \(self.selectedContact.firstName!) on their phone number +44 \(self.selectedContact.phone!). They will be notified on their phone and will appear in your Contacts if they accept your request.", preferredStyle: .ActionSheet)
-				let okAction = UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default) {
-					alert -> Void in
-					self.dismissViewControllerAnimated(true, completion: nil)
-				}
-				alertController.addAction(okAction)
-				
-				HiveService.shared.downsync(self.user!) {
-					error -> Void in
-					print("Downsync complete after sending connection request.")
-				}
-				
-				dispatch_async(dispatch_get_main_queue()) {
-					self.presentViewController(alertController, animated: true, completion: nil)
-				}
-			}
-			else
+		HiveService.shared.addContactWithPersonID(selectedContact.friendID!.integerValue, accessToken: user!.accessToken!) {
+			(didSendInvite, error) -> Void in
+			
+			guard didSendInvite else
 			{
 				let alertController = UIAlertController(title: "Oops!", message: error!, preferredStyle: .ActionSheet)
 				let tryAgainAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: nil)
 				alertController.addAction(tryAgainAction)
-				
 				dispatch_async(dispatch_get_main_queue()) {
 					self.presentViewController(alertController, animated: true, completion: nil)
 				}
+				return
+			}
+			
+			let alertController = UIAlertController(title: "Invite sent", message: "We have sent your invitation to \(self.selectedContact.firstName!) on their phone number +44 \(self.selectedContact.phone!). They will be notified on their phone and will appear in your Contacts if they accept your request.", preferredStyle: .ActionSheet)
+			
+			let okAction = UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default) {
+					alert -> Void in
+					self.dismissViewControllerAnimated(true, completion: nil)
+				}
+			alertController.addAction(okAction)
+				
+			HiveService.shared.download(self.user!) {
+				error in
+				if error == nil {
+					print("Downsync complete after sending connection request.")
+				}
+				else {
+					print("Downsync failed after sending connection request.")
+				}
+			}
+				
+			dispatch_async(dispatch_get_main_queue()) {
+				self.presentViewController(alertController, animated: true, completion: nil)
 			}
 		}
     }
@@ -217,17 +222,21 @@ class AddContactViewController: UIViewController, UITableViewDelegate, UITableVi
                 print(self.phoneNumbers)
                 
         // Make Hive API call
-                HiveService.shared.findContacts(accessToken: self.user!.accessToken!, phoneNumbers: self.phoneNumbers) {
-                    (contacts, error) in
-                    if error == nil
-                    {
-                        self.contacts = contacts
-                        dispatch_async(dispatch_get_main_queue()) {
-                            self.activityIndicator.stopAnimating()
-                            self.searchResultsTable.alpha = 1.0
-                            self.searchResultsTable.reloadData()
-                        }
-                    }
+                HiveService.shared.findContactsWithPhoneNumbers(self.phoneNumbers, accessToken: self.user!.accessToken!) {
+                    (didFind, contacts, error) in
+					
+					guard didFind else
+					{
+						print("Couldn't find any contacts.")
+						return
+					}
+					
+					self.contacts = contacts
+					dispatch_async(dispatch_get_main_queue()) {
+						self.activityIndicator.stopAnimating()
+						self.searchResultsTable.alpha = 1.0
+						self.searchResultsTable.reloadData()
+					}
                 }
             }
         }

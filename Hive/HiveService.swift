@@ -44,7 +44,6 @@ class HiveService
     // Create a dispatch group to be notified when all requests finish
         let dispatchGroup = dispatch_group_create()
         
-    // Get all user details
         dispatch_group_enter(dispatchGroup)
         self.getUser(user) {
             (didGet, remoteUser, error) -> Void in
@@ -67,7 +66,6 @@ class HiveService
             }
         }
         
-    // Get all contacts for user
         dispatch_group_enter(dispatchGroup)
         self.getAllContacts(accessToken: user.accessToken!) {
             (didGet, contacts, error) in
@@ -89,7 +87,6 @@ class HiveService
             }
         }
 		
-    // Get all farms for user
         dispatch_group_enter(dispatchGroup)
         self.getAllOrganisations(accessToken: user.accessToken!) {
             (didGet, orgs, error) in
@@ -111,7 +108,6 @@ class HiveService
             }
         }
         
-    // Get all tasks for user
         dispatch_group_enter(dispatchGroup)
         self.getAllTasks(accessToken: user.accessToken!) {
             (didGet, tasks, error) in
@@ -133,7 +129,6 @@ class HiveService
             }
         }
         
-    // Get all fields for user
         dispatch_group_enter(dispatchGroup)
         self.getAllFields(accessToken: user.accessToken!) {
             (didGet, fields, error) in
@@ -155,7 +150,6 @@ class HiveService
             }
         }
         
-    // Get all staff for user
         dispatch_group_enter(dispatchGroup)
         self.getAllStaff(accessToken: user.accessToken!) {
             (didGet, staffs, error) in

@@ -64,38 +64,40 @@ class VerifyPhoneViewController: UIViewController, UITextFieldDelegate
         user!.passcode = code
     
     // Verify SMS code
-        HiveService.shared.renewAccessToken(user!) {
-            (token, expiryDate, error) in
-            if error == nil
-            {
-        // Set verified flag to true and update access token
-                if self.isUsingTempUser!
-                {
-                    self.user!.isVerified = true
-                    self.user!.accessToken = token
-                    self.user!.accessExpiresOn = expiryDate
-                    self.user!.moveToPersistentStore()
-                }
-                else
-                {
-                    self.user!.isVerified = true
-                    self.user!.accessToken = token
-                    self.user!.accessExpiresOn = expiryDate
-                }
-                Data.shared.saveContext(message: "User phone verified. Access token and expiry date updated.")
-                
-                dispatch_async(dispatch_get_main_queue()) {
-                    self.activityIndicator.stopAnimating()
-					self.performSegueWithIdentifier("sync", sender: nil)
-				}
-            }
-			else
+        HiveService.shared.renewAccessTokenForUser(user!) {
+            (didRenew, newToken, tokenExpiryDate, error) in
+            guard didRenew else
 			{
 				dispatch_async(dispatch_get_main_queue()) {
 					self.activityIndicator.stopAnimating()
 					self.verifyButton.hidden = false
 					self.showError(error!)
 				}
+				return
+			}
+			
+        // Set verified flag to true and update access token
+			
+			if self.isUsingTempUser!
+			{
+				self.user!.isVerified = true
+				self.user!.accessToken = newToken
+				self.user!.accessExpiresOn = tokenExpiryDate
+				self.user!.moveToPersistentStore()
+			}
+			
+			else
+			{
+				self.user!.isVerified = true
+				self.user!.accessToken = newToken
+				self.user!.accessExpiresOn = tokenExpiryDate
+			}
+			
+			Data.shared.saveContext(message: "User phone verified. Access token and expiry date updated.")
+                
+			dispatch_async(dispatch_get_main_queue()) {
+				self.activityIndicator.stopAnimating()
+				self.performSegueWithIdentifier("sync", sender: nil)
 			}
         }
     }
@@ -114,22 +116,26 @@ class VerifyPhoneViewController: UIViewController, UITextFieldDelegate
         message.text = "We need to verify your phone number before you can proceed. Please enter the code sent to +44 \(user!.phone!)"
         
     // Send SMS code
-        HiveService.shared.requestSMSCode(user!) {
-            (smsSent, error) in
-            if smsSent == false
-            {
-        // SMS sending failed.
-                print("SMS could not be sent.")
+		if isUsingTempUser! == false
+		{
+			HiveService.shared.sendSMSCodeToUser(user!) {
+				(didSend, error) in
+				guard didSend else
+				{
+					print("SMS could not be sent.")
                 
-        // Show an error action sheet
-                let alertController = UIAlertController(title: "Oops!", message: error!, preferredStyle: UIAlertControllerStyle.ActionSheet)
-                let defaultAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: nil)
-                alertController.addAction(defaultAction)
-                dispatch_async(dispatch_get_main_queue()) {
-                    self.presentViewController(alertController, animated: true, completion: nil)
-                }
-            }
-        }
+					let alertController = UIAlertController(title: "Oops!", message: error!, preferredStyle: UIAlertControllerStyle.ActionSheet)
+					let defaultAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: nil)
+					alertController.addAction(defaultAction)
+					dispatch_async(dispatch_get_main_queue()) {
+						self.presentViewController(alertController, animated: true, completion: nil)
+					}
+					return
+				}
+				
+				print("SMS sent successfully.")
+			}
+		}
     }
     
     override func didReceiveMemoryWarning()

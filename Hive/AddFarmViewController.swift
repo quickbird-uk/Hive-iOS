@@ -26,14 +26,15 @@ class AddFarmViewController: UITableViewController
 		farm.name				= nameCell.userResponse
 		farm.orgDescription		= addressCell.plainText
 		
-		HiveService.shared.addOrganisation(accessToken: user.accessToken!, organisation: farm) {
-			(added, newOrg, error) -> Void in
-			guard added, let newFarm = newOrg else
+		HiveService.shared.addOrganisation(farm, accessToken: user.accessToken!) {
+			(didAdd, newOrg, error) in
+			guard didAdd && newOrg != nil else
 			{
-				print("Something bad happened.")
+				print(error)
 				return
 			}
-			newFarm.moveToPersistentStore()
+			
+			newOrg!.moveToPersistentStore()
 			
 			dispatch_async(dispatch_get_main_queue()) {
 				self.dismissViewControllerAnimated(true, completion: nil)

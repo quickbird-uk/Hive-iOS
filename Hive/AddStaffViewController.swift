@@ -50,15 +50,18 @@ class AddStaffViewController: UITableViewController, OptionsListDataSource
 	
 	@IBAction func add(sender: UIBarButtonItem)
 	{
-		let newStaff = Staff.temporary()
-		newStaff.personID = selectedContact.friendID
+		let staff = Staff.temporary()
+		staff.personID = selectedContact.friendID
 		print(organisation)
-		newStaff.onOrganisationID = organisation.id
-		newStaff.role = selectedRole
-		HiveService.shared.addStaff(accessToken: accessToken, newStaff: newStaff) {
-			(added, newStaff, error) -> Void in
-			if added {
+		staff.onOrganisationID = organisation.id
+		staff.role = selectedRole
+		HiveService.shared.addStaff(staff, accessToken: accessToken) {
+			(didAdd, newStaff, error) -> Void in
+			if didAdd && newStaff != nil {
 				newStaff!.moveToPersistentStore()
+			}
+			else {
+				print(error)
 			}
 		}
 	}

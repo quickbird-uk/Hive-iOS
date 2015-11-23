@@ -102,48 +102,47 @@ class SignInViewController: UITableViewController, UITextFieldDelegate
         if hidePasswordCell == false
         {
             tempUser.passcode = passwordCell.userResponse
-            HiveService.shared.renewAccessToken(tempUser) {
-                (token, expiryDate, error) in
-                if error == nil
-                {
+            HiveService.shared.renewAccessTokenForUser(tempUser) {
+                (didRenew, newToken, tokenExpiryDate, error) in
+				
+				guard didRenew else
+				{
+					print("Login failed. User not updated")
+					
+					// Show a system alert
+					let alertController = UIAlertController(title: "Oops!", message: error!, preferredStyle: UIAlertControllerStyle.ActionSheet)
+					let defaultAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel) {
+						alert in
+						self.activityIndicator.stopAnimating()
+						self.signInButtonCell.buttonHidden = false
+					}
+					alertController.addAction(defaultAction)
+					
+					dispatch_async(dispatch_get_main_queue()) {
+						self.presentViewController(alertController, animated: true, completion: nil)
+					}
+					return
+				}
+				
             // Login successful. Set access token & expiration
-                    self.tempUser.accessToken = token
-                    self.tempUser.accessExpiresOn = expiryDate
-                    let user = self.tempUser.moveToPersistentStore()
+				self.tempUser.accessToken = newToken
+				self.tempUser.accessExpiresOn = tokenExpiryDate
+				let user = self.tempUser.moveToPersistentStore()
                     
             // Update other user details
-                    HiveService.shared.getAccountDetails(user!) {
-                        (updatedUser, error) -> Void in
-                        if error == nil && updatedUser != nil
-                        {
-                            user!.updatedWithDetailsFromUser(updatedUser!)
-                            dispatch_async(dispatch_get_main_queue()) {
-								self.signInButtonCell.buttonTitle = "Let's start."
-                                // Segue to verify phone number
-                                self.performSegueWithIdentifier("verifyPhone", sender: nil)
-                            }
-                        }
-                    }
-                }
-            
-        // Login failed
-                else
-                {
-                    print("Login failed. User not updated")
-                    
-            // Show a system alert
-                    let alertController = UIAlertController(title: "Oops!", message: error!, preferredStyle: UIAlertControllerStyle.ActionSheet)
-                    let defaultAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel) {
-                        alert in
-                        self.activityIndicator.stopAnimating()
-                        self.signInButtonCell.buttonHidden = false
-                    }
-                    alertController.addAction(defaultAction)
-                    
-                    dispatch_async(dispatch_get_main_queue()) {
-                        self.presentViewController(alertController, animated: true, completion: nil)
-                    }
-                }
+				HiveService.shared.getUser(user!) {
+					(didGet, newUser, error) in
+					
+					guard didGet && newUser != nil else {
+						return
+					}
+					
+					user!.updatedWithDetailsFromUser(newUser!)
+					dispatch_async(dispatch_get_main_queue()) {
+						self.signInButtonCell.buttonTitle = "Let's start."
+						self.performSegueWithIdentifier("verifyPhone", sender: nil)
+					}
+				}
             }
         }
         
@@ -151,32 +150,31 @@ class SignInViewController: UITableViewController, UITextFieldDelegate
         if hidePasswordCell
         {
             tempUser.lastName = lastNameCell.userResponse
-            HiveService.shared.requestSMSCode(tempUser) {
-                (smsSent, error) in
-                if smsSent == true
-                {
-        // SMS sent. Segue to phone verification
-                    dispatch_async(dispatch_get_main_queue()) {
-                        self.performSegueWithIdentifier("verifyPhone", sender: nil)
-                    }
-                }
-                else
-                {
-        // Sending SMS failed
-                    print("SMS could not be sent.")
-                    
-            // Show an action sheet displaying the error
-                    let alertController = UIAlertController(title: "Oops!", message: error!, preferredStyle: UIAlertControllerStyle.ActionSheet)
-                    
-                    let defaultAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: nil)
-                    alertController.addAction(defaultAction)
-                    
-                    dispatch_async(dispatch_get_main_queue()) {
+            HiveService.shared.sendSMSCodeToUser(tempUser) {
+                (didSend, error) in
+				
+				guard didSend else
+				{
+					print("SMS could not be sent.")
+					
+					// Show an action sheet displaying the error
+					let alertController = UIAlertController(title: "Oops!", message: error!, preferredStyle: UIAlertControllerStyle.ActionSheet)
+					
+					let defaultAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: nil)
+					alertController.addAction(defaultAction)
+					
+					dispatch_async(dispatch_get_main_queue()) {
 						self.activityIndicator.stopAnimating()
 						self.signInButtonCell.buttonHidden = false
-                        self.presentViewController(alertController, animated: true, completion: nil)
-                    }
-                }
+						self.presentViewController(alertController, animated: true, completion: nil)
+					}
+					
+					return
+				}
+				
+				dispatch_async(dispatch_get_main_queue()) {
+					self.performSegueWithIdentifier("verifyPhone", sender: nil)
+				}
             }
         }
     }

@@ -90,36 +90,30 @@ class SignUpViewController: UITableViewController, UITextFieldDelegate, LegalDat
         tempUser.passcode = passwordCell.userResponse
         
     // Send a registration request
-        HiveService.shared.signup(tempUser) {
-            (user, error) in
-            if error == nil && user != nil
-            {
-                // Registration successful. Update local database.
-                user!.moveToPersistentStore()
-                dispatch_async(dispatch_get_main_queue()) {
-                    self.activityIndicator.stopAnimating()
-                    
-                    // Segue to phone verification
-                    self.performSegueWithIdentifier("verifyPhone", sender: nil)
-                }
-            }
-    // Registration failed
-            else
-            {
-                print(error)
-                
-                // Show an error action sheet
-                let alertController = UIAlertController(title: "Oops!", message: error!, preferredStyle: UIAlertControllerStyle.ActionSheet)
-                
-                let defaultAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Default, handler: nil)
-                alertController.addAction(defaultAction)
-                
-                dispatch_async(dispatch_get_main_queue()) {
-                    self.signupCell.buttonHidden = false
-                    self.activityIndicator.stopAnimating()
-                    self.presentViewController(alertController, animated: true, completion: nil)
-                }
-            }
+        HiveService.shared.signupUser(tempUser) {
+            (didSignup, newUser, error) in
+			
+			guard didSignup && newUser != nil else
+			{
+				let alertController = UIAlertController(title: "Oops!", message: error!, preferredStyle: UIAlertControllerStyle.ActionSheet)
+				
+				let defaultAction = UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Default, handler: nil)
+				alertController.addAction(defaultAction)
+				
+				dispatch_async(dispatch_get_main_queue()) {
+					self.signupCell.buttonHidden = false
+					self.activityIndicator.stopAnimating()
+					self.presentViewController(alertController, animated: true, completion: nil)
+				}
+				return
+			}
+
+		// Registration successful. Update local database.
+			newUser!.moveToPersistentStore()
+			dispatch_async(dispatch_get_main_queue()) {
+				self.activityIndicator.stopAnimating()
+				self.performSegueWithIdentifier("verifyPhone", sender: nil)
+			}
         }
     }
 
