@@ -106,8 +106,15 @@ class Task: NSManagedObject
             }
             else
             {
-                // TODO: - Make a POST request to push self to server
-                return false
+				let accessToken = User.get()!.accessToken!
+				var updated = false
+				HiveService.shared.updateTask(self, accessToken: accessToken) {
+					(didUpdate, updatedTask, error) -> Void in
+					if didUpdate && error == nil {
+						updated = self.save(updatedTask!)
+					}
+				}
+				return updated
             }
         }
         else
@@ -227,7 +234,7 @@ class Task: NSManagedObject
         return allTypes
     }
     
-    class func updateAllTasks(newTasks: [Task]) -> Int
+    class func updateAll(newTasks: [Task]) -> Int
     {
         var count = 0
 		var taskToSync: Task!
@@ -294,4 +301,169 @@ enum TaskType: String
     case Tilling    = "Tilling"
     case Filling    = "Filling"
     case Chilling   = "Chilling"
+}
+
+//
+// MARK: - Quickbird API Methods
+//
+
+extension HiveService
+{
+	func didUpdateTask(task: Task, fromJSON: JSON?) -> Bool
+	{
+		guard let json = fromJSON else
+		{
+			print("HiveService.didUpdateTask(_: fromJSON: ) - Server sent nothing in response.")
+			return false
+		}
+		
+		task.name               = json[Task.Key.name].stringValue
+		task.taskDescription    = json[Task.Key.taskDescription].stringValue
+		task.type               = json[Task.Key.type].stringValue
+		task.forFieldID         = json[Task.Key.forFieldID].intValue
+		task.assignedByID       = json[Task.Key.assignedByID].intValue
+		task.assignedToID       = json[Task.Key.assignedToID].intValue
+		let dueDateString       = json[Task.Key.dueDate].stringValue
+		task.dueDate            = self.dateFormatter.dateFromString(dueDateString)
+		let finishDateString    = json[Task.Key.completedOnDate].stringValue
+		task.completedOnDate    = self.dateFormatter.dateFromString(finishDateString)
+		task.timeTaken			= json[Task.Key.timeTaken].doubleValue
+		task.state              = json[Task.Key.state].stringValue
+		task.payRate            = json[Task.Key.payRate].numberValue
+		task.id                 = json[Task.Key.id].intValue
+		let createdOnString     = json[Task.Key.createdOn].stringValue
+		task.createdOn          = self.dateFormatter.dateFromString(createdOnString)
+		let updatedOnString     = json[Task.Key.updatedOn].stringValue
+		task.updatedOn          = self.dateFormatter.dateFromString(updatedOnString)
+		task.version            = json[Task.Key.version].stringValue
+		task.markedDeleted      = json[Task.Key.markedDeleted].boolValue
+		
+		return true
+	}
+	
+	func getAllTasks(accessToken accessToken: String, completion: (didGet: Bool, tasks: [Task]?, error: String?) -> Void)
+	{
+		let networkConnection = NetworkService(request: API.ReadTasks.httpRequest(), token: accessToken)
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didGet: false, tasks: nil, error: error!.describe(details))
+				return
+			}
+			
+			guard let jsonArray = response else
+			{
+				completion(didGet: false, tasks: nil, error: "Server sent nothing in response.")
+				return
+			}
+			
+			var tasks = [Task]()
+			for info in jsonArray
+			{
+				let taskInfo = info.1
+				let task = Task.temporary()
+				
+				if self.didUpdateTask(task, fromJSON: taskInfo) {
+					tasks.append(task)
+				}
+			}
+			
+			completion(didGet: true, tasks: tasks, error: nil)
+		}
+	}
+	
+	func addTask(task: Task, accessToken: String, completion: (didAdd: Bool, newTask: Task?, error: String?) -> Void)
+	{
+		let body: NSDictionary = [
+			Task.Key.name				: task.name!,
+			Task.Key.taskDescription		: task.taskDescription!,
+			Task.Key.type				: task.type!,
+			Task.Key.state				: task.state!,
+			Task.Key.forFieldID			: task.forFieldID!.integerValue,
+			Task.Key.assignedByID		: task.assignedByID!.integerValue,
+			Task.Key.assignedToID		: task.assignedToID!.integerValue,
+			Task.Key.dueDate				: "\(task.dueDate!)",
+			Task.Key.payRate				: 66.6
+		]
+		
+		let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateTask.httpRequest(), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didAdd: false, newTask: nil, error: error!.describe(details))
+				return
+			}
+			
+			if self.didUpdateTask(task, fromJSON: response) {
+				completion(didAdd: true, newTask: task, error: nil)
+			}
+			else {
+				completion(didAdd: true, newTask: nil, error: "Server sent an empty response. Sync your Hive now to stay up-to-date.")
+			}
+		}
+	}
+	
+	func updateTask(task: Task, accessToken: String, completion: (didUpdate: Bool, updatedTask: Task?, error: String?) -> Void)
+	{
+		let body: NSDictionary = [
+			Task.Key.name             : task.name!,
+			Task.Key.taskDescription  : task.taskDescription!,
+			Task.Key.type             : task.type!,
+			Task.Key.forFieldID       : task.forFieldID!.integerValue,
+			Task.Key.assignedByID     : task.assignedByID!.integerValue,
+			Task.Key.assignedToID     : task.assignedToID!.integerValue,
+			Task.Key.timeTaken		  : task.timeTaken!.doubleValue,
+			Task.Key.completedOnDate  : "\(task.completedOnDate!)",
+			Task.Key.dueDate          : "\(task.dueDate!)",
+			Task.Key.state            : task.state!,
+			Task.Key.payRate          : task.payRate!,
+			Task.Key.version			  : task.version!,
+			Task.Key.id				  : task.id!
+		]
+		
+		let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateTask.httpRequest(urlParameter: "/\(task.id!.integerValue)"), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didUpdate: false, updatedTask: nil, error: error!.describe(details))
+				return
+			}
+			
+			if self.didUpdateTask(task, fromJSON: response) {
+				completion(didUpdate: true, updatedTask: task, error: nil)
+			}
+			else {
+				completion(didUpdate: true, updatedTask: nil, error: "Server sent an empty response. Sync your Hive now to stay up-to-date.")
+			}
+		}
+	}
+	
+	func deleteTaskWithID(taskID: Int, accessToken: String, completion: (didDelete: Bool, error: String?) -> Void)
+	{
+		let networkConnection = NetworkService(request: API.DeleteTask.httpRequest(urlParameter: "/\(taskID)"), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didDelete: false, error: error!.describe(details))
+				return
+			}
+			
+			completion(didDelete: true, error: nil)
+		}
+	}
 }

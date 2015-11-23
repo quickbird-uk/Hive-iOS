@@ -34,19 +34,21 @@ class HiveService
 	let errorDescriptionKey = "error_description"
 	
 	//
-    // MARK: - Helper Methods
+    // MARK: - Methods
     //
     
-    func downsync(user: User, completion: (error: String?) -> Void)
+    func download(user: User, completion: (error: String?) -> Void)
     {
+		var errors: String!
+		
     // Create a dispatch group to be notified when all requests finish
         let dispatchGroup = dispatch_group_create()
         
     // Get all user details
         dispatch_group_enter(dispatchGroup)
-        self.getAccountDetails(user) {
-            (remoteUser, error) -> Void in
-            if error == nil
+        self.getUser(user) {
+            (didGet, remoteUser, error) -> Void in
+            if didGet && remoteUser != nil
             {
                 print("    ⋮  User downloaded from server?  -  \(user.updatedWithDetailsFromUser(remoteUser!))")
                 dispatch_group_leave(dispatchGroup)
@@ -54,6 +56,13 @@ class HiveService
             else
             {
                 print("    ⋮  User couldn't be synced.")
+				print(error)
+				if errors != nil {
+					errors = error
+				}
+				else {
+					errors! += "\n\(error)"
+				}
                 dispatch_group_leave(dispatchGroup)
             }
         }
@@ -61,14 +70,21 @@ class HiveService
     // Get all contacts for user
         dispatch_group_enter(dispatchGroup)
         self.getAllContacts(accessToken: user.accessToken!) {
-            (contacts, error) in
-            if error == nil && contacts != nil
+            (didGet, contacts, error) in
+            if didGet && contacts != nil
             {
-                print("    ⋮  Contacts synced with server  -  \(Contact.updateAllContacts(contacts!))")
+                print("    ⋮  Contacts synced with server  -  \(Contact.updateAll(contacts!))")
                 dispatch_group_leave(dispatchGroup)
             }
             else
             {
+				print("    ⋮  Contacts couldn't be synced.")
+				if errors != nil {
+					errors = error
+				}
+				else {
+					errors! += "\n\(error)"
+				}
                 dispatch_group_leave(dispatchGroup)
             }
         }
@@ -76,14 +92,21 @@ class HiveService
     // Get all farms for user
         dispatch_group_enter(dispatchGroup)
         self.getAllOrganisations(accessToken: user.accessToken!) {
-            (orgs, error) in
-            if error == nil && orgs != nil
+            (didGet, orgs, error) in
+            if didGet && orgs != nil
             {
-                print("    ⋮  Organisations synced with server  -  \(Organisation.updateAllOrganisations(orgs!))")
+                print("    ⋮  Organisations synced with server  -  \(Organisation.updateAll(orgs!))")
                 dispatch_group_leave(dispatchGroup)
             }
             else
             {
+				print("    ⋮  Farms couldn't be synced.")
+				if errors != nil {
+					errors = error
+				}
+				else {
+					errors! += "\n\(error)"
+				}
                 dispatch_group_leave(dispatchGroup)
             }
         }
@@ -91,14 +114,21 @@ class HiveService
     // Get all tasks for user
         dispatch_group_enter(dispatchGroup)
         self.getAllTasks(accessToken: user.accessToken!) {
-            (tasks, error) in
-            if error == nil && tasks != nil
+            (didGet, tasks, error) in
+            if didGet && tasks != nil
             {
-                print("    ⋮  Tasks synced with server  -  \(Task.updateAllTasks(tasks!))")
+                print("    ⋮  Tasks synced with server  -  \(Task.updateAll(tasks!))")
                 dispatch_group_leave(dispatchGroup)
             }
             else
             {
+				print("    ⋮  Tasks couldn't be synced.")
+				if errors != nil {
+					errors = error
+				}
+				else {
+					errors! += "\n\(error)"
+				}
                 dispatch_group_leave(dispatchGroup)
             }
         }
@@ -106,14 +136,21 @@ class HiveService
     // Get all fields for user
         dispatch_group_enter(dispatchGroup)
         self.getAllFields(accessToken: user.accessToken!) {
-            (fields, error) in
-            if error == nil && fields != nil
+            (didGet, fields, error) in
+            if didGet && fields != nil
             {
-                print("    ⋮  Fields synced with server  -  \(Field.updateAllFields(fields!))")
+                print("    ⋮  Fields synced with server  -  \(Field.updateAll(fields!))")
                 dispatch_group_leave(dispatchGroup)
             }
             else
             {
+				print("    ⋮  Fields couldn't be synced.")
+				if errors != nil {
+					errors = error
+				}
+				else {
+					errors! += "\n\(error)"
+				}
                 dispatch_group_leave(dispatchGroup)
             }
         }
@@ -121,14 +158,21 @@ class HiveService
     // Get all staff for user
         dispatch_group_enter(dispatchGroup)
         self.getAllStaff(accessToken: user.accessToken!) {
-            (staffs, error) in
-            if error == nil && staffs != nil
+            (didGet, staffs, error) in
+            if didGet && staffs != nil
             {
-                print("    ⋮  Staff synced with server  -  \(Staff.updateAllStaff(staffs!))")
+                print("    ⋮  Staff synced with server  -  \(Staff.updateAll(staffs!))")
                 dispatch_group_leave(dispatchGroup)
             }
             else
             {
+				print("    ⋮  Staff couldn't be synced.")
+				if errors != nil {
+					errors = error
+				}
+				else {
+					errors! += "\n\(error)"
+				}
                 dispatch_group_leave(dispatchGroup)
             }
         }
@@ -136,1006 +180,7 @@ class HiveService
         // this block will be called async only when the above are done
         dispatch_group_notify(dispatchGroup, dispatch_get_main_queue()) {
             print("Sync complete.")
-            completion (error: nil)
-        }
-    }
-    
-    //
-    // MARK: - Account CRUD
-    //
-    
-    func signup(user: User, completion: (user: User?, error: String?)  -> Void)
-    {
-        let requestBody: NSDictionary? = [
-            User.Key.firstName	: user.firstName!,
-            User.Key.lastName	: user.lastName!,
-            User.Key.phone		: "\(user.phone!)",
-            User.Key.password	: user.passcode!
-        ]
-        
-        let networkConnection = NetworkService(bodyAsJSON: requestBody, request: API.CreateUser.httpRequest(), token: nil)
-        
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-			
-			guard error == nil else
-			{
-				var details: String?
-				if error!.rawValue == 101 {
-					details = "\(user.phone!)"
-				}
-				else {
-					details = response?[self.errorDescriptionKey].string
-				}
-				print("⋮")
-				print("⋮  ✗  User registration failed. \(error!.describe(details!))")
-				completion(user: nil, error: error!.describe(details!))
-				return
-            }
-			
-			completion(user: user, error: nil)
-        }
-    }
-    
-    func renewAccessToken(user: User, completion: (token: String?, expiryDate: NSDate?, error: String?)  -> Void)
-    {
-        let phoneString = String(user.phone!)
-        let username = phoneString.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())
-        let password = user.passcode!.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())
-        let body = "grant_type=password&username=\(username!)&password=\(password!)"
-        
-        let networkConnection = NetworkService(bodyAsPercentEncodedString: body, request: API.RequestToken.httpRequest(), token: nil)
-        
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            if error == nil
-            {
-                guard let token = response?[User.Key.accessToken].string, let expiresIn = response?[User.Key.accessExpiresInSeconds].double else
-                {
-                    print("⋮")
-                    print("⋮  ✗  Invalid token.")
-                    completion(token: nil, expiryDate: nil, error: "Invalid token.")
-                    // Get out of the scope
-                    return
-                }
-                
-                let expiryDate = NSDate(timeIntervalSinceNow: expiresIn)
-                print("⋮   ⋮    Token expires : \(expiryDate)\n")
-                print("⋮")
-                print("⋮  ✓  User login successful.")
-                completion(token: token, expiryDate: expiryDate, error: nil)
-            }
-			
-			else
-            {
-                var details: String?
-                if error!.rawValue != 103 {
-                    details = response?[self.errorDescriptionKey].stringValue
-					print("⋮")
-					print("⋮  ✗  Login/token renewal failed. \(error!.describe(details!))\n")
-                }
-				
-                completion(token: nil, expiryDate: nil, error: error!.describe(details ?? "Something bad happened."))
-            }
-        }
-    }
-    
-    func getAccountDetails(user: User, completion: (user: User?, error: String?) -> Void)
-    {
-        if user.accessToken == nil
-        {
-            self.renewAccessToken(user) {
-                (token, expiryDate, error) in
-                user.accessToken = token
-                user.accessExpiresOn = expiryDate
-            }
-        }
-        
-        let networkConnection = NetworkService(request: API.ReadUser.httpRequest(), token: user.accessToken)
-            
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-
-			if error == nil
-            {
-                user.firstName		= response![User.Key.firstName].string
-                user.lastName		= response![User.Key.lastName].string
-                user.phone			= response![User.Key.phone].double
-                user.id				= response![User.Key.id].int
-                user.version			= response![User.Key.version].string
-                user.markedDeleted	= response![User.Key.markedDeleted].bool
-                let updateDateString = response![User.Key.updatedOn].string
-                user.updatedOn = self.dateFormatter.dateFromString(updateDateString!)
-                let creationDateString = response![User.Key.createdOn].string
-                user.createdOn = self.dateFormatter.dateFromString(creationDateString!)
-                
-                
-                print("⋮   ⋮    First name      - \(user.firstName)")
-                print("⋮   ⋮    Last name       - \(user.lastName)")
-                print("⋮   ⋮    Phone           - \(user.phone)\n")
-                print("⋮   ⋮    Created         - \(user.createdOn)\n")
-                print("⋮   ⋮    Updated         - \(user.updatedOn)\n")
-                
-                completion(user: user, error: nil)
-            }
-				
-			else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                print("⋮  getAccountDetails: request failed. \(error!.describe(details!))")
-                completion(user: nil, error: error!.describe(details!))
-            }
-        }
-    }
-    
-    func requestSMSCode(user: User, completion: (smsSent: Bool, error: String?) -> Void)
-    {
-        let body: NSDictionary? = [
-            User.Key.lastName	: "\(user.lastName!)",
-            User.Key.phone		: "\(user.phone!)"
-        ]
-        
-        let networkConnection = NetworkService(bodyAsJSON: body!, request: API.RequestSMSCode.httpRequest(), token: nil)
-
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            if error == nil
-            {
-                print("⋮")
-                print("⋮  ✓  Code sent successfully.\n")
-                completion(smsSent: true, error: nil)
-            }
-            
-            else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                print("⋮  ✗  We couldn't send the code. HTTP Response code \(error!.describe(details!))\n")
-                completion(smsSent: false, error: error!.describe(details!))
-            }
-        }
-    }
-    
-    func changePassword(accessToken token: String?, oldPassword: String, newPassword: String, completion: (passwordChanged: Bool, error: String?) -> Void)
-    {
-        let body: NSDictionary? = [
-            "OldPassword": oldPassword,
-            "NewPassword": newPassword,
-            "ConfirmPassword": newPassword
-        ]
-		
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.ChangePassword.httpRequest(), token: token)
-        
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            if error == nil
-            {
-                print("Password changed successfully.")
-                completion(passwordChanged: true, error: nil)
-            }
-                
-            else {
-                let details = response?[self.errorDescriptionKey].string
-                print("Password change failed. \(error!.describe(details!))")
-                completion(passwordChanged: false, error: error!.describe(details!))
-            }
-        }
-    }
-    
-    func changePhone(accessToken token: String?, phone: NSNumber, completion: (phoneChanged: Bool, error: String?) -> Void)
-    {
-        let body: NSDictionary? = [
-            "PhoneNumber": phone.integerValue
-        ]
-
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.ChangePhone.httpRequest(), token: token)
-        
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            if error == nil
-            {
-                print("Phone number changed successfully.")
-                completion(phoneChanged: true, error: nil)
-            }
-                
-            else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                print("Phone number couldn't be changed. \(error!.describe(details!))")
-                completion(phoneChanged: false, error: error!.describe(details!))
-            }
-        }
-    }
-    
-    func changeEmail(accessToken token: String?, email: String, completion: (emailChanged: Bool, error: String?) -> Void)
-    {
-    // Prepare request body
-        let body: NSDictionary? = [
-            "Email": email
-        ]
-        
-    // Setup a network connection
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.ChangeEmail.httpRequest(), token: token)
-        
-    // Make the network request
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-        
-        // Request Successful
-            if error == nil
-            {
-                print("Email changed successfully.")
-                completion(emailChanged: true, error: nil)
-            }
-            
-        // Request Failed
-            else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                print("Email couldn't be changed. \(error!.describe(details!))")
-                completion(emailChanged: false, error: error!.describe(details!))
-            }
-        }
-    }
-    
-    //
-    // MARK: - Contacts CRUD
-    //
-    
-    func getAllContacts(accessToken token: String, completion: (contacts: [Contact]?, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(request: API.ReadContacts.httpRequest(), token: token)
-        
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-				let details = response?[self.errorDescriptionKey].string
-				completion(contacts: nil, error: error!.describe(details!))
-				return
-			}
-			
-			var contacts = [Contact]()
-			for info in response!
-			{
-				let contactCard = info.1
-				let contact = NSEntityDescription.insertNewObjectForEntityForName(Contact.entityName, inManagedObjectContext: Data.shared.temporaryContext) as! Contact
-                    
-				contact.firstName       = contactCard[Contact.Key.firstName].string
-				contact.lastName        = contactCard[Contact.Key.lastName].string
-				contact.phone           = contactCard[Contact.Key.phone].number
-				contact.friendID        = contactCard[Contact.Key.friendID].number
-				contact.id              = contactCard[Contact.Key.id].numberValue
-				contact.state           = contactCard[Contact.Key.state].string
-				contact.markedDeleted   = contactCard[Contact.Key.markedDeleted].bool
-				contact.version         = contactCard[Contact.Key.version].string
-                    
-                    
-				let updateDateString    = contactCard[Contact.Key.updatedOn].stringValue
-				contact.updatedOn       = self.dateFormatter.dateFromString(updateDateString)
-				let creationDateString  = contactCard[Contact.Key.createdOn].stringValue
-				contact.createdOn       = self.dateFormatter.dateFromString(creationDateString)
-                    
-				contacts.append(contact)
-			}
-			
-			completion(contacts: contacts, error: nil)
-        }
-    }
-    
-    func findContacts(accessToken token: String, phoneNumbers: [NSNumber], completion:(contacts: [Contact]?, error: String?) -> Void)
-    {
-        let body = String(phoneNumbers)
-		let networkConnection = NetworkService(bodyAsPercentEncodedString: body, request: API.FindContacts.httpRequest(), token: token)
-        
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-				let details = response?[self.errorDescriptionKey].string
-				print("findContacts: request failed. \(error!.describe(details!))")
-				completion(contacts: nil, error: error!.describe(details!))
-				return
-			}
-			
-			var contacts = [Contact]()
-			for contact in response!
-			{
-				let contactCard = contact.1
-				let newContact = Contact.temporary()
-					
-				newContact.firstName			= contactCard[Contact.Key.firstName].string
-				newContact.lastName			= contactCard[Contact.Key.lastName].string
-				newContact.phone				= contactCard[Contact.Key.phone].number
-				newContact.friendID			= contactCard[Contact.Key.friendID].number
-				newContact.id				= contactCard[Contact.Key.id].intValue
-				newContact.state				= contactCard[Contact.Key.state].string
-				newContact.markedDeleted		= contactCard[Contact.Key.markedDeleted].bool
-				newContact.version			= contactCard[Contact.Key.version].string
-				contacts.append(newContact)
-			}
-			
-			completion(contacts: contacts, error: nil)
-        }
-    }
-    
-    func addContact(accessToken token: String, contactID: Int, completion: (requestSent: Bool, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(bodyAsPercentEncodedString: "\(contactID)", request: API.CreateContact.httpRequest(), token: token)
-        
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-				let details = response?[self.errorDescriptionKey].string
-				completion(requestSent: false, error: error!.describe(details!))
-                return
-            }
-			
-			completion(requestSent: true, error: nil)
-        }
-    }
-    
-	func editContact(accessToken token: String, contact: Contact, completion: (detailsChanged: Bool, editedContact: Contact?, error: String?) -> Void)
-    {
-        let body: NSDictionary? = [
-            Contact.Key.friendID  : contact.friendID!,
-            Contact.Key.state     : contact.state!,
-            Contact.Key.firstName : contact.firstName!,
-            Contact.Key.lastName  : contact.lastName!,
-            Contact.Key.phone     : contact.phone!,
-            Contact.Key.id		  : contact.id!,
-			Contact.Key.version   : contact.version!
-        ]
-        
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateContact.httpRequest(urlParameter: "/\(contact.id!)"), token: token)
-        
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-			
-			guard error == nil else
-            {
-				let details = response?[self.errorDescriptionKey].string
-				completion(detailsChanged: false, editedContact: nil, error: error!.describe(details!))
-                return
-            }
-			
-			contact.firstName       = response![Contact.Key.firstName].string
-			contact.lastName        = response![Contact.Key.lastName].string
-			contact.phone           = response![Contact.Key.phone].number
-			contact.friendID        = response![Contact.Key.friendID].number
-			contact.id              = response![Contact.Key.id].numberValue
-			contact.state           = response![Contact.Key.state].string
-			contact.markedDeleted   = response![Contact.Key.markedDeleted].bool
-			contact.version         = response![Contact.Key.version].string
-			let updateDateString    = response![Contact.Key.updatedOn].stringValue
-			contact.updatedOn       = self.dateFormatter.dateFromString(updateDateString)
-			let creationDateString  = response![Contact.Key.createdOn].stringValue
-			contact.createdOn       = self.dateFormatter.dateFromString(creationDateString)
-			
-			completion(detailsChanged: true, editedContact: contact, error: nil)
-        }
-    }
-    
-    func deleteContact(accessToken token: String, connectionID: NSNumber?, completion: (deleted: Bool, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(request: API.DeleteContact.httpRequest(urlParameter: "/\(connectionID!)"), token: token)
-        
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-				let details = response?[self.errorDescriptionKey].string
-				completion(deleted: false, error: error!.describe(details!))
-                return
-            }
-			
-			completion(deleted: true, error: nil)
-        }
-    }
-    
-    //
-    // MARK: - Organisations CRUD
-    //
-    
-    func getAllOrganisations(accessToken token: String, completion: (orgs: [Organisation]?, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(request: API.ReadOrganisation.httpRequest(), token: token)
-    
-        networkConnection.makeHTTPRequest {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(orgs: nil, error: error!.describe(details!))
-                return
-            }
-            
-            var organisations = [Organisation]()
-            for info in response!
-            {
-                let orgInfo = info.1
-                let organisation            = Organisation.temporary()
-				
-                organisation.name           = orgInfo[Organisation.Key.name].string
-                organisation.orgDescription = orgInfo[Organisation.Key.orgDescription].string
-                organisation.role           = orgInfo[Organisation.Key.role].string
-                organisation.id             = orgInfo[Organisation.Key.id].int
-                organisation.markedDeleted  = orgInfo[Organisation.Key.markedDeleted].bool
-                organisation.version        = orgInfo[Organisation.Key.version].string
-				
-				let createdString = orgInfo[Organisation.Key.createdOn].stringValue
-				organisation.createdOn = self.dateFormatter.dateFromString(createdString)
-				let updatedString = orgInfo[Organisation.Key.updatedOn].stringValue
-				organisation.updatedOn = self.dateFormatter.dateFromString(updatedString)
-                
-                organisations.append(organisation)
-            }
-            
-            completion(orgs: organisations, error: nil)
-        }
-    }
-    
-	func addOrganisation(accessToken token: String, organisation: Organisation, completion: (added: Bool, newOrg: Organisation?, error: String?) -> Void)
-    {
-        let body: NSDictionary = [
-            Organisation.Key.name			: organisation.name!,
-            Organisation.Key.orgDescription : organisation.orgDescription!
-		]
-        
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateOrganisation.httpRequest(), token: token)
-        
-        networkConnection.makeHTTPRequest {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-				completion(added: false, newOrg: nil, error: error!.describe(details!))
-                return
-            }
-            
-			organisation.id					= response![Organisation.Key.id].numberValue
-			organisation.name				= response![Organisation.Key.name].stringValue
-			organisation.orgDescription		= response![Organisation.Key.orgDescription].stringValue
-			organisation.role				= response![Organisation.Key.role].stringValue
-			let createdOnString				= response![Organisation.Key.createdOn].stringValue
-			organisation.createdOn			= self.dateFormatter.dateFromString(createdOnString)
-			let updatedOnString				= response![Organisation.Key.updatedOn].stringValue
-			organisation.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
-			organisation.version				= response![Organisation.Key.version].stringValue
-			organisation.markedDeleted		= response![Organisation.Key.markedDeleted].boolValue
-			
-            completion(added: true, newOrg: organisation, error: nil)
-        }
-    }
-    
-	func editOrganisation(accessToken token: String, newOrg: Organisation, completion: (edited: Bool, editedOrg: Organisation?, error: String?) -> Void)
-    {
-        let body: NSDictionary = [
-            Organisation.Key.name           : newOrg.name!,
-            Organisation.Key.orgDescription : newOrg.orgDescription!,
-            Organisation.Key.role			: newOrg.role!,
-            Organisation.Key.id             : newOrg.id!.integerValue,
-            Organisation.Key.markedDeleted	: newOrg.markedDeleted!.boolValue,
-			Organisation.Key.version			: newOrg.version!
-        ]
-        
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateOrganisation.httpRequest(urlParameter: "/\(newOrg.id!.integerValue)"), token: token)
-        
-        networkConnection.makeHTTPRequest {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-				completion(edited: false, editedOrg: nil, error: error!.describe(details!))
-                return
-            }
-			
-			newOrg.id				= response![Organisation.Key.id].numberValue
-			newOrg.name				= response![Organisation.Key.name].stringValue
-			newOrg.orgDescription	= response![Organisation.Key.orgDescription].stringValue
-			newOrg.role				= response![Organisation.Key.role].stringValue
-			let createdOnString		= response![Organisation.Key.createdOn].stringValue
-			newOrg.createdOn			= self.dateFormatter.dateFromString(createdOnString)
-			let updatedOnString		= response![Organisation.Key.updatedOn].stringValue
-			newOrg.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
-			newOrg.version			= response![Organisation.Key.version].stringValue
-			newOrg.markedDeleted		= response![Organisation.Key.markedDeleted].boolValue
-			
-            completion(edited: true, editedOrg: newOrg, error: nil)
-        }
-    }
-    
-    func deleteOrganisation(accessToken token: String, orgID: Int, completion: (deleted: Bool, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(request: API.DeleteOrganisation.httpRequest(urlParameter: "/\(orgID)"), token: token)
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(deleted: false, error: error!.describe(details!))
-                return
-            }
-            
-            completion(deleted: true, error: nil)
-        }
-    }
-    
-    //
-    // MARK: - Tasks CRUD
-    //
-    
-    func getAllTasks(accessToken token: String, completion: (tasks: [Task]?, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(request: API.ReadTasks.httpRequest(), token: token)
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(tasks: nil, error: error!.describe(details!))
-                return
-            }
-            
-            var tasks = [Task]()
-            for info in response!
-            {
-                let taskInfo = info.1
-                let task = Task.temporary()
-                
-                task.name               = taskInfo[Task.Key.name].stringValue
-                task.taskDescription    = taskInfo[Task.Key.taskDescription].stringValue
-                task.type               = taskInfo[Task.Key.type].stringValue
-                task.forFieldID         = taskInfo[Task.Key.forFieldID].intValue
-                task.assignedByID       = taskInfo[Task.Key.assignedByID].intValue
-                task.assignedToID       = taskInfo[Task.Key.assignedToID].intValue
-                let dueDateString       = taskInfo[Task.Key.dueDate].stringValue
-                task.dueDate            = self.dateFormatter.dateFromString(dueDateString)
-                let finishDateString    = taskInfo[Task.Key.completedOnDate].stringValue
-                task.completedOnDate    = self.dateFormatter.dateFromString(finishDateString)
-				task.timeTaken			= taskInfo[Task.Key.timeTaken].doubleValue
-                task.state              = taskInfo[Task.Key.state].stringValue
-                task.payRate            = taskInfo[Task.Key.payRate].numberValue
-                task.id                 = taskInfo[Task.Key.id].intValue
-                let createdOnString     = taskInfo[Task.Key.createdOn].stringValue
-                task.createdOn          = self.dateFormatter.dateFromString(createdOnString)
-                let updatedOnString     = taskInfo[Task.Key.updatedOn].stringValue
-                task.updatedOn          = self.dateFormatter.dateFromString(updatedOnString)
-                task.version            = taskInfo[Task.Key.version].stringValue
-                task.markedDeleted      = taskInfo[Task.Key.markedDeleted].boolValue
-                
-                tasks.append(task)
-            }
-            
-            completion(tasks: tasks, error: nil)
-        }
-    }
-    
-	func addTask(accessToken token: String, newTask: Task, completion: (added: Bool, newTask: Task?, error: String?) -> Void)
-    {
-        let body: NSDictionary = [
-            Task.Key.name				: newTask.name!,
-            Task.Key.taskDescription		: newTask.taskDescription!,
-            Task.Key.type				: newTask.type!,
-			Task.Key.state				: newTask.state!,
-            Task.Key.forFieldID			: newTask.forFieldID!.integerValue,
-            Task.Key.assignedByID		: newTask.assignedByID!.integerValue,
-            Task.Key.assignedToID		: newTask.assignedToID!.integerValue,
-            Task.Key.dueDate				: "\(newTask.dueDate!)",
-            Task.Key.payRate				: 66.6
-        ]
-		
-		let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateTask.httpRequest(), token: token)
-		
-		networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                print("addTask: request failed. \(error!.describe(details!))")
-				completion(added: false, newTask: nil, error: error!.describe(details!))
-                return
-            }
-			
-			newTask.name					= response![Task.Key.name].stringValue
-			newTask.taskDescription		= response![Task.Key.taskDescription].stringValue
-			newTask.type					= response![Task.Key.type].stringValue
-			newTask.forFieldID			= response![Task.Key.forFieldID].intValue
-			newTask.assignedByID			= response![Task.Key.assignedByID].intValue
-			newTask.assignedToID			= response![Task.Key.assignedToID].intValue
-			let dueDateString			= response![Task.Key.dueDate].stringValue
-			newTask.dueDate				= self.dateFormatter.dateFromString(dueDateString)
-			let finishDateString			= response![Task.Key.completedOnDate].stringValue
-			newTask.completedOnDate		= self.dateFormatter.dateFromString(finishDateString)
-			newTask.timeTaken			= response![Task.Key.timeTaken].doubleValue
-			newTask.state				= response![Task.Key.state].stringValue
-			newTask.payRate				= response![Task.Key.payRate].numberValue
-			newTask.id					= response![Task.Key.id].intValue
-			let createdOnString			= response![Task.Key.createdOn].stringValue
-			newTask.createdOn			= self.dateFormatter.dateFromString(createdOnString)
-			let updatedOnString			= response![Task.Key.updatedOn].stringValue
-			newTask.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
-			newTask.version				= response![Task.Key.version].stringValue
-			newTask.markedDeleted		= response![Task.Key.markedDeleted].boolValue
-			
-			completion(added: true, newTask: newTask, error: nil)
-        }
-    }
-	
-	func editTask(accessToken token: String, newTask: Task, completion: (edited: Bool, editedTask: Task?, error: String?) -> Void)
-    {
-        let body: NSDictionary = [
-            Task.Key.name             : newTask.name!,
-            Task.Key.taskDescription  : newTask.taskDescription!,
-            Task.Key.type             : newTask.type!,
-            Task.Key.forFieldID       : newTask.forFieldID!.integerValue,
-            Task.Key.assignedByID     : newTask.assignedByID!.integerValue,
-            Task.Key.assignedToID     : newTask.assignedToID!.integerValue,
-			Task.Key.timeTaken		  : newTask.timeTaken!.doubleValue,
-            Task.Key.completedOnDate  : "\(newTask.completedOnDate!)",
-            Task.Key.dueDate          : "\(newTask.dueDate!)",
-            Task.Key.state            : newTask.state!,
-            Task.Key.payRate          : newTask.payRate!,
-			Task.Key.version			  : newTask.version!,
-			Task.Key.id				  : newTask.id!
-        ]
-        
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateTask.httpRequest(urlParameter: "/\(newTask.id!.integerValue)"), token: token)
-        networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(edited: false, editedTask: nil, error: error!.describe(details!))
-                return
-            }
-			
-			newTask.name					= response![Task.Key.name].stringValue
-			newTask.taskDescription		= response![Task.Key.taskDescription].stringValue
-			newTask.type					= response![Task.Key.type].stringValue
-			newTask.forFieldID			= response![Task.Key.forFieldID].intValue
-			newTask.assignedByID			= response![Task.Key.assignedByID].intValue
-			newTask.assignedToID			= response![Task.Key.assignedToID].intValue
-			let dueDateString			= response![Task.Key.dueDate].stringValue
-			newTask.dueDate				= self.dateFormatter.dateFromString(dueDateString)
-			let finishDateString			= response![Task.Key.completedOnDate].stringValue
-			newTask.completedOnDate		= self.dateFormatter.dateFromString(finishDateString)
-			newTask.timeTaken			= response![Task.Key.timeTaken].doubleValue
-			newTask.state				= response![Task.Key.state].stringValue
-			newTask.payRate				= response![Task.Key.payRate].numberValue
-			newTask.id					= response![Task.Key.id].intValue
-			let createdOnString			= response![Task.Key.createdOn].stringValue
-			newTask.createdOn			= self.dateFormatter.dateFromString(createdOnString)
-			let updatedOnString			= response![Task.Key.updatedOn].stringValue
-			newTask.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
-			newTask.version				= response![Task.Key.version].stringValue
-			newTask.markedDeleted		= response![Task.Key.markedDeleted].boolValue
-            
-            completion(edited: true, editedTask: nil, error: nil)
-        }
-    }
-    
-    func deleteTask(accessToken token: String, taskID: Int, completion: (deleted: Bool, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(request: API.DeleteTask.httpRequest(urlParameter: "/\(taskID)"), token: token)
-		
-		networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(deleted: false, error: error!.describe(details!))
-                return
-            }
-            
-            completion(deleted: true, error: nil)
-        }
-    }
-    
-    //
-    // MARK: - Fields CRUD
-    //
-    
-    func getAllFields(accessToken token: String, completion: (fields: [Field]?, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(request: API.ReadField.httpRequest(), token: token)
-		
-		networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(fields: nil, error: error!.describe(details!))
-                return
-            }
-            
-            var fields = [Field]()
-            for info in response!
-            {
-                let fieldInfo = info.1
-                let field = Field.temporary()
-                
-                field.name              = fieldInfo[Field.Key.name].stringValue
-                field.areaInHectares    = fieldInfo[Field.Key.areaInHectares].numberValue
-                field.fieldDescription  = fieldInfo[Field.Key.fieldDescription].stringValue
-                field.onOrganisationID  = fieldInfo[Field.Key.onOrganisationID].numberValue
-				field.latitude			= fieldInfo[Field.Key.latitude].numberValue
-				field.longitude			= fieldInfo[Field.Key.longitude].numberValue
-                field.id                = fieldInfo[Field.Key.id].numberValue
-                let createdOnString     = fieldInfo[Field.Key.createdOn].stringValue
-                field.createdOn         = self.dateFormatter.dateFromString(createdOnString)
-                let updatedOnString     = fieldInfo[Field.Key.updatedOn].stringValue
-                field.updatedOn         = self.dateFormatter.dateFromString(updatedOnString)
-                field.version           = fieldInfo[Field.Key.version].stringValue
-                field.markedDeleted     = fieldInfo[Field.Key.markedDeleted].boolValue
-                
-                fields.append(field)
-            }
-            
-            completion(fields: fields, error: nil)
-        }
-    }
-    
-	func addField(accessToken token: String, newField: Field, completion: (added: Bool, newField: Field?, error: String?) -> Void)
-    {
-        let body: NSDictionary = [
-            Field.Key.name             : newField.name!,
-            Field.Key.areaInHectares   : newField.areaInHectares!,
-            Field.Key.fieldDescription : newField.fieldDescription!,
-            Field.Key.onOrganisationID : newField.onOrganisationID!,
-			Field.Key.latitude		   : newField.latitude!,
-			Field.Key.longitude		   : newField.longitude!
-        ]
-        
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateField.httpRequest(), token: token)
-		
-		networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(added: false, newField: nil, error: error!.describe(details!))
-                return
-            }
-            
-			newField.name				= response![Field.Key.name].stringValue
-			newField.areaInHectares		= response![Field.Key.areaInHectares].numberValue
-			newField.fieldDescription	= response![Field.Key.fieldDescription].stringValue
-			newField.onOrganisationID	= response![Field.Key.onOrganisationID].numberValue
-			newField.latitude			= response![Field.Key.latitude].numberValue
-			newField.longitude			= response![Field.Key.longitude].numberValue
-			newField.id					= response![Field.Key.id].numberValue
-			let createdOnString			= response![Field.Key.createdOn].stringValue
-			newField.createdOn			= self.dateFormatter.dateFromString(createdOnString)
-			let updatedOnString			= response![Field.Key.updatedOn].stringValue
-			newField.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
-			newField.version				= response![Field.Key.version].stringValue
-			newField.markedDeleted		= response![Field.Key.markedDeleted].boolValue
-			
-			completion(added: true, newField: newField, error: nil)
-        }
-    }
-	
-	func editField(accessToken token: String, newField: Field, completion: (edited: Bool, editedField: Field?, error: String?) -> Void)
-    {
-        let body: NSDictionary = [
-			Field.Key.name             : newField.name!,
-			Field.Key.areaInHectares   : newField.areaInHectares!,
-			Field.Key.fieldDescription : newField.fieldDescription!,
-			Field.Key.onOrganisationID : newField.onOrganisationID!,
-			Field.Key.latitude		   : newField.latitude!,
-			Field.Key.longitude	       : newField.longitude!,
-			Field.Key.id				   : newField.id!,
-			Field.Key.version		   : newField.version!
-        ]
-		
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateField.httpRequest(urlParameter: "/\(newField.id!.integerValue)"), token: token)
-		
-		networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(edited: false, editedField: nil, error: error!.describe(details!))
-                return
-            }
-			
-			newField.name				= response![Field.Key.name].stringValue
-			newField.areaInHectares		= response![Field.Key.areaInHectares].numberValue
-			newField.fieldDescription	= response![Field.Key.fieldDescription].stringValue
-			newField.onOrganisationID	= response![Field.Key.onOrganisationID].numberValue
-			newField.latitude			= response![Field.Key.latitude].numberValue
-			newField.longitude			= response![Field.Key.longitude].numberValue
-			newField.id					= response![Field.Key.id].numberValue
-			let createdOnString			= response![Field.Key.createdOn].stringValue
-			newField.createdOn			= self.dateFormatter.dateFromString(createdOnString)
-			let updatedOnString			= response![Field.Key.updatedOn].stringValue
-			newField.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
-			newField.version				= response![Field.Key.version].stringValue
-			newField.markedDeleted		= response![Field.Key.markedDeleted].boolValue
-            
-			completion(edited: true, editedField: newField, error: nil)
-        }
-    }
-    
-    func deleteField(accessToken token: String, fieldID: Int, completion: (deleted: Bool, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(request: API.DeleteField.httpRequest(urlParameter: "/\(fieldID)"), token: token)
-		
-		networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(deleted: false, error: error!.describe(details!))
-                return
-            }
-            
-            completion(deleted: true, error: nil)
-        }
-    }
-    
-    //
-    // MARK: - Staff CRUD
-    //
-    
-    func getAllStaff(accessToken token: String, completion: (staffs: [Staff]?, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(request: API.ReadStaff.httpRequest(), token: token)
-		
-		networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(staffs: nil, error: error!.describe(details!))
-                return
-            }
-            
-            var staffs = [Staff]()
-            for info in response!
-            {
-                let staffInfo = info.1
-                let staff = Staff.temporary()
-                
-                staff.personID			= staffInfo[Staff.Key.personID].numberValue
-                staff.onOrganisationID  = staffInfo[Staff.Key.onOrganisationID].numberValue
-                staff.role				= staffInfo[Staff.Key.role].stringValue
-                staff.firstName			= staffInfo[Staff.Key.firstName].stringValue
-                staff.lastName			= staffInfo[Staff.Key.lastName].stringValue
-                staff.phone				= staffInfo[Staff.Key.phone].numberValue
-                staff.id					= staffInfo[Staff.Key.id].numberValue
-                let createdOnString		= staffInfo[Staff.Key.createdOn].stringValue
-                staff.createdOn			= self.dateFormatter.dateFromString(createdOnString)
-                let updatedOnString		= staffInfo[Staff.Key.updatedOn].stringValue
-                staff.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
-                staff.version			= staffInfo[Staff.Key.version].stringValue
-                staff.markedDeleted		= staffInfo[Staff.Key.markedDeleted].boolValue
-				
-                staffs.append(staff)
-            }
-            
-            completion(staffs: staffs, error: nil)
-        }
-    }
-    
-	func addStaff(accessToken token: String, newStaff: Staff, completion: (added: Bool, newStaff: Staff?, error: String?) -> Void)
-    {
-        let body: NSDictionary = [
-            Staff.Key.personID          : newStaff.personID!,
-            Staff.Key.onOrganisationID  : newStaff.onOrganisationID!,
-            Staff.Key.role              : newStaff.role!
-        ]
-        
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateStaff.httpRequest(), token: token)
-		
-		networkConnection.makeHTTPRequest() {
-            (response, error) in
-			
-			guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(added: false, newStaff: nil, error: error!.describe(details!))
-                return
-            }
-			
-			newStaff.personID			= response![Staff.Key.personID].numberValue
-			newStaff.onOrganisationID	= response![Staff.Key.onOrganisationID].numberValue
-			newStaff.role				= response![Staff.Key.role].stringValue
-			newStaff.firstName			= response![Staff.Key.firstName].stringValue
-			newStaff.lastName			= response![Staff.Key.lastName].stringValue
-			newStaff.phone				= response![Staff.Key.phone].numberValue
-			newStaff.id					= response![Staff.Key.id].numberValue
-			let createdOnString			= response![Staff.Key.createdOn].stringValue
-			newStaff.createdOn			= self.dateFormatter.dateFromString(createdOnString)
-			let updatedOnString			= response![Staff.Key.updatedOn].stringValue
-			newStaff.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
-			newStaff.version				= response![Staff.Key.version].stringValue
-			newStaff.markedDeleted		= response![Staff.Key.markedDeleted].boolValue
-			
-			completion(added: true, newStaff: newStaff, error: nil)
-        }
-    }
-	
-	func editStaff(accessToken token: String, newStaff: Staff, completion: (edited: Bool, editedStaff: Staff?, error: String?) -> Void)
-    {
-        let body: NSDictionary = [
-			Staff.Key.personID          : newStaff.personID!,
-			Staff.Key.onOrganisationID  : newStaff.onOrganisationID!,
-			Staff.Key.role              : newStaff.role!,
-			Staff.Key.firstName         : newStaff.firstName!,
-			Staff.Key.lastName          : newStaff.lastName!,
-			Staff.Key.phone             : newStaff.phone!,
-			Staff.Key.id				    : newStaff.id!,
-			Staff.Key.version			: newStaff.version!
-        ]
-		
-        let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateStaff.httpRequest(urlParameter: "/\(newStaff.id!.integerValue)"), token: token)
-		
-		networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-				completion(edited: false, editedStaff: nil, error: error!.describe(details!))
-                return
-            }
-			
-			newStaff.personID			= response![Staff.Key.personID].numberValue
-			newStaff.onOrganisationID	= response![Staff.Key.onOrganisationID].numberValue
-			newStaff.role				= response![Staff.Key.role].stringValue
-			newStaff.firstName			= response![Staff.Key.firstName].stringValue
-			newStaff.lastName			= response![Staff.Key.lastName].stringValue
-			newStaff.phone				= response![Staff.Key.phone].numberValue
-			newStaff.id					= response![Staff.Key.id].numberValue
-			let createdOnString			= response![Staff.Key.createdOn].stringValue
-			newStaff.createdOn			= self.dateFormatter.dateFromString(createdOnString)
-			let updatedOnString			= response![Staff.Key.updatedOn].stringValue
-			newStaff.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
-			newStaff.version				= response![Staff.Key.version].stringValue
-			newStaff.markedDeleted		= response![Staff.Key.markedDeleted].boolValue
-			
-            completion(edited: true, editedStaff: newStaff, error: nil)
-        }
-    }
-    
-    func deleteStaff(accessToken token: String, staffID: Int, completion: (deleted: Bool, error: String?) -> Void)
-    {
-        let networkConnection = NetworkService(request: API.DeleteStaff.httpRequest(urlParameter: "/\(staffID)"), token: token)
-		
-		networkConnection.makeHTTPRequest() {
-            (response, error) in
-            
-            guard error == nil else
-            {
-                let details = response?[self.errorDescriptionKey].string
-                completion(deleted: false, error: error!.describe(details!))
-                return
-            }
-            
-            completion(deleted: true, error: nil)
+            completion (error: errors)
         }
     }
 
@@ -1302,7 +347,7 @@ class HiveService
     // MARK: - Error Handler
     //
     
-    enum Errors: Int
+    enum Errors: Int, ErrorType
     {
     // Registration errors
         case PhoneAlreadyInUse      = 101
@@ -1325,7 +370,7 @@ class HiveService
         case AbuseWarning           = 700
         case UnhandledError         = 999
         
-        func describe(details: String) -> String
+        func describe(details: String = "") -> String
         {
             switch self
             {

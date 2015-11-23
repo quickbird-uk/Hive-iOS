@@ -86,8 +86,15 @@ class Staff: NSManagedObject
             }
             else
             {
-                // TODO: - Make a POST request to push self to server
-                return false
+				let accessToken = User.get()!.accessToken!
+				var updated = false
+				HiveService.shared.updateStaff(self, accessToken: accessToken) {
+					(didUpdate, updatedStaff, error) in
+					if didUpdate && error == nil {
+						updated = self.save(updatedStaff!)
+					}
+				}
+				return updated
             }
         }
         else
@@ -171,7 +178,7 @@ class Staff: NSManagedObject
         }
     }
     
-    class func updateAllStaff(newStaffs: [Staff]) -> Int
+    class func updateAll(newStaffs: [Staff]) -> Int
     {
         var count = 0
 		var staffToSync: Staff!
@@ -260,6 +267,154 @@ class Staff: NSManagedObject
 	var canManageTasks: Bool {
 		get {
 			return role! == Role.Specialist.rawValue
+		}
+	}
+}
+
+//
+// MARK: - Quickbird API Methods
+//
+
+extension HiveService
+{
+	func didUpdateStaff(staff: Staff, fromJSON: JSON?) -> Bool
+	{
+		guard let json = fromJSON else
+		{
+			print("HiveService.didUpdateStaff(_: fromJSON: ) - Server sent nothing in response.")
+			return false
+		}
+		
+		staff.personID			= json[Staff.Key.personID].numberValue
+		staff.onOrganisationID  = json[Staff.Key.onOrganisationID].numberValue
+		staff.role				= json[Staff.Key.role].stringValue
+		staff.firstName			= json[Staff.Key.firstName].stringValue
+		staff.lastName			= json[Staff.Key.lastName].stringValue
+		staff.phone				= json[Staff.Key.phone].numberValue
+		staff.id					= json[Staff.Key.id].numberValue
+		let createdOnString		= json[Staff.Key.createdOn].stringValue
+		staff.createdOn			= self.dateFormatter.dateFromString(createdOnString)
+		let updatedOnString		= json[Staff.Key.updatedOn].stringValue
+		staff.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
+		staff.version			= json[Staff.Key.version].stringValue
+		staff.markedDeleted		= json[Staff.Key.markedDeleted].boolValue
+		
+		return true
+	}
+	
+	func getAllStaff(accessToken accessToken: String, completion: (didGet: Bool, staffs: [Staff]?, error: String?) -> Void)
+	{
+		let networkConnection = NetworkService(request: API.ReadStaff.httpRequest(), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didGet: false, staffs: nil, error: error!.describe(details))
+				return
+			}
+			
+			guard let jsonArray = response else
+			{
+				completion(didGet: false, staffs: nil, error: "Server sent nothing in response.")
+				return
+			}
+			
+			var staffs = [Staff]()
+			for info in jsonArray
+			{
+				let staffInfo = info.1
+				let staff = Staff.temporary()
+				
+				if self.didUpdateStaff(staff, fromJSON: staffInfo) {
+					staffs.append(staff)
+				}
+			}
+			
+			completion(didGet: true, staffs: staffs, error: nil)
+		}
+	}
+	
+	func addStaff(staff: Staff, accessToken: String, completion: (didAdd: Bool, newStaff: Staff?, error: String?) -> Void)
+	{
+		let body: NSDictionary = [
+			Staff.Key.personID          : staff.personID!,
+			Staff.Key.onOrganisationID  : staff.onOrganisationID!,
+			Staff.Key.role              : staff.role!
+		]
+		
+		let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateStaff.httpRequest(), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didAdd: false, newStaff: nil, error: error!.describe(details))
+				return
+			}
+			
+			if self.didUpdateStaff(staff, fromJSON: response) {
+				completion(didAdd: true, newStaff: staff, error: nil)
+			}
+			else {
+				completion(didAdd: true, newStaff: nil, error: "Server sent nothing in response. Sync your Hive now to stay up-to-date.")
+			}
+		}
+	}
+	
+	func updateStaff(staff: Staff, accessToken: String,completion: (didUpdate: Bool, updatedStaff: Staff?, error: String?) -> Void)
+	{
+		let body: NSDictionary = [
+			Staff.Key.personID          : staff.personID!,
+			Staff.Key.onOrganisationID  : staff.onOrganisationID!,
+			Staff.Key.role              : staff.role!,
+			Staff.Key.firstName         : staff.firstName!,
+			Staff.Key.lastName          : staff.lastName!,
+			Staff.Key.phone             : staff.phone!,
+			Staff.Key.id				    : staff.id!,
+			Staff.Key.version			: staff.version!
+		]
+		
+		let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateStaff.httpRequest(urlParameter: "/\(staff.id!.integerValue)"), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didUpdate: false, updatedStaff: nil, error: error!.describe(details))
+				return
+			}
+			
+			if self.didUpdateStaff(staff, fromJSON: response) {
+				completion(didUpdate: true, updatedStaff: staff, error: nil)
+			}
+			else {
+				completion(didUpdate: true, updatedStaff: nil, error: "Server sent an empty response. Sync your Hive now to stay up-to-date.")
+			}
+		}
+	}
+	
+	func deleteStaffWithConnectionID(connectionID: Int, accessToken: String, completion: (didDelete: Bool, error: String?) -> Void)
+	{
+		let networkConnection = NetworkService(request: API.DeleteStaff.httpRequest(urlParameter: "/\(connectionID)"), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didDelete: false, error: error!.describe(details))
+				return
+			}
+			
+			completion(didDelete: true, error: nil)
 		}
 	}
 }

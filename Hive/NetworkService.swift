@@ -133,23 +133,19 @@ class NetworkService: NSOperation
             var response: NSHTTPURLResponse?
             var responseBody: JSON?
             
-            if body != nil
-            {
+            if body != nil {
                 responseBody = JSON(data: body!)
-                print(responseBody)
             }
             
-            if header != nil
-            {
+            if header != nil {
                 response = (header as! NSHTTPURLResponse)
             }
             
-            if response?.statusCode == 200
-            {
+            if response?.statusCode == 200 {
                 completion(responseBody, nil)
             }
             else
-            {
+			{
                 if let errorCode = responseBody?["error"].intValue
                 {
                     completion(responseBody, HiveService.Errors(rawValue: errorCode))

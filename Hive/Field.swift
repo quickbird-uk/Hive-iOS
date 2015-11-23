@@ -86,8 +86,15 @@ class Field: NSManagedObject
             }
             else
             {
-                // TODO: - Make a POST request to push self to server
-                return false
+				let accessToken = User.get()!.accessToken!
+				var updated = false
+				HiveService.shared.updateField(self, accessToken: accessToken) {
+					(didUpdate, updatedField, error) -> Void in
+					if didUpdate && error == nil {
+						updated = self.save(updatedField!)
+					}
+				}
+                return updated
             }
         }
         else
@@ -171,7 +178,7 @@ class Field: NSManagedObject
         }
     }
     
-    class func updateAllFields(newFields: [Field]) -> Int
+    class func updateAll(newFields: [Field]) -> Int
     {
         var count = 0
 		var fieldToSync: Field!
@@ -222,3 +229,155 @@ class Field: NSManagedObject
         }
     }
 }
+
+//
+// MARK: - Quickbird API Methods
+//
+
+extension HiveService
+{
+	func didUpdateField(field: Field, fromJSON: JSON?) -> Bool
+	{
+		guard let json = fromJSON else
+		{
+			print("HiveService.didUpdateField(_: fromJSON: ) - Response JSON is nil.")
+			return false
+		}
+		
+		field.name				= json[Field.Key.name].stringValue
+		field.areaInHectares		= json[Field.Key.areaInHectares].numberValue
+		field.fieldDescription	= json[Field.Key.fieldDescription].stringValue
+		field.onOrganisationID	= json[Field.Key.onOrganisationID].numberValue
+		field.latitude			= json[Field.Key.latitude].numberValue
+		field.longitude			= json[Field.Key.longitude].numberValue
+		field.id					= json[Field.Key.id].numberValue
+		let createdOnString		= json[Field.Key.createdOn].stringValue
+		field.createdOn			= self.dateFormatter.dateFromString(createdOnString)
+		let updatedOnString		= json[Field.Key.updatedOn].stringValue
+		field.updatedOn			= self.dateFormatter.dateFromString(updatedOnString)
+		field.version			= json[Field.Key.version].stringValue
+		field.markedDeleted		= json[Field.Key.markedDeleted].boolValue
+		
+		return true
+	}
+	
+	func getAllFields(accessToken token: String, completion: (didGet: Bool, fields: [Field]?, error: String?) -> Void)
+	{
+		let networkConnection = NetworkService(request: API.ReadField.httpRequest(), token: token)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didGet: false, fields: nil, error: error!.describe(details))
+				return
+			}
+			
+			guard let jsonArray = response else
+			{
+				completion(didGet: false, fields: nil, error: "Server response was empty.")
+				return
+			}
+			
+			var fields = [Field]()
+			for info in jsonArray
+			{
+				let fieldInfo = info.1
+				let field = Field.temporary()
+				if self.didUpdateField(field, fromJSON: fieldInfo) {
+					fields.append(field)
+				}
+			}
+			
+			completion(didGet: true, fields: fields, error: nil)
+		}
+	}
+	
+	func addField(field: Field, accessToken: String, completion: (didAdd: Bool, newField: Field?, error: String?) -> Void)
+	{
+		let body: NSDictionary = [
+			Field.Key.name             : field.name!,
+			Field.Key.areaInHectares   : field.areaInHectares!,
+			Field.Key.fieldDescription : field.fieldDescription!,
+			Field.Key.onOrganisationID : field.onOrganisationID!,
+			Field.Key.latitude		   : field.latitude!,
+			Field.Key.longitude		   : field.longitude!
+		]
+		
+		let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateField.httpRequest(), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didAdd: false, newField: nil, error: error!.describe(details))
+				return
+			}
+			
+			if self.didUpdateField(field, fromJSON: response) {
+				completion(didAdd: true, newField: field, error: nil)
+			}
+			else {
+				completion(didAdd: true, newField: nil, error: "Server response was empty. Sync your Hive now to stay up-to-date.")
+			}
+		}
+	}
+	
+	func updateField(field: Field, accessToken: String, completion: (didUpdate: Bool, updatedField: Field?, error: String?) -> Void)
+	{
+		let body: NSDictionary = [
+			Field.Key.name             : field.name!,
+			Field.Key.areaInHectares   : field.areaInHectares!,
+			Field.Key.fieldDescription : field.fieldDescription!,
+			Field.Key.onOrganisationID : field.onOrganisationID!,
+			Field.Key.latitude		   : field.latitude!,
+			Field.Key.longitude	       : field.longitude!,
+			Field.Key.id				   : field.id!,
+			Field.Key.version		   : field.version!
+		]
+		
+		let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateField.httpRequest(urlParameter: "/\(field.id!.integerValue)"), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didUpdate: false, updatedField: nil, error: error!.describe(details))
+				return
+			}
+			
+			if self.didUpdateField(field, fromJSON: response) {
+				completion(didUpdate: true, updatedField: field, error: nil)
+			}
+			else {
+				completion(didUpdate: true, updatedField: nil, error: "Server response was empty. Sync your Hive now to stay up-to-date.")
+			}
+		}
+	}
+	
+	func deleteFieldWithID(fieldID: Int, accessToken: String, completion: (didDelete: Bool, error: String?) -> Void)
+	{
+		let networkConnection = NetworkService(request: API.DeleteField.httpRequest(urlParameter: "/\(fieldID)"), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didDelete: false, error: error!.describe(details))
+				return
+			}
+			
+			completion(didDelete: true, error: nil)
+		}
+	}
+}
+
+

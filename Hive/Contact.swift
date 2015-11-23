@@ -82,8 +82,15 @@ class Contact: NSManagedObject
             }
             else
             {
-                // TODO: - Make a POST request to push self to server
-                return true
+				let accessToken = User.get()!.accessToken!
+				var updated = false
+				HiveService.shared.updateContact(self, accessToken: accessToken) {
+					(didUpdate, updatedContact, error) in
+					if didUpdate && error == nil {
+						updated = self.save(updatedContact!)
+					}
+				}
+                return updated
             }
         }
         return false
@@ -177,7 +184,7 @@ class Contact: NSManagedObject
         }
     }
     
-    class func updateAllContacts(newContacts: [Contact]) -> Int
+    class func updateAll(newContacts: [Contact]) -> Int
     {
         var count = 0
 		var contactToSync: Contact!
@@ -228,4 +235,175 @@ class Contact: NSManagedObject
             contact.remove()
         }
     }
+}
+
+//
+// MARK: - Quickbird API Keys
+//
+
+extension HiveService
+{
+	func didUpdateContact(contact: Contact, fromJSON: JSON?) -> Bool
+	{
+		guard let json = fromJSON else
+		{
+			print("HiveService.didUpdateContact(_: fromJSON: ) - Server response JSON is empty.")
+			return false
+		}
+		
+		contact.firstName       = json[Contact.Key.firstName].stringValue
+		contact.lastName        = json[Contact.Key.lastName].stringValue
+		contact.phone           = json[Contact.Key.phone].numberValue
+		contact.friendID        = json[Contact.Key.friendID].numberValue
+		contact.id              = json[Contact.Key.id].numberValue
+		contact.state           = json[Contact.Key.state].stringValue
+		contact.markedDeleted   = json[Contact.Key.markedDeleted].boolValue
+		contact.version         = json[Contact.Key.version].stringValue
+		let updateDateString    = json[Contact.Key.updatedOn].stringValue
+		contact.updatedOn       = self.dateFormatter.dateFromString(updateDateString)
+		let creationDateString  = json[Contact.Key.createdOn].stringValue
+		contact.createdOn       = self.dateFormatter.dateFromString(creationDateString)
+		
+		return true
+	}
+	
+	func getAllContacts(accessToken token: String, completion: (didGet: Bool, contacts: [Contact]?, error: String?) -> Void)
+	{
+		let networkConnection = NetworkService(request: API.ReadContacts.httpRequest(), token: token)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Nothing bad happened."
+				completion(didGet: false, contacts: nil, error: error!.describe(details))
+				return
+			}
+			
+			guard let jsonArray = response else
+			{
+				completion(didGet: false, contacts: nil, error: "Server response JSON is empty.")
+				return
+			}
+			
+			var contacts = [Contact]()
+			for info in jsonArray
+			{
+				let contactCard = info.1
+				let contact = Contact.temporary()
+				
+				if self.didUpdateContact(contact, fromJSON: contactCard) {
+					contacts.append(contact)
+				}
+			}
+			
+			completion(didGet: true, contacts: contacts, error: nil)
+		}
+	}
+	
+	func findContactsWithPhoneNumbers(phoneNumbers: [NSNumber], accessToken token: String, completion:(didFind: Bool, contacts: [Contact]?, error: String?) -> Void)
+	{
+		let body = String(phoneNumbers)
+		let networkConnection = NetworkService(bodyAsPercentEncodedString: body, request: API.FindContacts.httpRequest(), token: token)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didFind: false, contacts: nil, error: error!.describe(details))
+				return
+			}
+			
+			guard let jsonArray = response else
+			{
+				completion(didFind: false, contacts: nil, error: "Server sent back an empty JSON.")
+				return
+			}
+			
+			var contacts = [Contact]()
+			for contact in jsonArray
+			{
+				let contactCard = contact.1
+				let newContact = Contact.temporary()
+				
+				if self.didUpdateContact(newContact, fromJSON: contactCard) {
+					contacts.append(newContact)
+				}
+			}
+			
+			completion(didFind: true, contacts: contacts, error: nil)
+		}
+	}
+	
+	func addContactWithPersonID(contactID: Int, accessToken: String, completion: (didSendInvite: Bool, error: String?) -> Void)
+	{
+		let networkConnection = NetworkService(bodyAsPercentEncodedString: "\(contactID)", request: API.CreateContact.httpRequest(), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didSendInvite: false, error: error!.describe(details))
+				return
+			}
+			
+			completion(didSendInvite: true, error: nil)
+		}
+	}
+	
+	func updateContact(contact: Contact, accessToken: String, completion: (didUpdate: Bool, updatedContact: Contact?, error: String?) -> Void)
+	{
+		let body: NSDictionary? = [
+			Contact.Key.friendID  : contact.friendID!,
+			Contact.Key.state     : contact.state!,
+			Contact.Key.firstName : contact.firstName!,
+			Contact.Key.lastName  : contact.lastName!,
+			Contact.Key.phone     : contact.phone!,
+			Contact.Key.id		  : contact.id!,
+			Contact.Key.version   : contact.version!
+		]
+		
+		let networkConnection = NetworkService(bodyAsJSON: body, request: API.UpdateContact.httpRequest(urlParameter: "/\(contact.id!)"), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
+				completion(didUpdate: false, updatedContact: nil, error: error!.describe(details))
+				return
+			}
+			
+			if self.didUpdateContact(contact, fromJSON: response) {
+				completion(didUpdate: true, updatedContact: contact, error: nil)
+			}
+			else {
+				completion(didUpdate: true, updatedContact: nil, error: "Server sent an empty response. Sync your Hive now to stay up-to-date.")
+			}
+		}
+	}
+	
+	func deleteContactWithConnectionID(connectionID: NSNumber?, accessToken: String, completion: (didDelete: Bool, error: String?) -> Void)
+	{
+		let networkConnection = NetworkService(request: API.DeleteContact.httpRequest(urlParameter: "/\(connectionID!)"), token: accessToken)
+		
+		networkConnection.makeHTTPRequest() {
+			(response, error) in
+			
+			guard error == nil else
+			{
+				let details = response?[self.errorDescriptionKey].string
+				completion(didDelete: false, error: error!.describe(details!))
+				return
+			}
+			
+			completion(didDelete: true, error: nil)
+		}
+	}
 }
