@@ -14,10 +14,17 @@ import UIKit
 class Design
 {
 	static let shared = Design()
+	let lightBlueColor: UIColor!
+	let redColor	: UIColor!
+	let darkGrayColor: UIColor!
+	
 	private init()
 	{
-		self.DateFormatter.timeStyle = NSDateFormatterStyle.NoStyle
-		self.DateFormatter.dateStyle = NSDateFormatterStyle.MediumStyle
+		lightBlueColor	= UIColor(red: 52.0/255.0, green: 152.0/255.0, blue: 219.0/255.0, alpha: 1.0)
+		redColor			= UIColor(red: 231.0/255.0, green: 76.0/255.0, blue: 60.0/255.0, alpha: 1.0)
+		darkGrayColor	= UIColor(red: 51.0/255.0, green: 51.0/255.0, blue: 51.0/255.0, alpha: 1.0)
+		DateFormatter.timeStyle = NSDateFormatterStyle.NoStyle
+		DateFormatter.dateStyle = NSDateFormatterStyle.MediumStyle
 	}
 	
 	func initMessage()

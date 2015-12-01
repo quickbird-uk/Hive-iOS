@@ -13,12 +13,13 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
 {
     @IBOutlet var tasksTableView: UITableView!
 	@IBOutlet weak var addBarButton: UIBarButtonItem!
-	@IBOutlet weak var offlineView: UIView!
 	
 	var selectedIndexPath: NSIndexPath!
 	let user = User.get()!
+	var task: Task!
+	var taskAssignedBy: String!
+	var taskForField: Field!
 	
-    
     //
     // MARK: - Fetched Results Controller
     //
@@ -96,21 +97,13 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     {
         let task = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Task
         cell.textLabel!.text = task.name ?? "A task with no name? Blasphemy!"
-        cell.detailTextLabel!.text = task.state ?? "Undefined"
+		let field = Field.getFieldWithID(task.forFieldID!)!
+        cell.detailTextLabel!.text = field.name ?? "In a galaxy far far away"
     }
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int
     {
-        guard let sections = self.fetchedResultsController.sections else
-        {
-			// Display a message when the table is empty
-			let messageLabel = UILabel(frame: CGRect(x: 37, y: 103, width: 247, height: 50))
-			messageLabel.text = "You have got no tasks to do. Woooohooo!"
-			messageLabel.numberOfLines = 3
-			messageLabel.textAlignment = NSTextAlignment.Center
-			messageLabel.font = UIFont(name: "Avenir-Next", size: 17.0)
-			tasksTableView.backgroundView = messageLabel
-			
+        guard let sections = self.fetchedResultsController.sections else {
             return 0
         }
 		
@@ -119,7 +112,10 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
-        let sections = self.fetchedResultsController.sections!
+        guard let sections = self.fetchedResultsController.sections else {
+			return 0
+		}
+		
         let sectionInfo = sections[section]
         return sectionInfo.numberOfObjects
     }
@@ -139,20 +135,30 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
     
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool
     {
+		return true
+    }
+	
+	override func tableView(tableView: UITableView, willBeginEditingRowAtIndexPath indexPath: NSIndexPath)
+	{
 		guard online else
 		{
-			return false
+			let alert = UIAlertController(title: "Offline Mode", message: "You can't make any changes to your tasks while offline.", preferredStyle: .ActionSheet)
+			let okAction = UIAlertAction(title: "Got it!", style: .Default, handler: nil)
+			alert.addAction(okAction)
+			self.presentViewController(alert, animated: true, completion: nil)
+			return
 		}
 		
 		let task = fetchedResultsController.objectAtIndexPath(indexPath) as! Task
-        if task.assignedByID == user.id {
-            return true
-        }
-        else {
-            return false
-        }
-    }
-    
+		if task.assignedByID != user.id
+		{
+			let alert = UIAlertController(title: "Not authorised", message: "You can delete only those tasks which you have assigned to others.", preferredStyle: .ActionSheet)
+			let okAction = UIAlertAction(title: "Got it!", style: .Default, handler: nil)
+			alert.addAction(okAction)
+			self.presentViewController(alert, animated: true, completion: nil)
+		}
+	}
+	
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
     {
         if editingStyle == .Delete
@@ -202,14 +208,10 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
 	
 	override func viewWillAppear(animated: Bool)
 	{
-		if online
-		{
-			self.offlineView.frame = CGRect(x: 0, y: 0, width: self.offlineView.frame.width, height: 0)
+		if online {
 			self.addBarButton.enabled = true
 		}
-		else
-		{
-			self.offlineView.frame = CGRect(x: 0, y: 0, width: self.offlineView.frame.width, height: self.offlineViewHeight)
+		else {
 			self.addBarButton.enabled = false
 		}
 	}
@@ -230,5 +232,13 @@ class TasksViewController: UITableViewController, NSFetchedResultsControllerDele
 			let destination = segue.destinationViewController as! TaskDetailsViewController
 			destination.task = fetchedResultsController.objectAtIndexPath(selectedIndexPath) as! Task
         }
+		
+		if segue.identifier == "recordTask"
+		{
+			let destination = segue.destinationViewController as! RecordTaskViewController
+			destination.task = task
+			destination.assignedBy = taskAssignedBy
+			destination.onField = taskForField.name!
+		}
     }
 }

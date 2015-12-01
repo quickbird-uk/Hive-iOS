@@ -88,6 +88,12 @@ class ViewController: UIViewController
 		}
 		offlineView.hidden = NetworkService.isConnected()
 		syncButton.enabled = NetworkService.isConnected()
+		if NetworkService.isConnected() {
+			self.navigationController?.navigationBar.barTintColor = Design.shared.lightBlueColor
+		}
+		else {
+			self.navigationController?.navigationBar.barTintColor = Design.shared.redColor
+		}
 	}
 	
 	override func viewDidAppear(animated: Bool)

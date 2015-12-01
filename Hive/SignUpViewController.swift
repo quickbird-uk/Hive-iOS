@@ -132,7 +132,7 @@ class SignUpViewController: UITableViewController, UITextFieldDelegate, LegalDat
 	func userDidDeclineAgreement(atIndexPath index: NSIndexPath)
 	{
 		let cell = tableView.cellForRowAtIndexPath(index) as! TableViewCellWithButton
-		cell.accessoryType = UITableViewCellAccessoryType.DetailButton
+		cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
 		cell.reloadInputViews()
 	}
 	
@@ -151,12 +151,19 @@ class SignUpViewController: UITableViewController, UITextFieldDelegate, LegalDat
 	
 	override func viewWillAppear(animated: Bool)
 	{
-		navigationItem.title = "Quickbird Account"
+		navigationItem.title = "Sign up for Hive"
 		guard termsOfServiceCell.accessoryType == .Checkmark && privacyPolicyCell.accessoryType == .Checkmark else
 		{
 			signupCell.buttonFaded = true
 			signupCell.buttonTouchEnabled = false
 			return
+		}
+		
+		if NetworkService.isConnected() {
+			self.navigationController?.navigationBar.barTintColor = Design.shared.lightBlueColor
+		}
+		else {
+			self.navigationController?.navigationBar.barTintColor = Design.shared.redColor
 		}
 		
 		signupCell.buttonFaded = false
@@ -217,6 +224,7 @@ class SignUpViewController: UITableViewController, UITextFieldDelegate, LegalDat
 			destination.delegate = self
 			destination.senderIndexPath = tableView.indexPathForCell(termsOfServiceCell)
 			destination.documentName = "TOS"
+			destination.navigationItem.title = "Terms of Service"
 		}
 		
 		if segue.identifier == "showPrivacyPolicy" || segue.identifier == "accessoryPrivacy"
@@ -225,6 +233,8 @@ class SignUpViewController: UITableViewController, UITextFieldDelegate, LegalDat
 			destination.delegate = self
 			destination.senderIndexPath = tableView.indexPathForCell(privacyPolicyCell)
 			destination.documentName = "PrivacyPolicy"
+			destination.navigationItem.title = "Privacy Policy"
+
 		}
     }
 }

@@ -18,8 +18,9 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
     let types = Task.getAllTypes()
     let fields = Field.getAll()
     var selectedFieldID: NSNumber?
-    let contacts = Contact.getAll("friends")
-    var selectedContactID: NSNumber?
+	var field: Field!
+	var staffs: [Staff]!
+    var selectedStaffID: NSNumber?
     
     //
     // MARK: - Outlets
@@ -42,13 +43,13 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
         let task						= Task.temporary()
         task.name					= nameCell.userResponse
         task.type					= typeCell.selectedOption
-		task.state				= TaskState.Pending.rawValue
-        task.forFieldID			= selectedFieldID
-		task.assignedToID			= selectedContactID
-        task.dueDate				= datePicker.date
-        task.taskDescription		= notesCell.plainText
+		task.state					= TaskState.Pending.rawValue
+        task.forFieldID				= selectedFieldID
+		task.assignedToID			= selectedStaffID
+        task.dueDate					= datePicker.date
+        task.taskDescription			= notesCell.plainText
         task.assignedByID			= user!.id
-        task.payRate				= 66.6
+        task.payRate					= 66.6
 		
         HiveService.shared.addTask(task, accessToken: user!.accessToken!) {
             (didAdd, newTask, error) in
@@ -108,7 +109,7 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
             // Contact for task
             case 3:
                 assignToPersonCell.selectedOption = option
-                selectedContactID = contacts?[selectedIndex].friendID
+                selectedStaffID = staffs?[selectedIndex].personID
             
             default:    break
         }
@@ -123,13 +124,17 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
     override func viewDidLoad()
     {
         super.viewDidLoad()
-		
-		// Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
+	
+	override func viewWillAppear(animated: Bool)
+	{
+		if selectedFieldID != nil {
+			field = Field.getFieldWithID(selectedFieldID!)
+			if field != nil {
+				staffs = Staff.getAll("forOrganisation", orgID: field!.onOrganisationID!.integerValue)
+			}
+		}
+	}
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -162,9 +167,15 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
                 {
                     fieldNames.append(field.name!)
                 }
+				destination.options = fieldNames
             }
+			else
+			{
+				destination.options = ["You have no fields.", "Please add a field first."]
+				destination.allowSelection = false
+			}
             
-            destination.options = fieldNames
+			
             destination.senderCellIndexPath = addTaskForm.indexPathForCell(fieldCell)
         }
         
@@ -172,18 +183,28 @@ class AddTaskViewController: UITableViewController, OptionsListDataSource
         {
             let destination = segue.destinationViewController as! OptionsListViewController
             destination.delegate = self
-            var contactNames = [String]()
+            var staffNames = [String]()
             
         // Contact names
-            if contacts != nil
+            if staffs != nil
             {
-                for contact in contacts!
+                for staff in staffs!
                 {
-                    contactNames.append("\(contact.firstName!) \(contact.lastName!)")
+                    staffNames.append("\(staff.firstName!) \(staff.lastName!)")
                 }
+				destination.options = staffNames
             }
-            
-            destination.options = contactNames
+			else
+			{
+				if selectedFieldID != nil {
+					destination.options = ["No staff added to this field.", "Please add staff using Farms menu", "and try again later."]
+				}
+				else {
+					destination.options = ["Please select a field first."]
+				}
+				destination.allowSelection = false
+			}
+			
             destination.senderCellIndexPath = addTaskForm.indexPathForCell(assignToPersonCell)
         }
     }

@@ -16,13 +16,27 @@ class FarmsViewController: UIViewController, UITableViewDelegate, UITableViewDat
     //
     
     var selectedCell: Int?
+	let user = User.get()!
     var fetchedResultsController: NSFetchedResultsController!
     @IBOutlet weak var farmsTable: UITableView!
     
     //
     // MARK: - Methods
     //
-    
+	
+	func showError(message: String)
+	{
+		let alert = UIAlertController(
+			title: "Oops!",
+			message: message,
+			preferredStyle: .ActionSheet)
+		
+		let cancelAction = UIAlertAction(title: "Try Again", style: .Cancel, handler: nil)
+		alert.addAction(cancelAction)
+		
+		self.presentViewController(alert, animated: true, completion: nil)
+	}
+	
     func initFetchedResultsController()
     {
         let request = NSFetchRequest(entityName: Organisation.entityName)
@@ -37,7 +51,6 @@ class FarmsViewController: UIViewController, UITableViewDelegate, UITableViewDat
         self.fetchedResultsController.delegate = self
         do {
             try self.fetchedResultsController.performFetch()
-            print(fetchedResultsController.fetchedObjects as! [Organisation])
         }
         catch {
             print("Fatal error. Failed to initialize fetched results controller \(error)")
@@ -53,13 +66,25 @@ class FarmsViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
         let deleteAction = UIAlertAction(title: "Delete", style: .Destructive) {
             alert in
-            Data.shared.permanentContext.deleteObject(org)
+			HiveService.shared.deleteOrganisationWithID(org.id!.integerValue, accessToken: self.user.accessToken!) {
+				(didDelete, error) in
+				if didDelete && error == nil {
+					dispatch_async(dispatch_get_main_queue()) {
+						Data.shared.permanentContext.deleteObject(org)
+					}
+				}
+				else {
+					dispatch_async(dispatch_get_main_queue()) {
+						self.showError("Something bad happened. Please try again.")
+					}
+				}
+			}
         }
         alert.addAction(deleteAction)
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
         alert.addAction(cancelAction)
-        
+		
         self.presentViewController(alert, animated: true, completion: nil)
     }
     

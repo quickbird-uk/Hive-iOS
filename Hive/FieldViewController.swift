@@ -17,13 +17,19 @@ class FieldViewController: UIViewController, UITableViewDataSource, UITableViewD
     var itemIndex: Int = 0
     var field: Field!
 	var tasks: [Task]!
-    
+    let user = User.get()!
+	
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var farmNameButton: UIButton!
     @IBOutlet weak var areaLabel: UILabel!
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var activityListView: UITableView!
+	@IBOutlet weak var deleteButton: UIButton!
     
+	@IBAction func deleteField(sender: UIButton)
+	{
+		
+	}
     //
     // MARK: - Table View
     //
@@ -60,11 +66,25 @@ class FieldViewController: UIViewController, UITableViewDataSource, UITableViewD
         super.viewDidLoad()
 		nameLabel.text = field.name
 		let farmID = field.onOrganisationID
-		let farmName = Organisation.getOrganisationWithID(farmID!)!.name!
+		let farm = Organisation.getOrganisationWithID(farmID!)!
+		let farmName = farm.name!
 		farmNameButton.setTitle(farmName, forState: .Normal)
 		areaLabel.text = "\(field.areaInHectares!) acres"
 		descriptionLabel.text = field.fieldDescription!
 		tasks = Task.getTasksForField(Int(field.id!), withState: "Finished")
+		
+		// Delete Button
+		let staffs = Staff.getAll("forOrganisation", orgID: farmID!.integerValue)
+		if staffs != nil {
+			for staff in staffs! {
+				print(staff.role)
+				if staff.personID == user.id {
+					if staff.role == "Owner" {
+						deleteButton.hidden = false
+					}
+				}
+			}
+		}
     }
 	
 	override func viewWillAppear(animated: Bool)
@@ -89,6 +109,13 @@ class FieldViewController: UIViewController, UITableViewDataSource, UITableViewD
 			let destination = segue.destinationViewController as! FarmDetailsViewController
 			let farmID = field.onOrganisationID
 			destination.farm = Organisation.getOrganisationWithID(farmID!)
+		}
+		
+		if segue.identifier == "showFieldJournal"
+		{
+			let destinationNavController = segue.destinationViewController as! UINavigationController
+			let destination = destinationNavController.viewControllers.first as! JournalViewController
+			destination.field = field
 		}
     }
 }

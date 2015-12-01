@@ -316,7 +316,7 @@ extension HiveService
 			print("HiveService.didUpdateTask(_: fromJSON: ) - Server sent nothing in response.")
 			return false
 		}
-		
+		print(json)
 		task.name               = json[Task.Key.name].stringValue
 		task.taskDescription    = json[Task.Key.taskDescription].stringValue
 		task.type               = json[Task.Key.type].stringValue
@@ -338,6 +338,7 @@ extension HiveService
 		task.version            = json[Task.Key.version].stringValue
 		task.markedDeleted      = json[Task.Key.markedDeleted].boolValue
 		
+		print(task)
 		return true
 	}
 	
@@ -389,11 +390,13 @@ extension HiveService
 			Task.Key.payRate				: 66.6
 		]
 		
+		print(body)
+		print("\(task.dueDate!)")
 		let networkConnection = NetworkService(bodyAsJSON: body, request: API.CreateTask.httpRequest(), token: accessToken)
 		
 		networkConnection.makeHTTPRequest() {
 			(response, error) in
-			
+
 			guard error == nil else
 			{
 				let details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."

@@ -32,13 +32,13 @@ class LegalViewController: UIViewController
 	@IBAction func accept(sender: UIBarButtonItem)
 	{
 		delegate.userDidAcceptAgreement(atIndexPath: senderIndexPath)
-		self.dismissViewControllerAnimated(true, completion: nil)
+		self.navigationController?.popViewControllerAnimated(true)
 	}
 	
 	@IBAction func decline(sender: UIBarButtonItem)
 	{
 		delegate.userDidDeclineAgreement(atIndexPath: senderIndexPath)
-		self.dismissViewControllerAnimated(true, completion: nil)
+		self.navigationController?.popViewControllerAnimated(true)
 	}
 	
     override func viewDidLoad() {
@@ -55,6 +55,12 @@ class LegalViewController: UIViewController
 		}
 		catch {
 			textView.text = "Couldn't read the \(documentName) file."
+		}
+		if NetworkService.isConnected() {
+			self.navigationController?.navigationBar.barTintColor = Design.shared.lightBlueColor
+		}
+		else {
+			self.navigationController?.navigationBar.barTintColor = Design.shared.redColor
 		}
     }
 

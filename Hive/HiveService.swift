@@ -19,7 +19,7 @@ class HiveService
     {
         self.applicationKey = "defaultApplicationKey"
         self.apiBaseURL = NSURL(string: "https://api.quickbird.uk/")!
-		self.dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSxxx"
+		self.dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssxxx"
 		self.dateFormatter.calendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierISO8601)
 		self.dateFormatter.locale = NSLocale(localeIdentifier: "en_GB")
     }
@@ -155,6 +155,7 @@ class HiveService
             (didGet, staffs, error) in
             if didGet && staffs != nil
             {
+				print(staffs!)
                 print("    ⋮  Staff synced with server  -  \(Staff.updateAll(staffs!))")
                 dispatch_group_leave(dispatchGroup)
             }

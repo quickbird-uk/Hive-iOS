@@ -214,6 +214,12 @@ class SignInViewController: UITableViewController, UITextFieldDelegate
 	override func viewWillAppear(animated: Bool)
 	{
 		navigationItem.title = "Sign In"
+		if NetworkService.isConnected() {
+			self.navigationController?.navigationBar.barTintColor = Design.shared.lightBlueColor
+		}
+		else {
+			self.navigationController?.navigationBar.barTintColor = Design.shared.redColor
+		}
 	}
     
     override func didReceiveMemoryWarning()

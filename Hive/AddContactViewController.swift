@@ -39,7 +39,7 @@ class AddContactViewController: UIViewController, UITableViewDelegate, UITableVi
     
     @IBAction func done(sender: UIBarButtonItem)
     {
-		HiveService.shared.addContactWithPersonID(selectedContact.friendID!.integerValue, accessToken: user!.accessToken!) {
+		HiveService.shared.addContactWithPersonID(selectedContact.id!.integerValue, accessToken: user!.accessToken!) {
 			(didSendInvite, error) -> Void in
 			
 			guard didSendInvite else

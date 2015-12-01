@@ -65,6 +65,8 @@
 		226D319D1BC829F5002140E9 /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226D319C1BC829F5002140E9 /* SwiftyJSON.swift */; };
 		226D319F1BC82A8C002140E9 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226D319E1BC82A8C002140E9 /* Data.swift */; };
 		226F5C441BDE580C0090709B /* Operation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226F5C431BDE580C0090709B /* Operation.swift */; };
+		2282C18E1C033EFC00B51520 /* JournalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2282C18D1C033EFC00B51520 /* JournalViewController.swift */; };
+		2282C1901C033F2C00B51520 /* JournalJobSheetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2282C18F1C033F2C00B51520 /* JournalJobSheetViewController.swift */; };
 		228343131BF84D0E00977D93 /* LegalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228343121BF84D0E00977D93 /* LegalViewController.swift */; };
 		228343171BF8586000977D93 /* TOS.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 228343161BF8586000977D93 /* TOS.rtf */; };
 		228343191BF8AB5800977D93 /* PrivacyPolicy.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 228343181BF8AB5800977D93 /* PrivacyPolicy.rtf */; };
@@ -171,6 +173,8 @@
 		226D319C1BC829F5002140E9 /* SwiftyJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
 		226D319E1BC82A8C002140E9 /* Data.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		226F5C431BDE580C0090709B /* Operation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operation.swift; sourceTree = "<group>"; };
+		2282C18D1C033EFC00B51520 /* JournalViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JournalViewController.swift; sourceTree = "<group>"; };
+		2282C18F1C033F2C00B51520 /* JournalJobSheetViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JournalJobSheetViewController.swift; sourceTree = "<group>"; };
 		228343121BF84D0E00977D93 /* LegalViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegalViewController.swift; sourceTree = "<group>"; };
 		228343161BF8586000977D93 /* TOS.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = TOS.rtf; sourceTree = "<group>"; };
 		228343181BF8AB5800977D93 /* PrivacyPolicy.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = PrivacyPolicy.rtf; sourceTree = "<group>"; };
@@ -449,6 +453,8 @@
 				22F7CD601BED403D00F40323 /* FieldViewController.swift */,
 				22A8B6F91C00113300F679E5 /* AddFieldViewController.swift */,
 				22A8B6FB1C00114F00F679E5 /* SpatialViewController.swift */,
+				2282C18D1C033EFC00B51520 /* JournalViewController.swift */,
+				2282C18F1C033F2C00B51520 /* JournalJobSheetViewController.swift */,
 			);
 			name = Fields;
 			sourceTree = "<group>";
@@ -607,6 +613,7 @@
 				222775E51BD8E051006CBC98 /* Organisation.swift in Sources */,
 				220948061BE0D44A00FBA9CE /* NetworkObserver.swift in Sources */,
 				220948051BE0D44A00FBA9CE /* MoreInformationOperation.swift in Sources */,
+				2282C1901C033F2C00B51520 /* JournalJobSheetViewController.swift in Sources */,
 				220947E81BE0D32B00FBA9CE /* PhotosCondition.swift in Sources */,
 				220947B61BE0CDF500FBA9CE /* BlockOperation.swift in Sources */,
 				22F7CD611BED403D00F40323 /* FieldViewController.swift in Sources */,
@@ -646,6 +653,7 @@
 				220947F31BE0D35200FBA9CE /* CKContainer+Operations.swift in Sources */,
 				220947F11BE0D35200FBA9CE /* Dictionary+Operations.swift in Sources */,
 				220947CC1BE0D30300FBA9CE /* TimeoutObserver.swift in Sources */,
+				2282C18E1C033EFC00B51520 /* JournalViewController.swift in Sources */,
 				22A811BF1BEC23FE00376FC6 /* TaskDetailsViewController.swift in Sources */,
 				228343131BF84D0E00977D93 /* LegalViewController.swift in Sources */,
 				220947C51BE0D2DF00FBA9CE /* ExclusivityController.swift in Sources */,

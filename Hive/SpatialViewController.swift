@@ -68,8 +68,8 @@ class SpatialViewController: UIViewController, CLLocationManagerDelegate, MKMapV
 			// Create the annotation and add it to the map
 			self.pin = CustomPin(coordinate: locationCoordinates, title: "Locating...", subtitle: "")
 			print(pin.title)
-			self.mapView.addAnnotation(pin)
-			self.mapView.selectAnnotation(self.pin, animated: true)
+			mapView.addAnnotation(pin)
+			mapView.selectAnnotation(pin, animated: true)
 			self.latitude = self.pin.coordinate.latitude
 			self.longitude = self.pin.coordinate.longitude
 		}
@@ -122,6 +122,8 @@ class SpatialViewController: UIViewController, CLLocationManagerDelegate, MKMapV
 			{
 				self.pin.title		= placemarks!.first!.locality ?? "Somewhere in the country..."
 				self.pin.subtitle	= placemarks!.first!.postalCode ?? " "
+				self.mapView.deselectAnnotation(self.pin, animated: false)
+				self.mapView.selectAnnotation(self.pin, animated: true)
 				self.doneBarButton.enabled = true
 			}
 		}

@@ -254,14 +254,17 @@ extension HiveService
 		
 		networkConnection.makeHTTPRequest() {
 			(response, error) in
-			
+			print(response)
 			guard error == nil else
 			{
-				var details: String!
+				var details: String
 				if error!.rawValue != 103 {
 					details = response?[self.errorDescriptionKey].stringValue ?? "Something bad happened."
 					print("⋮")
 					print("⋮  ✗  Login/token renewal failed. \(error!.describe(details))\n")
+				}
+				else {
+					details = HiveService.Errors.IncorrectLoginDetails.describe()
 				}
 				completion(didRenew: false, newToken: nil, tokenExpiryDate: nil, error: error!.describe(details))
 				return

@@ -24,7 +24,8 @@ class OptionsListViewController: UITableViewController
     var options: [String]!
     var senderCellIndexPath: NSIndexPath?
     var selectedIndex: Int = -1
-    
+	var allowSelection = true
+	
     //
     // MARK: - Methods
     //
@@ -61,9 +62,13 @@ class OptionsListViewController: UITableViewController
         }
         return cell
     }
-    
+	
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath)
     {
+		if !allowSelection {
+			return
+		}
+		
         selectedIndex = indexPath.row
         tableView.reloadData()
         delegate.updateCell!(atIndex: senderCellIndexPath!, withOption: options[indexPath.row], selectedIndex: selectedIndex)

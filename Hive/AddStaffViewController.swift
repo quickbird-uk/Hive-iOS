@@ -58,10 +58,14 @@ class AddStaffViewController: UITableViewController, OptionsListDataSource
 		HiveService.shared.addStaff(staff, accessToken: accessToken) {
 			(didAdd, newStaff, error) -> Void in
 			if didAdd && newStaff != nil {
-				newStaff!.moveToPersistentStore()
+				dispatch_async(dispatch_get_main_queue()) {
+					newStaff!.moveToPersistentStore()
+					self.navigationController?.popViewControllerAnimated(true)
+				}
 			}
 			else {
-				print(error)
+				let errorMessage = error ?? "Something bad happened"
+				self.showError(errorMessage)
 			}
 		}
 	}
@@ -138,7 +142,6 @@ class AddStaffViewController: UITableViewController, OptionsListDataSource
 		{
 			let destination = segue.destinationViewController as! OptionsListViewController
 			destination.delegate = self
-			let options = [String]()
 			destination.options = Staff.Role.allRoles
 			destination.senderCellIndexPath = tableView.indexPathForCell(roleCell)
 		}

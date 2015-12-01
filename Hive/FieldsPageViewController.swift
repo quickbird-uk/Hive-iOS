@@ -15,25 +15,27 @@ class FieldsPageViewController: UIViewController, UIPageViewControllerDataSource
     //
     
     private var fieldsPageController: UIPageViewController!
-    let fields = Field.getAll()
-    
+    var fields = Field.getAll()
+	var startingController: FieldViewController!
+	var startingControllerWhenEmpty: UIViewController!
+	
     //
     // MARK: - Methods
     //
     
     private func createPageViewController()
     {
-        let pageController = self.storyboard!.instantiateViewControllerWithIdentifier("FieldsPageController") as! UIPageViewController
+        let  pageController = self.storyboard!.instantiateViewControllerWithIdentifier("FieldsPageController") as! UIPageViewController
         pageController.dataSource = self
 		
 		if fields != nil {
-			let startingController = self.storyboard!.instantiateViewControllerWithIdentifier("FieldContentController") as! FieldViewController
+			startingController = self.storyboard!.instantiateViewControllerWithIdentifier("FieldContentController") as! FieldViewController
 			startingController.field = fields![0]
 			pageController.setViewControllers([startingController], direction: .Forward, animated: true, completion: nil)
 		}
 		else {
-			let startingController = self.storyboard!.instantiateViewControllerWithIdentifier("noFieldsPageController")
-			pageController.setViewControllers([startingController], direction: .Forward, animated: true, completion: nil)
+			startingControllerWhenEmpty = self.storyboard!.instantiateViewControllerWithIdentifier("noFieldsPageController")
+			pageController.setViewControllers([startingControllerWhenEmpty], direction: .Forward, animated: true, completion: nil)
 		}
 		
         fieldsPageController = pageController
@@ -119,14 +121,19 @@ class FieldsPageViewController: UIViewController, UIPageViewControllerDataSource
     override func viewDidLoad()
     {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+		createPageViewController()
+		setupPageControl()
     }
 	
 	override func viewWillAppear(animated: Bool)
 	{
-		createPageViewController()
-		setupPageControl()
+		fields = Field.getAll()
+		
+		if fields != nil {
+			startingController = self.storyboard!.instantiateViewControllerWithIdentifier("FieldContentController") as! FieldViewController
+			startingController.field = fields![0]
+			fieldsPageController.setViewControllers([startingController], direction: .Forward, animated: true, completion: nil)
+		}
 	}
 
     override func didReceiveMemoryWarning()

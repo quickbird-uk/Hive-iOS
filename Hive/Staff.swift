@@ -158,9 +158,15 @@ class Staff: NSManagedObject
         }
     }
 	
-    class func getAll() -> [Staff]?
+	class func getAll(filter: String = "", orgID: Int = 0) -> [Staff]?
     {
         let request = NSFetchRequest(entityName: Staff.entityName)
+		
+		if filter == "forOrganisation"
+		{
+			request.predicate = NSPredicate(format: "onOrganisationID == %d", orgID)
+		}
+		
         do {
             let result = try Data.shared.permanentContext.executeFetchRequest(request) as? [Staff]
             print("\nTotal number of staff in main context = \(result?.count)")

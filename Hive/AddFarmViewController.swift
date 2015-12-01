@@ -35,9 +35,11 @@ class AddFarmViewController: UITableViewController
 			}
 			
 			newOrg!.moveToPersistentStore()
-			
-			dispatch_async(dispatch_get_main_queue()) {
-				self.dismissViewControllerAnimated(true, completion: nil)
+			HiveService.shared.download(User.get()!) {
+				(error) in
+				dispatch_async(dispatch_get_main_queue()) {
+					self.dismissViewControllerAnimated(true, completion: nil)
+				}
 			}
 		}
 	}
