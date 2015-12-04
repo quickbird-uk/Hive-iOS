@@ -50,6 +50,30 @@ class AddStaffViewController: UITableViewController, OptionsListDataSource
 	
 	@IBAction func add(sender: UIBarButtonItem)
 	{
+		if contactCell.selectedOption == "Select"
+		{
+			let alert = UIAlertController(
+				title: "Oops!",
+				message: "Please select a contact before proceeding.",
+				preferredStyle: .ActionSheet)
+			let cancelAction = UIAlertAction(title: "Ok", style: .Cancel, handler: nil)
+			alert.addAction(cancelAction)
+			self.presentViewController(alert, animated: true, completion: nil)
+			return
+		}
+		
+		if roleCell.selectedOption == "Select"
+		{
+			let alert = UIAlertController(
+				title: "Oops!",
+				message: "Please assign a role before proceeding.",
+				preferredStyle: .ActionSheet)
+			let cancelAction = UIAlertAction(title: "Ok", style: .Cancel, handler: nil)
+			alert.addAction(cancelAction)
+			self.presentViewController(alert, animated: true, completion: nil)
+			return
+		}
+		
 		let staff = Staff.temporary()
 		staff.personID = selectedContact.friendID
 		print(organisation)
@@ -64,8 +88,16 @@ class AddStaffViewController: UITableViewController, OptionsListDataSource
 				}
 			}
 			else {
-				let errorMessage = error ?? "Something bad happened"
-				self.showError(errorMessage)
+				dispatch_async(dispatch_get_main_queue()) {
+					let errorMessage = error ?? "Something bad happened"
+					let alert = UIAlertController(
+						title: "Oops!",
+						message: errorMessage,
+						preferredStyle: .ActionSheet)
+					let cancelAction = UIAlertAction(title: "Ok", style: .Cancel, handler: nil)
+					alert.addAction(cancelAction)
+					self.presentViewController(alert, animated: true, completion: nil)
+				}
 			}
 		}
 	}

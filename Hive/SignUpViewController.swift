@@ -151,7 +151,7 @@ class SignUpViewController: UITableViewController, UITextFieldDelegate, LegalDat
 	
 	override func viewWillAppear(animated: Bool)
 	{
-		navigationItem.title = "Sign up for Hive"
+		navigationItem.title = "Get a Quickbird Account"
 		guard termsOfServiceCell.accessoryType == .Checkmark && privacyPolicyCell.accessoryType == .Checkmark else
 		{
 			signupCell.buttonFaded = true
