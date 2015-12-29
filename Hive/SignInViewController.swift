@@ -127,22 +127,29 @@ class SignInViewController: UITableViewController, UITextFieldDelegate
             // Login successful. Set access token & expiration
 				self.tempUser.accessToken = newToken
 				self.tempUser.accessExpiresOn = tokenExpiryDate
-				let user = self.tempUser.moveToPersistentStore()
                     
             // Update other user details
-				HiveService.shared.getUser(user!) {
-					(didGet, newUser, error) in
+                if let user = self.tempUser.moveToPersistentStore()
+                {
+                    HiveService.shared.getUser(user) {
+                        (didGet, newUser, error) in
 					
-					guard didGet && newUser != nil else {
-						return
-					}
+                        guard didGet && newUser != nil else {
+                            return
+                        }
 					
-					user!.updatedWithDetailsFromUser(newUser!)
-					dispatch_async(dispatch_get_main_queue()) {
-						self.signInButtonCell.buttonTitle = "Let's start."
-						self.performSegueWithIdentifier("verifyPhone", sender: nil)
-					}
-				}
+                        user.updatedWithDetailsFromUser(newUser!)
+                        dispatch_async(dispatch_get_main_queue()) {
+                            self.signInButtonCell.buttonTitle = "Let's start."
+                            self.performSegueWithIdentifier("verifyPhone", sender: nil)
+                        }
+                    }
+                }
+                else {
+                    dispatch_async(dispatch_get_main_queue()) {
+                        self.showError("Couldn't save your details.")
+                    }
+                }
             }
         }
         
@@ -256,15 +263,21 @@ class SignInViewController: UITableViewController, UITextFieldDelegate
         if segue.identifier == "verifyPhone"
         {
             let destination = segue.destinationViewController as! VerifyPhoneViewController
+            
+            // Using password to sign in, still need to send SMS and verify code
             if !hidePasswordCell
             {
                 destination.user = User.get()
-                destination.isUsingTempUser = false
+                destination.usingTempUser = false
+                destination.shouldSendSMSOnLoad = true
             }
+            
+            // SMS already sent, just need to verify code
             else
             {
                 destination.user = tempUser
-                destination.isUsingTempUser = true
+                destination.usingTempUser = true
+                destination.shouldSendSMSOnLoad = false
             }
         }
     }

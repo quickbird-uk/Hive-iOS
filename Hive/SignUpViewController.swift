@@ -215,7 +215,8 @@ class SignUpViewController: UITableViewController, UITextFieldDelegate, LegalDat
         {
             let destination = segue.destinationViewController as! VerifyPhoneViewController
             destination.user = User.get()
-            destination.isUsingTempUser = false
+            destination.usingTempUser = false
+            destination.shouldSendSMSOnLoad = true
         }
 		
 		if segue.identifier == "showTOS" || segue.identifier == "accessoryTOS"
@@ -234,7 +235,6 @@ class SignUpViewController: UITableViewController, UITextFieldDelegate, LegalDat
 			destination.senderIndexPath = tableView.indexPathForCell(privacyPolicyCell)
 			destination.documentName = "PrivacyPolicy"
 			destination.navigationItem.title = "Privacy Policy"
-
 		}
     }
 }

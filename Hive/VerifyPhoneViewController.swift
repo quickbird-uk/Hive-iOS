@@ -15,8 +15,9 @@ class VerifyPhoneViewController: UIViewController, UITextFieldDelegate
     // MARK: - Properties
     //
     
-    var isUsingTempUser: Bool?
-    var user: User?
+    var shouldSendSMSOnLoad = false
+    var usingTempUser = false
+    var user: User!
     
     //
     // MARK: - Outlets
@@ -77,20 +78,19 @@ class VerifyPhoneViewController: UIViewController, UITextFieldDelegate
 			}
 			
         // Set verified flag to true and update access token
-			
-			if self.isUsingTempUser!
+			if self.usingTempUser
 			{
-				self.user!.isVerified = true
-				self.user!.accessToken = newToken
-				self.user!.accessExpiresOn = tokenExpiryDate
-				self.user!.moveToPersistentStore()
+				self.user.isVerified = true
+				self.user.accessToken = newToken
+				self.user.accessExpiresOn = tokenExpiryDate
+				self.user.moveToPersistentStore()
 			}
 			
 			else
 			{
-				self.user!.isVerified = true
-				self.user!.accessToken = newToken
-				self.user!.accessExpiresOn = tokenExpiryDate
+				self.user.isVerified = true
+				self.user.accessToken = newToken
+				self.user.accessExpiresOn = tokenExpiryDate
 			}
 			
 			Data.shared.saveContext(message: "User phone verified. Access token and expiry date updated.")
@@ -109,14 +109,11 @@ class VerifyPhoneViewController: UIViewController, UITextFieldDelegate
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        if isUsingTempUser == false {
-            user = User.get()
-        }
         print("Verify Phone view loaded.")
-        message.text = "We need to verify your phone number before you can proceed. Please enter the code sent to +44 \(user!.phone!)"
+        message.text = "We need to verify your phone number before you can proceed. Please enter the code sent to +44 \(user.phone ?? 0123456789)"
         
     // Send SMS code
-		if isUsingTempUser! == false
+		if shouldSendSMSOnLoad
 		{
 			HiveService.shared.sendSMSCodeToUser(user!) {
 				(didSend, error) in
