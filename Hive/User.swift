@@ -193,7 +193,10 @@ extension HiveService
 		
 		user.firstName			= json[User.Key.firstName].stringValue
 		user.lastName			= json[User.Key.lastName].stringValue
-		user.phone				= json[User.Key.phone].doubleValue
+        
+        // FIXME: Investigate user.phone, it's probably not being set here
+		user.phone				= Double(json[User.Key.phone].stringValue)
+        
 		user.id					= json[User.Key.id].intValue
 		user.version				= json[User.Key.version].stringValue
 		user.markedDeleted		= json[User.Key.markedDeleted].boolValue
